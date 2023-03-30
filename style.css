@@ -1,0 +1,46 @@
+:root {
+    --dimCuadrado: 50px;
+}
+
+* {
+    color: white;
+}
+
+#cuadrao {
+    position: absolute;
+    width: var(--dimCuadrado);
+    height: var(--dimCuadrado);
+    left: 300px;
+    top: 450px;
+    background-color: white;
+}
+
+#cuadrao:hover {
+    background-color: lime;
+}
+
+body {
+    background-color: black;
+}
+
+p {
+    line-height: 50%;
+    font-family: Chiller, serif;
+    font-size: 30px;
+}
+
+.vl1 {
+    border-left: 2px solid white;
+    height: 500px;
+    position: absolute;
+    left: 300px;
+    top: 250px;
+}
+
+.vl2 {
+    border-left: 2px solid white;
+    height: 500px;
+    position: absolute;
+    left: calc(1000px + var(--dimCuadrado));
+    top: 250px;
+}
