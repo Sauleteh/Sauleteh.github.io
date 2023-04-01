@@ -1,5 +1,12 @@
+let id = null;
 function myMove() {
-    let id = null;
+    //let id = null;
+    if (id !== null)
+    {
+        // Si la partida ya está comenzada, bloquear la ejecución posterior
+        return;
+    }
+
     let isMouseHover = false;
     const elem = document.getElementById("cuadrao");
     elem.addEventListener("mouseleave", function() {
@@ -83,7 +90,10 @@ function myMove() {
         else if ((framesAcertados + framesFallados) % 1000 === 0 && (framesAcertados / (framesAcertados + framesFallados) * 100) < 80 && nivel <= 1)
         {
             // Si en 1000 frames NO se ha logrado una precisión de mínimo 80% en el nivel 1, eres un paquete
+            elem.style.top = posYi + 'px';
+            elem.style.left = posXi + 'px';
             clearInterval(id);
+            id = null;
         }
     }
 }
