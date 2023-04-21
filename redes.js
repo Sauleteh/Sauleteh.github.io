@@ -69,7 +69,13 @@ function calcularOnClick()
     let hostsOk = document.getElementById("hostsCorrectos").textContent === 'O';
     if (ipOk && hostsOk)
     {
-        console.log("Todo correcto");
+        let par = document.createElement("p");
+        let subn = document.createElement("span");
+        
+        subn.innerText = "asd\nfgh";
+        
+        par.appendChild(subn);
+        document.getElementById("inpCalcular").appendChild(par);
     }
     else console.log("Error");
 }
