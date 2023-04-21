@@ -38,7 +38,7 @@ function ipToSubnetting(ip)
     document.getElementById("ipCorrecta").innerText = "X";
     document.getElementById("ipCorrecta").style.color = "red";
 
-    if (!(ip[0][ip[0].length - 1] < '9' && ip[0][ip[0].length - 1] > '0' || ip[0][ip[0].length - 1] === '.'))
+    if (!(ip[0][ip[0].length - 1] <= '9' && ip[0][ip[0].length - 1] >= '0' || ip[0][ip[0].length - 1] === '.'))
     {
         document.getElementById("inpDir").value = ip[0].substring(0, ip[0].length - 1);
     }
@@ -46,7 +46,7 @@ function ipToSubnetting(ip)
 
 function checkHosts(hosts)
 {
-    if (!(hosts[hosts.length - 1] < '9' && hosts[hosts.length - 1] > '0' || hosts[hosts.length - 1] === ',' && hosts[hosts.length - 2] !== ','))
+    if (!(hosts[hosts.length - 1] <= '9' && hosts[hosts.length - 1] >= '0' || hosts[hosts.length - 1] === ',' && hosts[hosts.length - 2] !== ','))
     {
         document.getElementById("inpHosts").value = hosts.substring(0, hosts.length - 1);
     }
