@@ -75,7 +75,7 @@ function calcularOnClick()
         subn.innerText = "asd\nfgh";
         
         par.appendChild(subn);
-        document.getElementById("inpCalcular").appendChild(par);
+        document.getElementById("inpCalcular").parentNode.appendChild(par);
     }
     else console.log("Error");
 }
