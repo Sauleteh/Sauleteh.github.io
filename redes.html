@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Apoyo redes</title>
+    <link rel="stylesheet" href="redes.css">
+    <script src="redes.js"></script>
+</head>
+<body>
+    <h1>Auto subnetting</h1>
+    <div>
+        <label>Introduce una IP junto con la máscara de subred (Ej: 1.2.3.4/24): </label>
+        <input type="text" oninput="ipToSubnetting(this.value)" id="inpDir">
+        <label id="ipCorrecta" style="color: red">X</label>
+    </div>
+    <div>
+        <label>Introduce los hosts separados por comas y de mayor a menor (Ej: 50,15,13,9,5): </label>
+        <input type="text" oninput="checkHosts(this.value)" id="inpHosts">
+        <label id="hostsCorrectos" style="color: red">X</label>
+    </div>
+    <br>
+    <input type="button" onclick="calcularOnClick()" value="Calcular subnetting">
+</body>
+</html>
