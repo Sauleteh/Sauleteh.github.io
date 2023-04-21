@@ -38,7 +38,7 @@ function ipToSubnetting(ip)
     document.getElementById("ipCorrecta").innerText = "X";
     document.getElementById("ipCorrecta").style.color = "red";
 
-    if (!((ip[0][ip[0].length - 1] <= '9' && ip[0][ip[0].length - 1] >= '0') || (ip[0][ip[0].length - 1] === '.' && ip[0][ip[0].length - 1] !== '.')))
+    if (!((ip[0][ip[0].length - 1] <= '9' && ip[0][ip[0].length - 1] >= '0') || (ip[0][ip[0].length - 1] === '.' && ip[0][ip[0].length - 2] !== '.')))
     {
         document.getElementById("inpDir").value = ip[0].substring(0, ip[0].length - 1);
     }
