@@ -7,18 +7,24 @@
     <script src="redes.js"></script>
 </head>
 <body>
-    <h1>Auto subnetting</h1>
-    <div>
-        <label>Introduce una IP junto con la máscara de subred (Ej: 1.2.3.4/24): </label>
-        <input type="text" oninput="ipToSubnetting(this.value)" id="inpDir">
-        <label id="ipCorrecta" style="color: red">X</label>
-    </div>
-    <div>
-        <label>Introduce los hosts separados por comas y de mayor a menor (Ej: 50,15,13,9,5): </label>
-        <input type="text" oninput="checkHosts(this.value)" id="inpHosts">
-        <label id="hostsCorrectos" style="color: red">X</label>
-    </div>
+    <h1>Auto subnetting sin saltín</h1>
+    <table>
+        <tr>
+            <td style="text-align: left;"><label onclick="autoIP()">Introduce una IP y la máscara de subred (Ej: 192.168.100.0/24)</label></td>
+            <td><input type="text" oninput="ipToSubnetting(this.value)" id="inpDir"></td>
+            <td><label id="ipCorrecta" style="color: red">X</label></td>
+        </tr>
+        <tr>
+            <td style="text-align: left;"><label onclick="autoHosts()">Introduce los hosts separados por comas (Ej: 5,13,7,28,35,4)</label></td>
+            <td><input type="text" oninput="checkHosts(this.value)" id="inpHosts"></td>
+            <td><label id="hostsCorrectos" style="color: red">X</label></td>
+        </tr>
+    </table>
+    <br>
+    <span><i>* Modo de empleo: Escribe la red inicial y los hosts (no equipos). Los hosts se reordenarán de forma<br>automática de mayor a menor para que no haga falta realizar saltines.</i></span>
+    <br>
     <br>
     <input type="button" onclick="calcularOnClick()" value="Calcular subnetting" id="inpCalcular">
+    <p><span id="textoSubn"></span></p>
 </body>
 </html>
