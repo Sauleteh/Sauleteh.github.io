@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Título de prueba</title>
+    <link rel="stylesheet" href="punteria.css">
+    <script src="punteria.js"></script>
+</head>
+<body>
+    <p id="texto" onclick="myMove()">Click aquí para empezar</p> <br>
+    <p id="precision">Precisi&oacute;n: NaN%</p>
+    <p id="fAcertados">Frames acertados: 0</p>
+    <p id="fFallados">Frames fallados: 0</p>
+    <p id="nivel">Nivel: 1</p>
+    <div><label>
+        <input type="range" min="10" max="100" value="50" oninput="changeTam(this.value)">
+    </label></div>
+    <div class="vl1"></div>
+    <div id="cuadrao"></div>
+    <div class="vl2"></div>
+</body>
+</html>
