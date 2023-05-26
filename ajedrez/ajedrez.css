@@ -1,0 +1,69 @@
+:root {
+    --claro: #ffedba;
+    --oscuro: #b88b5c;
+}
+
+body {
+    background-color: #666666;
+}
+
+td {
+    padding: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+table {
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+tr:first-of-type > td:not(:first-child) {
+    border-top: black 1px solid;
+}
+tr:not(:last-child) > td:last-child {
+    border-right: black 1px solid;
+}
+tr:last-of-type > td:not(:first-child) {
+    border-top: black 1px solid;
+    text-align: center;
+    vertical-align: top;
+    font-weight: bold;
+    font-size: 13pt;
+}
+tr:not(:last-child) > td:first-child {
+    border-right: black 1px solid;
+    text-align: end;
+    font-weight: bold;
+    font-size: 13pt;
+}
+
+tr:not(:last-child) > td:not(:first-child) {
+    text-indent: -99999em;
+    background-size: 60px;
+    overflow: hidden;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+td[data-pieza="R1"] { background-image: url("piezas/B_rey.png"); }
+td[data-pieza="D1"] { background-image: url("piezas/B_reina.png"); }
+td[data-pieza="T1"] { background-image: url("piezas/B_torre.png"); }
+td[data-pieza="C1"] { background-image: url("piezas/B_caballo.png"); }
+td[data-pieza="A1"] { background-image: url("piezas/B_alfil.png"); }
+td[data-pieza="P1"] { background-image: url("piezas/B_peon.png"); }
+
+td[data-pieza="R2"] { background-image: url("piezas/N_rey.png"); }
+td[data-pieza="D2"] { background-image: url("piezas/N_reina.png"); }
+td[data-pieza="T2"] { background-image: url("piezas/N_torre.png"); }
+td[data-pieza="C2"] { background-image: url("piezas/N_caballo.png"); }
+td[data-pieza="A2"] { background-image: url("piezas/N_alfil.png"); }
+td[data-pieza="P2"] { background-image: url("piezas/N_peon.png"); }
+
+.claro {
+    background-color: var(--claro);
+}
+
+.oscuro {
+    background-color: var(--oscuro);
+}

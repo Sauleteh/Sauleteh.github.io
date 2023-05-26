@@ -1,0 +1,19 @@
+Por cada jugador se tiene:
+- Un rey (R)
+- Una reina/dama (D)
+- Dos alfiles (A)
+- Dos caballos (C)
+- Dos torres (T)
+- Ocho peones (P)
+
+Y la disposición del tablero es como prosigue (piezas blancas 1 y piezas negras 2):
+T2 C2 A2 D2 R2 A2 C2 T2
+P2 P2 P2 P2 P2 P2 P2 P2
+-  -  -  -  -  -  -  -
+-  -  -  -  -  -  -  -
+-  -  -  -  -  -  -  -
+-  -  -  -  -  -  -  -
+P1 P1 P1 P1 P1 P1 P1 P1
+T1 C1 A1 D1 R1 A1 C1 T1
+Importante: al programar la lógica de movimiento de las piezas negras se toma la definición de izquierda y derecha igual que
+con las piezas blancas.
