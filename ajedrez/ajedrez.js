@@ -18,6 +18,7 @@ let tablero = [
     ["", "", "", "", "", "", "", ""],
     ["P1", "P1", "P1", "P1", "P1", "P1", "P1", "P1"],
     ["T1", "C1", "A1", "D1", "R1", "A1", "C1", "T1"]];
+let partidaTerminada = 0; // 0: false, 1: true
 
 /**
  * Función principal. Se encarga de procesar los clicks que se hacen en el tablero
@@ -26,6 +27,7 @@ let tablero = [
  */
 function procesarClick(pos, pieza)
 {
+    if (partidaTerminada === 1) return;
     console.log(pos, pieza);
 
     if (pieza.charAt(1) === turno) // Si se hizo click en la pieza del usuario del turno...
@@ -36,7 +38,6 @@ function procesarClick(pos, pieza)
     else if (validarMovimiento(posSeleccionada, pos, piezaSeleccionada)) // Si se intentó hacer un movimiento válido...
     {
         procesarMovimiento(posSeleccionada, pos, piezaSeleccionada);
-        turno = (turno === '1') ? '2' : '1';
         posSeleccionada = "";
         piezaSeleccionada = "";
     }
@@ -56,28 +57,36 @@ function procesarMovimiento(pos_inicial, pos_final, pieza)
     document.getElementById(pos_inicial).dataset.pieza = "";
     tablero[posIni[0]][posIni[1]] = "";
 
+    let piezaComida = document.getElementById(pos_final).dataset.pieza;
+
     document.getElementById(pos_final).dataset.pieza = pieza;
     tablero[posFin[0]][posFin[1]] = pieza;
+
+    if (piezaComida.charAt(0) === 'R') // Si se comió al rey, se terminó la partida
+    {
+        console.log("Partida terminada, ganaron las piezas " + (piezaComida.charAt(1) === '1' ? "negras" : "blancas"));
+        partidaTerminada = 1;
+    }
+    else
+    {
+        turno = (turno === '1') ? '2' : '1';
+        if (turno === '1' && document.getElementById("iaBlanco").checked) pensarMovimientoIA();
+        else if (turno === '2' && document.getElementById("iaNegro").checked) pensarMovimientoIA();
+    }
 }
 
 /**
- * Se encarga de validar si un movimiento se considera válido o no dependiendo de la pieza y su posición en el tablero
- * @param pos_inicial es la posición donde está ubicada la pieza seleccionada
- * @param pos_final es la posición donde se quiere ubicar la pieza seleccionada
- * @param pieza es el tipo de pieza a mover
- * @return {boolean} true si el movimiento es válido, false en caso contrario
+ * Función que registra las posiciones a las que puede moverse una pieza dependiendo de su posición actual y el tipo de pieza
+ * @param pos_inicial es la posición donde se encuentra la pieza. Es un string que indica la casilla en el formato de ajedrez ("d4", "g1"...).
+ * @param pieza es la pieza a analizar.
+ * @return {*[]} la lista de movimientos válidos.
  */
-function validarMovimiento(pos_inicial, pos_final, pieza)
+function posicionesValidas(pos_inicial, pieza)
 {
-    if (pos_inicial === "") return false;
-
     let posIni = posToArray(pos_inicial);
-    let posFin = posToArray(pos_final);
     let posValidas = [];
     let seguirOrtogonal = [true, true, true, true]; // Arriba, derecha, abajo, izquierda
     let seguirDiagonal = [true, true, true, true]; // Superior-derecha, inferior-derecha, inferior-izquierda, superior-izquierda
-
-    console.log(posIni, posFin);
 
     if (pieza.charAt(0) === 'P') // Validar movimiento del peón
     {
@@ -87,17 +96,17 @@ function validarMovimiento(pos_inicial, pos_final, pieza)
         * denomina como "captura de peón al paso" pero de momento no lo implementaré. */
         if (pieza.charAt(1) === '1') // Si es un peón blanco...
         {
-            if (tablero[posIni[0] - 1][posIni[1]] === "") posValidas.push([posIni[0] - 1, posIni[1]]); // Movimiento de un escaque
-            if (tablero[posIni[0] - 1][posIni[1]] === "" && posIni[0] === 6 && tablero[posIni[0] - 2][posIni[1]] === "") posValidas.push([posIni[0] - 2, posIni[1]]); // Movimiento de dos escaques
-            if (posIni[1] - 1 >= 0 && tablero[posIni[0] - 1][posIni[1] - 1].charAt(1) === '2') posValidas.push([posIni[0] - 1, posIni[1] - 1]); // Escaque de captura izquierda
-            if (posIni[1] + 1 <= 7 && tablero[posIni[0] - 1][posIni[1] + 1].charAt(1) === '2') posValidas.push([posIni[0] - 1, posIni[1] + 1]); // Escaque de captura derecha
+            if (posIni[0] - 1 >= 0 && tablero[posIni[0] - 1][posIni[1]] === "") posValidas.push([posIni[0] - 1, posIni[1]]); // Movimiento de un escaque
+            if (posIni[0] - 1 >= 0 && tablero[posIni[0] - 1][posIni[1]] === "" && posIni[0] === 6 && tablero[posIni[0] - 2][posIni[1]] === "") posValidas.push([posIni[0] - 2, posIni[1]]); // Movimiento de dos escaques
+            if (posIni[0] - 1 >= 0 && posIni[1] - 1 >= 0 && tablero[posIni[0] - 1][posIni[1] - 1].charAt(1) === '2') posValidas.push([posIni[0] - 1, posIni[1] - 1]); // Escaque de captura izquierda
+            if (posIni[0] - 1 >= 0 && posIni[1] + 1 <= 7 && tablero[posIni[0] - 1][posIni[1] + 1].charAt(1) === '2') posValidas.push([posIni[0] - 1, posIni[1] + 1]); // Escaque de captura derecha
         }
         else // Si es un peón negro...
         {
-            if (tablero[posIni[0] + 1][posIni[1]] === "") posValidas.push([posIni[0] + 1, posIni[1]]); // Movimiento de un escaque
-            if (tablero[posIni[0] + 1][posIni[1]] === "" && posIni[0] === 1 && tablero[posIni[0] + 2][posIni[1]] === "") posValidas.push([posIni[0] + 2, posIni[1]]); // Movimiento de dos escaques
-            if (posIni[1] - 1 >= 0 && tablero[posIni[0] + 1][posIni[1] - 1].charAt(1) === '1') posValidas.push([posIni[0] + 1, posIni[1] - 1]); // Escaque de captura izquierda
-            if (posIni[1] + 1 <= 7 && tablero[posIni[0] + 1][posIni[1] + 1].charAt(1) === '1') posValidas.push([posIni[0] + 1, posIni[1] + 1]); // Escaque de captura derecha
+            if (posIni[0] + 1 <= 7 && tablero[posIni[0] + 1][posIni[1]] === "") posValidas.push([posIni[0] + 1, posIni[1]]); // Movimiento de un escaque
+            if (posIni[0] + 1 <= 7 && tablero[posIni[0] + 1][posIni[1]] === "" && posIni[0] === 1 && tablero[posIni[0] + 2][posIni[1]] === "") posValidas.push([posIni[0] + 2, posIni[1]]); // Movimiento de dos escaques
+            if (posIni[0] + 1 <= 7 && posIni[1] - 1 >= 0 && tablero[posIni[0] + 1][posIni[1] - 1].charAt(1) === '1') posValidas.push([posIni[0] + 1, posIni[1] - 1]); // Escaque de captura izquierda
+            if (posIni[0] + 1 <= 7 && posIni[1] + 1 <= 7 && tablero[posIni[0] + 1][posIni[1] + 1].charAt(1) === '1') posValidas.push([posIni[0] + 1, posIni[1] + 1]); // Escaque de captura derecha
         }
     }
     else if (pieza.charAt(0) === 'T') // Validar movimiento de la torre
@@ -207,10 +216,27 @@ function validarMovimiento(pos_inicial, pos_final, pieza)
         if (posIni[1] - 1 >= 0 && (tablero[posIni[0]][posIni[1] - 1] === "" || tablero[posIni[0]][posIni[1] - 1].charAt(1) === (pieza.charAt(1) === '1' ? '2' : '1'))) posValidas.push([posIni[0], posIni[1] - 1]); // Izquierda
         if (posIni[0] - 1 >= 0 && posIni[1] - 1 >= 0 && (tablero[posIni[0] - 1][posIni[1] - 1] === "" || tablero[posIni[0] - 1][posIni[1] - 1].charAt(1) === (pieza.charAt(1) === '1' ? '2' : '1'))) posValidas.push([posIni[0] - 1, posIni[1] - 1]); // Arriba-izquierda
     }
-    else return false;
+
+    return posValidas;
+}
+
+/**
+ * Se encarga de validar si un movimiento se considera válido o no dependiendo de la pieza y su posición en el tablero
+ * @param pos_inicial es la posición donde está ubicada la pieza seleccionada
+ * @param pos_final es la posición donde se quiere ubicar la pieza seleccionada
+ * @param pieza es el tipo de pieza a mover
+ * @return {boolean} true si el movimiento es válido, false en caso contrario
+ */
+function validarMovimiento(pos_inicial, pos_final, pieza)
+{
+    if (pos_inicial === "") return false;
+
+    let posFin = posToArray(pos_final);
+    let posValidas = posicionesValidas(pos_inicial, pieza);
 
     console.log(posValidas);
     console.log(posValidas.includes(posFin));
+
     return posValidas.some((elem) => elem[0] === posFin[0] && elem[1] === posFin[1]);
 }
 
@@ -236,6 +262,31 @@ function posToArray(pos)
         case 'h': ij[1] = 7; break;
     }
     return ij;
+}
+
+/**
+ * Transforma una posición en formato array [fila, columna] al formato de ajedrez ("d4", "f8"...)
+ * @param array es la posición a transformar que contiene la fila y la columna
+ * @return {string} la casilla en formato ajedrez
+ */
+function arrayToPos(array)
+{
+    let pos = "";
+
+    switch (array[1])
+    {
+        case 0: pos += 'a'; break;
+        case 1: pos += 'b'; break;
+        case 2: pos += 'c'; break;
+        case 3: pos += 'd'; break;
+        case 4: pos += 'e'; break;
+        case 5: pos += 'f'; break;
+        case 6: pos += 'g'; break;
+        case 7: pos += 'h'; break;
+    }
+    pos += 8 - array[0];
+
+    return pos;
 }
 
 /**
@@ -267,3 +318,45 @@ function tableroString()
     }
     return str;
 }
+
+/**
+ * Si se activó la IA de uno de los lados cuando le tocaba mover pieza en ese mismo turno, le pedimos a la IA que ejecute un movimiento
+ * @param estado es el estado del checkbox (checked)
+ * @param color es el color de las piezas de las que se activó la IA ('1' para las blancas y '2' para las negras)
+ */
+function activarIA(estado, color)
+{
+    if (estado && turno === color) pensarMovimientoIA();
+}
+
+/**
+ * Núcleo de la inteligencia artificial. Piensa un movimiento y lo ejecuta
+ */
+function pensarMovimientoIA()
+{
+    let piezas = [];
+    for (let i = 0; i < 8; i++)
+    {
+        for (let j = 0; j < 8; j++)
+        {
+            if (tablero[i][j].charAt(1) === turno) piezas.push([{fila: i, columna: j}, tablero[i][j]])
+        }
+    }
+    let escogido;
+    let casillaEscogida;
+    let posValidas = [];
+
+    while (posValidas.length === 0)
+    {
+        escogido = getRandomInt(piezas.length);
+        casillaEscogida = arrayToPos([piezas[escogido][0].fila, piezas[escogido][0].columna]);
+        console.log(piezas[escogido]);
+        console.log(casillaEscogida);
+        posValidas = posicionesValidas(casillaEscogida, piezas[escogido][1]);
+    }
+    let posFinEscogida = arrayToPos(posValidas[getRandomInt(posValidas.length)]);
+
+    procesarMovimiento(casillaEscogida, posFinEscogida, piezas[escogido][1]);
+}
+
+function getRandomInt(max) { return Math.floor(Math.random() * max); }
