@@ -4,7 +4,7 @@
 }
 
 body {
-    background-color: #666666;
+    background-color: #000000;
 }
 
 td {
@@ -13,26 +13,31 @@ td {
     height: 20px;
 }
 
+h1, td, label {
+    font-family: 'Raleway', monospace;
+    color: white;
+}
+
 table {
     border-spacing: 0;
     border-collapse: collapse;
 }
 
 tr:first-of-type > td:not(:first-child) {
-    border-top: black 1px solid;
+    border-top: rgb(255, 255, 255) 1px solid;
 }
 tr:not(:last-child) > td:last-child {
-    border-right: black 1px solid;
+    border-right: rgb(255, 255, 255) 1px solid;
 }
 tr:last-of-type > td:not(:first-child) {
-    border-top: black 1px solid;
+    border-top: rgb(255, 255, 255) 1px solid;
     text-align: center;
     vertical-align: top;
     font-weight: bold;
     font-size: 13pt;
 }
 tr:not(:last-child) > td:first-child {
-    border-right: black 1px solid;
+    border-right: rgb(255, 255, 255) 1px solid;
     text-align: end;
     font-weight: bold;
     font-size: 13pt;

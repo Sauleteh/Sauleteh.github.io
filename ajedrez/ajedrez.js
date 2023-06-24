@@ -360,3 +360,8 @@ function pensarMovimientoIA()
 }
 
 function getRandomInt(max) { return Math.floor(Math.random() * max); }
+
+function cambiaColor(casilla, color)
+{
+    document.querySelector(':root').style.setProperty(casilla, color);
+}

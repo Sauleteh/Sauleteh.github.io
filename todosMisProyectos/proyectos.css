@@ -1,0 +1,77 @@
+body {
+    background: linear-gradient(45deg, #111314, #28292b, #292d31, #161718, #232324, #111314);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    background-size: 600% 600%;
+    animation: gradientAnimation 20s ease infinite;
+}
+
+img {
+    flex: 0 0 auto;
+    margin: 10px;
+    border-radius: 5px;
+}
+
+.contenedorProyectos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    visibility: hidden;
+}
+
+.contenedorProyectos > * {
+    visibility: visible;
+}
+
+.proyecto {
+    background-color: rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-basis: 49.4%;
+    align-items: center;
+    margin: 5px;
+    transition: background-color 0.3s ease, 0.2s all;
+    border-radius: 3px;
+}
+
+.proyecto:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.contenedorProyectos:hover .proyecto{
+    filter: blur(3px);
+    opacity: 0.5;
+    transform: scale(.98);
+    box-shadow: none;
+}
+
+.contenedorProyectos:hover .proyecto:hover{
+    transform: scale(1);
+    filter: blur(0px);
+    opacity: 1;
+    box-shadow: 0 8px 20px 0px rgba(0, 0, 0, 0.125);
+}
+
+.descripcion {
+    font-family: 'Raleway', sans-serif;
+    color: white;
+    text-align: justify;
+    margin-right: 10px;
+}
+
+.titulo {
+    font-family: 'Raleway', monospace;
+    font-size: 36px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: bold;
+    text-shadow: 0 0 2px #ffffff;
+    color: white;
+    font-style: italic;
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
