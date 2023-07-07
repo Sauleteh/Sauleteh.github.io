@@ -3,8 +3,8 @@ body {
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
-    background-size: 600% 600%;
-    animation: gradientAnimation 20s ease infinite;
+    background-size: 800% 800%;
+    animation: gradientAnimation 16s ease infinite;
 }
 
 img {
@@ -13,11 +13,48 @@ img {
     border-radius: 5px;
 }
 
+h1.titulo {
+    display: inline-block;
+    position: relative;
+    font-size: 42px;
+    font-style: normal;
+    letter-spacing: 3px;
+    transform: skewX(-10deg);
+}
+
+h1.titulo.finalizado { text-shadow: 0 0 6px #00ff00; }
+h1.titulo.finalizado::before { box-shadow: 0 0 6px #00ff00; }
+h1.titulo.wip { text-shadow: 0 0 6px #ffff00; }
+h1.titulo.wip::before { box-shadow: 0 0 6px #ffff00; }
+
+h1.titulo::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 5px;
+    background-color: white;
+    bottom: 0px;
+    left: 0px;
+    transform-origin: center;
+    transform: scaleX(0);
+    transition: transform 0.2s ease-in-out;
+}
+
+h1.titulo:hover::before {
+    transform-origin: center;
+    transform: scaleX(1);
+}
+
+.divisorProyectos {
+    text-align: center;
+}
+
 .contenedorProyectos {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     visibility: hidden;
+    text-align: left;
 }
 
 .contenedorProyectos > * {
@@ -41,7 +78,7 @@ img {
 .contenedorProyectos:hover .proyecto{
     filter: blur(3px);
     opacity: 0.5;
-    transform: scale(.98);
+    transform: scale(0.98);
     box-shadow: none;
 }
 
@@ -63,7 +100,7 @@ img {
     font-family: 'Raleway', monospace;
     font-size: 36px;
     text-transform: uppercase;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     font-weight: bold;
     text-shadow: 0 0 2px #ffffff;
     color: white;
