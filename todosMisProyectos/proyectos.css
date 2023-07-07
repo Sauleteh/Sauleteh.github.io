@@ -13,6 +13,11 @@ img {
     border-radius: 5px;
 }
 
+hr {
+    box-shadow: 0 0 6px white;
+    margin: 20px;
+}
+
 h1.titulo {
     display: inline-block;
     position: relative;
@@ -94,6 +99,12 @@ h1.titulo:hover::before {
     color: white;
     text-align: justify;
     margin-right: 10px;
+}
+
+.plataforma {
+    font-family: 'Raleway', sans-serif;
+    color: #b3b3b3;
+    font-size: 11px;
 }
 
 .titulo {
