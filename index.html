@@ -1,16 +1,276 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <title>Mi página</title>
+    <title>Proyectos personales</title>
+    <link rel="stylesheet" href="index.css">
+    <script src="index.js"></script>
 </head>
+
 <body>
-    <h1>Elige un subíndice:</h1>
-    <ul>
-        <li><a href="punteria/punteria.html">Juego de puntería</a></li>
-        <li><a href="redes/redes.html">Calculadora de subnetting</a></li>
-        <li><a href="ajedrez/ajedrez.html">Ajedrez</a></li>
-        <li><a href="todosMisProyectos/proyectos.html">Todos mis proyectos</a></li>
-    </ul>
+    <div class="divisorProyectos"> <!-- Sección de proyectos finalizados -->
+        <h1 class="titulo finalizado">Proyectos finalizados</h1>
+        <div class="contenedorProyectos">
+            <div class="proyecto nuevo" onclick="window.location.href = 'https://github.com/Sauleteh/visualizador-de-conflictos-horarios-uniovi';">
+                <img src="imgs/visualizadorHorariosUniOvi.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Visualizador de horarios de UniOvi</p>
+                    <p class="plataforma">Windows | Java</p>
+                    <p class="descripcion">
+                        Un programa creado con la finalidad de observar los horarios de UniOvi en un formato
+                        más visual, pudiendo elegir las asignaturas, las PLs y las TGs. Solo habría que dar
+                        como input los PDFs con los horarios.
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = 'punteria/punteria.html';">
+                <img src="imgs/pruebaPunteria.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Test: Juego de puntería</p>
+                    <p class="plataforma">Web | HTML, CSS y JS</p>
+                    <p class="descripcion">
+                        Un pequeño proyecto para practicar JavaScript. Se trata de una página donde
+                        un cubo de tamaño variable irá moviéndose de forma senoidal a una velocidad
+                        creciente a medida que subas de nivel manteniendo el ratón encima de él.
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = 'redes/redes.html';">
+                <img src="imgs/redesSubnetting.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Calculadora de subnetting</p>
+                    <p class="plataforma">Web | HTML, CSS y JS</p>
+                    <p class="descripcion">
+                        Una página creada para crear de forma sencilla subredes dando como entradas
+                        la IP inicial y su máscara, además de los hosts que se quiere para cada subred.
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = 'ajedrez/ajedrez.html';">
+                <img src="imgs/ajedrez.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Ajedrez</p>
+                    <p class="plataforma">Web | HTML, CSS y JS</p>
+                    <p class="descripcion">
+                        El juego clásico del ajedrez hecho en HTML, CSS y JS. Para mover las piezas hay
+                        que hacer click en una y luego en la casilla a la que se quiera mover. Modos de
+                        juego: Multijugador local, jugador contra máquina o máquina contra máquina.
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = '404.html';">
+                <img src="imgs/placeholder.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Genshin Impact: Simulador de artefactos</p>
+                    <p class="plataforma">Windows | C++</p>
+                    <p class="descripcion">
+                        Próximamente...
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = '404.html';">
+                <img src="imgs/placeholder.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Rocket League: Detector de copias de inventario</p>
+                    <p class="plataforma">Windows | Java</p>
+                    <p class="descripcion">
+                        Próximamente...
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = '404.html';">
+                <img src="imgs/placeholder.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Color Tiles</p>
+                    <p class="plataforma">Windows, Linux y macOS | Java</p>
+                    <p class="descripcion">
+                        Trabajo de... IP/MP? Próximamente...
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = '404.html';">
+                <img src="imgs/placeholder.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Juego de combate por turnos</p>
+                    <p class="plataforma">Windows, Linux y macOS | Java</p>
+                    <p class="descripcion">
+                        Trabajo Java con ventanas hecho en la asignatura CPM. Próximamente...
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = '404.html';">
+                <img src="imgs/placeholder.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Genshin Impact: Saltador de texto automático</p>
+                    <p class="plataforma">Windows | Python</p>
+                    <p class="descripcion">
+                        Próximamente...
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = '404.html';">
+                <img src="imgs/placeholder.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Valorant: Controlador de música automático</p>
+                    <p class="plataforma">Windows | Python</p>
+                    <p class="descripcion">
+                        Próximamente...
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = '404.html';">
+                <img src="imgs/placeholder.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Obtención automática de títulos de episodios para su renombrado</p>
+                    <p class="plataforma">Cualquier plataforma | Python</p>
+                    <p class="descripcion">
+                        Próximamente...
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = '404.html';">
+                <img src="imgs/placeholder.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Calculadora que funciona con cadenas de texto</p>
+                    <p class="plataforma">Cualquier plataforma | Python</p>
+                    <p class="descripcion">
+                        Próximamente...
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = '404.html';">
+                <img src="imgs/placeholder.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Estadística: Calculadora de sucesos</p>
+                    <p class="plataforma">Cualquier plataforma | Python</p>
+                    <p class="descripcion">
+                        Pruebas.py y suerte.py. Próximamente...
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = '404.html';">
+                <img src="imgs/placeholder.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Minecraft: Pack de programas LUA para OpenComputers</p>
+                    <p class="plataforma">Windows | Lua</p>
+                    <p class="descripcion">
+                        Próximamente...
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = '404.html';">
+                <img src="imgs/placeholder.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Adivina el Pokémon</p>
+                    <p class="plataforma">Linux | Bash</p>
+                    <p class="descripcion">
+                        Solo Linux. Próximamente...
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = '404.html';">
+                <img src="imgs/placeholder.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Pack de CSS para páginas web</p>
+                    <p class="plataforma">Web | CSS</p>
+                    <p class="descripcion">
+                        Lo del plugin. Próximamente...
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = '404.html';">
+                <img src="imgs/placeholder.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">IA para Pokémon Showdown</p>
+                    <p class="plataforma">Web | JavaScript</p>
+                    <p class="descripcion">
+                        Próximamente...
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = '404.html';">
+                <img src="imgs/placeholder.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Wallpaper Engine: Mis fondos animados</p>
+                    <p class="plataforma">Windows | HTML, CSS y JS</p>
+                    <p class="descripcion">
+                        Próximamente...
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = '404.html';">
+                <img src="imgs/placeholder.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Sudoku dibujando a mano</p>
+                    <p class="plataforma">Windows | C#</p>
+                    <p class="descripcion">
+                        Próximamente...
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = '404.html';">
+                <img src="imgs/placeholder.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Bingo con detección de voz</p>
+                    <p class="plataforma">Android | Kotlin</p>
+                    <p class="descripcion">
+                        Próximamente...
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = '404.html';">
+                <img src="imgs/placeholder.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Página web Pokémon</p>
+                    <p class="plataforma">Web | HTML, CSS y JS</p>
+                    <p class="descripcion">
+                        Trabajo HTML, CSS y JS hecho en la asignatura CPM. Próximamente...
+                    </p>
+                </div>
+            </div>
+            <div class="proyecto" onclick="window.location.href = '404.html';">
+                <img src="imgs/placeholder.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Encriptador y desencriptador de archivos .keyx</p>
+                    <p class="plataforma">Windows | C</p>
+                    <p class="descripcion">
+                        Próximamente...
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <hr>
+    <div class="divisorProyectos"> <!-- Sección de proyectos en progreso -->
+        <h1 class="titulo wip">Proyectos en desarrollo</h1>
+        <div class="contenedorProyectos">
+            <div class="proyecto" onclick="window.location.href = '404.html';">
+                <img src="imgs/placeholder.png" width="300px">
+                <div class="texto">
+                    <p class="titulo">Juego de flecha que va muy rápido</p>
+                    <p class="plataforma">Windows | C#</p>
+                    <p class="descripcion">
+                        Hecho en Unity. Mueves a una flecha lateralmente mientras avanza automáticamente
+                        por un plano 3D teniendo que esquivar obstáculos.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+
+    <div style="display: none;" class="proyecto" onclick="window.location.href = '404.html';">
+        <img src="imgs/placeholder.png" width="300px">
+        <div class="texto">
+            <p class="titulo">Título del proyecto</p>
+            <p class="plataforma">Plataforma y lenguaje</p>
+            <p class="descripcion">
+                Descripción resumida del proyecto
+            </p>
+        </div>
+    </div>
 </body>
+
 </html>
