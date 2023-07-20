@@ -1,0 +1,14 @@
+{
+  "name": "uo279176.github.io",
+  "version": "1.0.0",
+  "description": "Mi página",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sauleteh",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "eslint": "^8.45.0"
+  }
+}

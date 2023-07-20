@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable indent */
+/* eslint-disable quotes */
 /* TODO:
 *   - Resaltar casillas válidas cuando se selecciona una pieza
 *   - Registro de movimientos
@@ -339,7 +342,7 @@ function pensarMovimientoIA()
     {
         for (let j = 0; j < 8; j++)
         {
-            if (tablero[i][j].charAt(1) === turno) piezas.push([{fila: i, columna: j}, tablero[i][j]])
+            if (tablero[i][j].charAt(1) === turno) piezas.push([{fila: i, columna: j}, tablero[i][j]]);
         }
     }
     let escogido;

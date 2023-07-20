@@ -1,3 +1,6 @@
+/* eslint-disable quotes */
+/* eslint-disable indent */
+/* eslint-disable no-unused-vars */
 let masksIP =   ["0.0.0.0", "128.0.0.0", "192.0.0.0", "224.0.0.0", "240.0.0.0", "248.0.0.0", "252.0.0.0", "254.0.0.0", "255.0.0.0", "255.128.0.0", "255.192.0.0",
                 "255.224.0.0", "255.240.0.0", "255.248.0.0", "255.252.0.0", "255.254.0.0", "255.255.0.0", "255.255.128.0", "255.255.192.0", "255.255.224.0", "255.255.240.0", "255.255.248.0",
                 "255.255.252.0", "255.255.254.0", "255.255.255.0", "255.255.255.128", "255.255.255.192", "255.255.255.224", "255.255.255.240", "255.255.255.248", "255.255.255.252", "255.255.255.254", "255.255.255.255"];
@@ -127,14 +130,14 @@ function calcularOnClick()
             subnet += hosts[i] + " hosts - Máscara /";
 
             let nMask = -1; // Máscara de la subred
-            let j = 0
+            let j = 0;
             while (j <= 32 && nMask === -1) // Se recorren todas las máscaras existentes para ver si entran los hosts
             {
                 if (Math.pow(2, j) - hosts[i] >= 0) // Si la cantidad máxima de hosts es suficiente para los hosts deseados...
                 {
                     nMask = 32 - j;
                 }
-                j++
+                j++;
             }
             if (nMask === -1) return;
 

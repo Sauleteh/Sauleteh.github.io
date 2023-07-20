@@ -1,3 +1,5 @@
+/* eslint-disable quotes */
+/* eslint-disable no-unused-vars */
 let id = null;
 function myMove() {
     //let id = null;
