@@ -123,15 +123,37 @@ h1.titulo:hover::before {
     font-family: 'Raleway', sans-serif;
     font-size: 12px;
     text-transform: uppercase;
-    font-weight: bold;
-    font-style: italic;
-    color: rgb(255, 255, 0);
-    animation: newAnimation 6s linear infinite;
+    font-weight: 900;
+    color: yellow;
     text-shadow: 0 0 8px rgb(255, 255, 0);
     content: 'Nuevo';
     position: absolute;
     top: 10px;
-    left: 10px;
+    right: 10px;
+    background: linear-gradient(to right, yellow, white, yellow, white, rgb(255, 94, 0), yellow, white, yellow, white, yellow, white);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-size: 400% auto;
+    animation: gradientAnimationNew 6s linear infinite;
+    width: 100%;
+    text-align: right;
+}
+
+.progreso::after {
+    font-family: 'Raleway', sans-serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-style: italic;
+    color: #00ff00;
+    text-shadow: 0 0 8px #70ff70;
+    content: 'Sigue en desarrollo';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 100%;
+    text-align: right;
 }
 
 @keyframes gradientAnimation {
@@ -140,8 +162,8 @@ h1.titulo:hover::before {
     100% { background-position: 0% 50%; }
 }
 
-@keyframes newAnimation {
-    0% { color: yellow; text-shadow: 0 0 8px rgb(255, 255, 0); }
-    8% { color: white; text-shadow: 0 0 8px white; }
-    16% { color: yellow; text-shadow: 0 0 8px rgb(255, 255, 0); }
+@keyframes gradientAnimationNew {
+    0% { background-position: 0% 50%; text-shadow: 0 0 8px yellow; }
+    5% { background-position: 65% 50%; text-shadow: 0 0 15px rgb(255, 180, 0); }
+    100% { background-position: 100% 50%; text-shadow: 0 0 8px yellow; }
 }
