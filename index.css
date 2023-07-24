@@ -90,6 +90,7 @@ p.titulo {
     transition: background-color 0.3s ease, 0.2s all;
     border-radius: 3px;
     min-width: 650px;
+    cursor: pointer;
 }
 
 .proyecto:hover {
