@@ -3,9 +3,8 @@
     <head>
         <meta charset="UTF-8">
         <title>Ajedrez</title>
-        
-      <script type="module" crossorigin src="../../assets/modulepreload-polyfill-3cfb730f.js"></script>
-      <link rel="stylesheet" href="../../assets/ajedrez-79eaa361.css">
+        <link rel="stylesheet" href="ajedrez.css">
+        <script src="ajedrez.js"></script>
     </head>
     <body>
         <h1>Ajedrez</h1>
@@ -27,7 +26,5 @@
         <br><input type="button" onclick="debug()" value="Debug"><br><br>
         <label>Color de las casillas claras:&nbsp;&nbsp;</label><input type="color" oninput="cambiaColor('--claro', this.value)" value='#ffedba'><bR>
         <label>Color de las casillas oscuras:&nbsp;</label><input type="color" oninput="cambiaColor('--oscuro', this.value)" value='#b88b5c'>
-        
-        
     </body>
 </html>

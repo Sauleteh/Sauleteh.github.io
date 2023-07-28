@@ -1,0 +1,80 @@
+:root {
+    --dimCuadrado: 50px;
+}
+
+* {
+    color: white;
+}
+
+#cuadrao {
+    position: absolute;
+    width: var(--dimCuadrado);
+    height: var(--dimCuadrado);
+    left: 300px;
+    top: 450px;
+    background-color: white;
+}
+
+#cuadrao:hover {
+    background-color: lime;
+}
+
+#texto {
+    font-weight: bold;
+    color: yellow;
+    position: absolute;
+    left: 300px;
+    top: 180px;
+}
+
+#nivel {
+    position: absolute;
+    left: 300px;
+    top: 760px;
+}
+
+body {
+    background-color: black;
+}
+
+p {
+    line-height: 50%;
+    font-family: 'Raleway', monospace;
+    font-size: 22px;
+}
+
+label {
+    line-height: 50%;
+    font-family: 'Raleway', monospace;
+    font-size: 16px;
+}
+
+.vl1 {
+    border-left: 2px solid white;
+    height: 500px;
+    position: absolute;
+    left: 300px;
+    top: 250px;
+}
+
+.vl2 {
+    border-left: 2px solid white;
+    height: 500px;
+    position: absolute;
+    left: calc(1000px + var(--dimCuadrado));
+    top: 250px;
+}
+
+.tamCuadrado {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    left: 30px;
+    top: 460px;
+    justify-content: center;
+    align-items: center;
+}
+
+.tamCuadrado > input {
+    margin-top: 10px;
+}
