@@ -1,6 +1,7 @@
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types"
+import placeholder from "./assets/placeholder.png"
 
-export function Proyecto({thumbnail = "src/assets/placeholder.png", titulo = "Sin título", plataforma = "N/A", descripcion = "Sin descripción", link = "404.html", children = ""}) {
+export function Proyecto({thumbnail = placeholder, titulo = "Sin título", plataforma = "N/A", descripcion = "Sin descripción", link = "../404.html", children = ""}) {
     const handleClick = () => { window.location.href = link }
 
     return (

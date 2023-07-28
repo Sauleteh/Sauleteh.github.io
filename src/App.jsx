@@ -1,4 +1,14 @@
 import { Proyecto } from "./Proyecto.jsx"
+import visualizadorHorariosUniOvi from "./assets/visualizadorHorariosUniOvi.png"
+import pruebaPunteria from "./assets/pruebaPunteria.png"
+import redesSubnetting from "./assets/redesSubnetting.png"
+import ajedrez from "./assets/ajedrez.png"
+import genshinArtifactSimulador from "./assets/genshinArtifactSimulador.png"
+import rocketLeagueDetectorInventario from "./assets/rocketLeagueDetectorInventario.png"
+import colorTiles from "./assets/colorTiles.png"
+import combatePorTurnos from "./assets/combatePorTurnos.png"
+import genshinAutoSkipper from "./assets/genshinAutoSkipper.png"
+import valorantAutoMusica from "./assets/valorantAutoMusica.png"
 
 export function App() {
     return (
@@ -12,7 +22,7 @@ export function App() {
                         descripcion="Un programa creado con la finalidad de observar los horarios de UniOvi en un formato
                                     más visual, pudiendo elegir las asignaturas, las PLs y las TGs. Solo habría que dar
                                     como input los PDFs con los horarios."
-                        thumbnail="src/assets/visualizadorHorariosUniOvi.png"
+                        thumbnail={visualizadorHorariosUniOvi}
                         link="https://github.com/Sauleteh/visualizador-de-conflictos-horarios-uniovi"
                     >nuevo</Proyecto>
 
@@ -22,8 +32,8 @@ export function App() {
                         descripcion="Un pequeño proyecto para practicar JavaScript. Se trata de una página donde
                                     un cubo de tamaño variable irá moviéndose de forma senoidal a una velocidad
                                     creciente a medida que subas de nivel manteniendo el ratón encima de él."
-                        thumbnail="src/assets/pruebaPunteria.png"
-                        link="src/punteria/punteria.html"
+                        thumbnail={pruebaPunteria}
+                        link="./punteria/punteria.html"
                     ></Proyecto>
 
                     <Proyecto
@@ -31,8 +41,8 @@ export function App() {
                         plataforma="Web | HTML, CSS y JS"
                         descripcion="Una página creada para crear de forma sencilla subredes dando como entradas
                                     la IP inicial y su máscara, además de los hosts que se quiere para cada subred."
-                        thumbnail="src/assets/redesSubnetting.png"
-                        link="src/redes/redes.html"
+                        thumbnail={redesSubnetting}
+                        link="./redes/redes.html"
                     ></Proyecto>
 
                     <Proyecto
@@ -41,8 +51,8 @@ export function App() {
                         descripcion="El juego clásico del ajedrez hecho en HTML, CSS y JS. Para mover las piezas hay
                                     que hacer click en una y luego en la casilla a la que se quiera mover. Modos de
                                     juego: Multijugador local, jugador contra máquina o máquina contra máquina."
-                        thumbnail="src/assets/ajedrez.png"
-                        link="src/ajedrez/ajedrez.html"
+                        thumbnail={ajedrez}
+                        link="./ajedrez/ajedrez.html"
                     >progreso</Proyecto>
 
                     <Proyecto
@@ -50,7 +60,7 @@ export function App() {
                         plataforma="Windows | C++"
                         descripcion="Un simulador de obtención de artefactos que calcula de la forma más parecida posible
                                     a la del juego Genshin Impact."
-                        thumbnail="src/assets/genshinArtifactSimulador.png"
+                        thumbnail={genshinArtifactSimulador}
                         link="https://github.com/Sauleteh/genshin-impact-simulador-artefactos"
                     ></Proyecto>
 
@@ -59,7 +69,7 @@ export function App() {
                         plataforma="Windows | Java"
                         descripcion="Un programa que te permite visualizar tu inventario de objetos del Rocket League con
                                     la función principal de detectar los objetos que tienes repetidos para venderlos."
-                        thumbnail="src/assets/rocketLeagueDetectorInventario.png"
+                        thumbnail={rocketLeagueDetectorInventario}
                         link="https://github.com/Sauleteh/rocket-league-visualizador-inventario-y-repetidos"
                     >progreso</Proyecto>
 
@@ -68,7 +78,7 @@ export function App() {
                         plataforma="Windows, Linux y macOS | Java"
                         descripcion="Un juego creado a partir de unas instrucciones proporcionadas por mi profesor de Introducción
                                     a la Programación (1er año) para el trabajo grupal."
-                        thumbnail="src/assets/colorTiles.png"
+                        thumbnail={colorTiles}
                         link="https://github.com/Sauleteh/color-tiles"
                     ></Proyecto>
 
@@ -78,7 +88,7 @@ export function App() {
                         descripcion="Un proyecto de temática libre hecho para la asignatura Comunicación Persona Máquina
                                     (2o año) como primer trabajo entregable. La temática que elegí se basó en la creación
                                     de un juego por turnos."
-                        thumbnail="src/assets/combatePorTurnos.png"
+                        thumbnail={combatePorTurnos}
                         link="https://github.com/Sauleteh/trabajo-cpm-combate"
                     ></Proyecto>
 
@@ -87,7 +97,7 @@ export function App() {
                         plataforma="Windows (CMD) | Python"
                         descripcion="Un programa que permite saltar el texto (y las elecciones) de forma automática lo más
                                     rápido posible para el juego Genshin Impact."
-                        thumbnail="src/assets/genshinAutoSkipper.png"
+                        thumbnail={genshinAutoSkipper}
                         link="https://github.com/Sauleteh/genshin-impact-saltador-texto"
                     ></Proyecto>
 
@@ -96,7 +106,7 @@ export function App() {
                         plataforma="Windows (CMD) | Python"
                         descripcion="Un programa que automáticamente controla el volumen y reproducción de los videos de
                                     YouTube dependiendo de lo que ocurra dentro del juego Valorant."
-                        thumbnail="src/assets/valorantAutoMusica.png"
+                        thumbnail={valorantAutoMusica}
                         link="https://github.com/Sauleteh/valorant-auto-musica"
                     >progreso</Proyecto>
 
