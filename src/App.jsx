@@ -113,7 +113,7 @@ export function App() {
                     <Proyecto
                         titulo="Obtención automática de títulos de episodios para su renombrado"
                         plataforma="Cualquier plataforma | Python"
-                    ></Proyecto>
+                    >pendiente</Proyecto>
 
                     <Proyecto
                         titulo="Calculadora que funciona con cadenas de texto"
