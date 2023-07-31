@@ -2,7 +2,7 @@ import PropTypes from "prop-types"
 import placeholder from "./assets/placeholder.png"
 
 export function Proyecto({thumbnail = placeholder, titulo = "Sin título", plataforma = "N/A", descripcion = "Sin descripción", link = "../404.html", children = ""}) {
-    const handleClick = () => { window.location.href = link }
+    const handleClick = () => { window.location.href = link; }
 
     return (
         <div className={`proyecto ${children}`} onClick={handleClick}>
