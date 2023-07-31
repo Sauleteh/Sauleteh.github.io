@@ -208,6 +208,13 @@ p.titulo {
         flex-basis: 90%;
     }
 
+    .contenedorProyectos:hover .proyecto {
+        /* Desactivamos efectos que pueden molestar en móviles */
+        filter: blur(0px);
+        opacity: 1;
+        transform: scale(1);
+    }
+
     .descripcion { font-size: 12px; }
     .plataforma { font-size: 10px; }
 }
