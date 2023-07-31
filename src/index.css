@@ -1,3 +1,5 @@
+:root { --tamTitulo: 36px; }
+
 body {
     background: linear-gradient(45deg, #111314, #28292b, #292d31, #161718, #232324, #111314);
     background-repeat: no-repeat;
@@ -13,6 +15,8 @@ img {
     border-radius: 5px;
     box-shadow: none;
     transition: all 1s ease;
+    width: 300px;
+    height: auto;
 }
 
 img:hover {
@@ -118,6 +122,7 @@ p.titulo {
     color: white;
     text-align: justify;
     margin-right: 20px;
+    font-size: 15px;
 }
 
 .plataforma {
@@ -128,7 +133,7 @@ p.titulo {
 
 .titulo {
     font-family: 'Raleway', monospace;
-    font-size: 36px;
+    font-size: var(--tamTitulo);
     text-transform: uppercase;
     letter-spacing: 2px;
     font-weight: bold;
@@ -189,4 +194,20 @@ p.titulo {
 @keyframes aparecerAnimation {
     from { opacity: 0; }
     to { opacity: 1; }
+}
+
+/* Configuración para pantallas pequeñas */
+@media (max-width: 882px) {
+    :root { --tamTitulo: 24px; }
+    
+    img { width: 100px; }
+    img:hover { width: 95%; }
+
+    .proyecto {
+        min-width: 350px;
+        flex-basis: 90%;
+    }
+
+    .descripcion { font-size: 12px; }
+    .plataforma { font-size: 10px; }
 }
