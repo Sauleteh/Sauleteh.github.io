@@ -95,7 +95,7 @@ p.titulo {
     transition: background-color 0.3s ease, 0.2s all;
     border-radius: 3px;
     min-width: 850px;
-    min-height: 188px;
+    min-height: 210px;
     cursor: pointer;
 }
 
@@ -185,9 +185,25 @@ p.titulo {
     text-transform: uppercase;
     font-weight: bold;
     font-style: italic;
-    color: #ff0000;
-    text-shadow: 0 0 8px #ff7070;
-    content: 'Pendiente de actualizar';
+    color: #ff2600;
+    text-shadow: 0 0 8px #ff3c00;
+    content: 'Necesita actualizarse';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 100%;
+    text-align: right;
+}
+
+.intermitente::after {
+    font-family: 'Raleway', sans-serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-style: italic;
+    color: #0059ff;
+    text-shadow: 0 0 8px #2d5f8b;
+    content: 'Desarrollo intermitente';
     position: absolute;
     top: 10px;
     right: 10px;

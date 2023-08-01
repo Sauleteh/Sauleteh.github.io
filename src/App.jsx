@@ -9,6 +9,7 @@ import colorTiles from "./assets/colorTiles.png"
 import combatePorTurnos from "./assets/combatePorTurnos.png"
 import genshinAutoSkipper from "./assets/genshinAutoSkipper.png"
 import valorantAutoMusica from "./assets/valorantAutoMusica.png"
+import renombradorEpisodios from "./assets/renombradorEpisodios.png"
 
 export function App() {
     return (
@@ -111,8 +112,12 @@ export function App() {
                     >progreso</Proyecto>
 
                     <Proyecto
-                        titulo="Obtención automática de títulos de episodios para su renombrado"
-                        plataforma="Cualquier plataforma | Python"
+                        titulo="Obtención automática de nombres de episodios para su renombrado"
+                        plataforma="Cualquier plataforma (CMD) | Python"
+                        descripcion="Un programa que obtiene los títulos de los episodios de una serie para renombrar los archivos
+                                    de video dando como input cualquier página web que contenga los nombres de los episodios."
+                        thumbnail={renombradorEpisodios}
+                        link="https://github.com/Sauleteh/obtenedor-nombres-episodios-para-renombrado"
                     >pendiente</Proyecto>
 
                     <Proyecto
@@ -129,7 +134,7 @@ export function App() {
                     <Proyecto
                         titulo="Minecraft: Pack de programas LUA para OpenComputers"
                         plataforma="Windows | Lua"
-                    >progreso</Proyecto>
+                    >intermitente</Proyecto>
 
                     <Proyecto
                         titulo="Adivina el Pokémon"
@@ -140,7 +145,7 @@ export function App() {
                         titulo="Pack de CSS para páginas web"
                         plataforma="Web | CSS"
                         descripcion="Lo del plugin. Próximamente..."
-                    >progreso</Proyecto>
+                    >intermitente</Proyecto>
 
                     <Proyecto
                         titulo="IA para Pokémon Showdown"
@@ -150,7 +155,7 @@ export function App() {
                     <Proyecto
                         titulo="Wallpaper Engine: Mis fondos animados"
                         plataforma="Windows | HTML, CSS y JS"
-                    >progreso</Proyecto>
+                    >intermitente</Proyecto>
 
                     <Proyecto
                         titulo="Sudoku dibujando a mano"
