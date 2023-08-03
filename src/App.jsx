@@ -190,6 +190,14 @@ export function App() {
                         descripcion="Hecho en Unity. Mueves a una flecha lateralmente mientras avanza automáticamente
                                     por un plano 3D teniendo que esquivar obstáculos."
                     ></Proyecto>
+
+                    <Proyecto
+                        titulo="Rocket League: Plugin para carreras"
+                        plataforma="Windows | C++"
+                        descripcion="Un plugin creado con el SDK de BakkesMod para el juego Rocket League que permite ajustar
+                                    de forma cómoda ajustes varios para transformar la experiencia por defecto del juego en
+                                    un juego de carreras para aquellos mapas personalizados hechos con este fin."
+                    ></Proyecto>
                 </div>
             </div>
             <br/>
