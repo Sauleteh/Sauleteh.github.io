@@ -10,6 +10,7 @@ import combatePorTurnos from "./assets/combatePorTurnos.png"
 import genshinAutoSkipper from "./assets/genshinAutoSkipper.png"
 import valorantAutoMusica from "./assets/valorantAutoMusica.png"
 import renombradorEpisodios from "./assets/renombradorEpisodios.png"
+import speedControl from "./assets/speedControl.png"
 
 export function App() {
     return (
@@ -197,6 +198,8 @@ export function App() {
                         descripcion="Un plugin creado con el SDK de BakkesMod para el juego Rocket League que permite ajustar
                                     de forma cómoda ajustes varios para transformar la experiencia por defecto del juego en
                                     un juego de carreras para aquellos mapas personalizados hechos con este fin."
+                        thumbnail={speedControl}
+                        link="https://github.com/Sauleteh/speed-control"
                     ></Proyecto>
                 </div>
             </div>
