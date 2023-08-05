@@ -211,6 +211,22 @@ p.titulo {
     text-align: right;
 }
 
+.pausado::after {
+    font-family: 'Raleway', sans-serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-style: italic;
+    color: #8d8d8d;
+    text-shadow: 0 0 8px #a5a5a5;
+    content: 'Pausado';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 100%;
+    text-align: right;
+}
+
 @keyframes gradientAnimation {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
