@@ -11,6 +11,8 @@ import genshinAutoSkipper from "./assets/genshinAutoSkipper.png"
 import valorantAutoMusica from "./assets/valorantAutoMusica.png"
 import renombradorEpisodios from "./assets/renombradorEpisodios.png"
 import speedControl from "./assets/speedControl.png"
+import calculadoraString from "./assets/calculadoraString.png"
+import estadisticaSucesos from "./assets/estadisticaSucesos.png"
 
 export function App() {
     return (
@@ -122,14 +124,23 @@ export function App() {
                     >pendiente</Proyecto>
 
                     <Proyecto
-                        titulo="Calculadora que funciona con cadenas de texto"
+                        titulo="Calculadora matemática de cadenas de texto"
                         plataforma="Cualquier plataforma | Python"
+                        descripcion="Cálculo de operaciones matemáticas con solo introducir una cadena de texto. El tamaño de la cadena
+                                    es ilimitado y se pueden realizar operaciones con paréntesis, números con décimas y funciona con las
+                                    cuatro operaciones elementales: suma, resta, multiplicación y división. Fue mi primer programa."
+                        thumbnail={calculadoraString}
+                        link="https://github.com/Sauleteh/calculadora-matematica-string"
                     ></Proyecto>
 
                     <Proyecto
                         titulo="Estadística: Calculadora de sucesos"
                         plataforma="Cualquier plataforma | Python"
-                        descripcion="Pruebas.py y suerte.py. Próximamente..."
+                        descripcion="Un conjunto de programas relativos al cálculo de probabilidades de sucesos, muy útiles para saber
+                                    porcentajes de obtención de objetos/personajes en juegos gacha. Uno de los programas cuenta con un
+                                    pequeño simulador automático que te presenta los resultados que se obtuvieron en la ejecución."
+                        thumbnail={estadisticaSucesos}
+                        link="https://github.com/Sauleteh/calculos-estadisticos"
                     ></Proyecto>
 
                     <Proyecto
