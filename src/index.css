@@ -227,6 +227,73 @@ p.titulo {
     text-align: right;
 }
 
+.popup-mostrar, .popup-esconder {
+    display: block;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, #2c3133, #28292b, #292d31, #282a2c, #212124, #242a2c);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    background-size: 600% 600%;
+    animation: gradientAnimation 18s ease infinite, aparecerAnimation 0.5s ease;
+    border-radius: 3px;
+    cursor: default;
+    border: 1px solid #3d3d47;
+    opacity: 1;
+}
+
+.popup-esconder {
+    animation: gradientAnimation 18s ease infinite, desaparecerAnimation 0.5s ease;
+    opacity: 0;
+}
+
+.popup-parte-superior {
+    display: flex;
+}
+
+.popup-label {
+    display: flex;
+    flex: 50%;
+    font-family: 'Raleway', sans-serif;
+    color: white;
+    font-size: 20px;
+    justify-content: center;
+    align-items: center;
+    font-style: italic;
+}
+
+.popup-boton {
+    display: flex;
+    background: url(/volver.svg) no-repeat;
+    background-size: 40px 40px;
+    width: 50px;
+    height: 50px;
+    background-position: center;
+    border: 0px solid transparent;
+    border-left: 1px solid #3d3d47;
+    border-top-right-radius: 3px;
+    cursor: pointer;
+}
+
+.popup-linea {
+    box-shadow: none;
+    margin: 0px;
+    background-color: #3d3d47;
+    height: 1px;
+    border: none;
+}
+
+.popup-parrafo {
+    font-family: 'Raleway', sans-serif;
+    color: white;
+    font-size: 15px;
+    margin: 30px;
+}
+
 @keyframes gradientAnimation {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
@@ -240,8 +307,13 @@ p.titulo {
 }
 
 @keyframes aparecerAnimation {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from { opacity: 0; visisibility: hidden; }
+    to { opacity: 1; visibility: visible; }
+}
+
+@keyframes desaparecerAnimation {
+    from { opacity: 1; visibility: visible; }
+    to { opacity: 0; visibility: hidden; }
 }
 
 /* Configuración para pantallas pequeñas */

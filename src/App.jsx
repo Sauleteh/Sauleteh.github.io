@@ -13,6 +13,8 @@ import renombradorEpisodios from "./assets/renombradorEpisodios.png"
 import speedControl from "./assets/speedControl.png"
 import calculadoraString from "./assets/calculadoraString.png"
 import estadisticaSucesos from "./assets/estadisticaSucesos.png"
+import paginaPokemon from "./assets/paginaPokemon.png"
+import desEncriptador from "./assets/des-encriptador.png"
 
 export function App() {
     return (
@@ -146,6 +148,11 @@ export function App() {
                     <Proyecto
                         titulo="Minecraft: Pack de programas LUA para OpenComputers"
                         plataforma="Windows | Lua"
+                        descripcion="Un conjunto de programas creados para ser usados en los distintos dispositivos informáticos del mod
+                                    OpenComputers para el juego Minecraft. En concreto, tengo bastantes programas de todo tipo para drones,
+                                    para el PC, para el robot y para los servidores. No todos los programas están creados de cero por mí,
+                                    algunos son modificaciones de otros programas que encontré en Internet y mejorarlos. Los mejores programas
+                                    que hice fue el tres en raya con modo IA o dos jugadores y el minado automático con drones."
                     >intermitente</Proyecto>
 
                     <Proyecto
@@ -182,12 +189,32 @@ export function App() {
                     <Proyecto
                         titulo="Página web Pokémon"
                         plataforma="Web | HTML, CSS y JS"
-                        descripcion="Trabajo HTML, CSS y JS hecho en la asignatura CPM. Próximamente..."
+                        descripcion="El segundo trabajo de temática libre hecho para la asignatura CPM. Trataba de hacer una página web en la
+                                    que se incluyeran toda variedad de etiquetas, reglas CSS, funciones JS y aplicar internacionalización
+                                    siguiendo un guión de requisitos obligatorio. En mi caso, elegí hacer una página web sobre Pokémon y aunque
+                                    no sea una obra de arte debido a los limitantes que hubo en los requisitos, considero que quedó bastante bien."
+                        thumbnail={paginaPokemon}
+                        link="Este proyecto contiene varias imágenes y videos de la franquicia de Pokémon por lo que me es imposible subirlo al GitHub
+                            sin infringir derechos de autor. Si algún día me aburro y me da por rehacer las imágenes a mano, lo subiré (menos los videos)."
+                        linkToPopup
                     ></Proyecto>
 
                     <Proyecto
                         titulo="Encriptador y desencriptador de archivos .keyx"
                         plataforma="Windows | C"
+                        descripcion="Un programa dos en uno que encripta archivos .keyx (llaves para abrir bases de datos de KeePass) y
+                                    desencripta archivos .bins (extensión específica de este programa) mediante técnicas hashing (que no
+                                    especificaré) y dos algoritmos de cifrado privados y de clave única: uno trabaja a nivel de bits a
+                                    cinco niveles de profundidad y el otro a nivel de bytes junto con el hashing. Un archivo .keyx contiene
+                                    240 bytes y el programa tarda aproximadamente 15 minutos en tratar estos bytes (tanto para encriptar como
+                                    para desencriptar), es mucho tiempo pero también es mucha seguridad."
+                        thumbnail={desEncriptador}
+                        link="No está subido en GitHub por el hecho de que el programa es de clave única con algoritmos privados y hacerlo
+                            open source haría el programa inseguro. Si por alguna razón algún día me piden este programa, lo subiré a GitHub
+                            pero sin su código fuente. Hacerle ingeniería inversa a este programa no me preocupa pues es demasiado difícil
+                            sabiendo cómo está hecho por dentro el código y dudo de que alguien se moleste en hacer eso a un programa que solo
+                            uso yo y que probablemente lo usen unas pocas personas más en el futuro."
+                        linkToPopup
                     ></Proyecto>
                 </div>
             </div>
