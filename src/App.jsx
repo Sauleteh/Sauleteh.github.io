@@ -1,4 +1,5 @@
 import { Proyecto } from "./Proyecto.jsx"
+import { Helmet } from "react-helmet";
 import visualizadorHorariosUniOvi from "./assets/visualizadorHorariosUniOvi.png"
 import pruebaPunteria from "./assets/pruebaPunteria.png"
 import redesSubnetting from "./assets/redesSubnetting.png"
@@ -19,6 +20,7 @@ import desEncriptador from "./assets/des-encriptador.png"
 export function App() {
     return (
         <>
+            <Helmet><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7033946444745909" crossOrigin="anonymous"></script></Helmet> {/* Anuncios de Google AdSense */}
             <div className="divisorProyectos">
                 <h1 className="titulo finalizado">Proyectos finalizados</h1>
                 <div className="contenedorProyectos">
