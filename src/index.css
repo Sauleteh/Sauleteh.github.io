@@ -320,12 +320,16 @@ p.titulo {
 @media (max-width: 882px) {
     :root { --tamTitulo: 24px; }
     
-    img { width: 100px; }
+    img { width: 75%; }
     img:hover { width: 95%; }
+
+    .titulo { margin-top: 30px; margin-left: 10px; margin-right: 10px; }
+    .plataforma, .descripcion { margin-left: 10px; margin-right: 10px; }
 
     .proyecto {
         min-width: 350px;
         flex-basis: 90%;
+        flex-direction: column-reverse;
     }
 
     .contenedorProyectos:hover .proyecto {
