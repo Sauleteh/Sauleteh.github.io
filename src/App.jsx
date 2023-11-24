@@ -23,6 +23,16 @@ export function App() {
                 <h1 className="titulo finalizado">Proyectos finalizados</h1>
                 <div className="contenedorProyectos">
                     <Proyecto
+                        titulo="Rocket League: Speed Control (Plugin)"
+                        plataforma="Windows | C++"
+                        descripcion="Un plugin creado con el SDK de BakkesMod para el juego Rocket League que permite ajustar
+                                    de forma cómoda ajustes varios para transformar la experiencia por defecto del juego en
+                                    un juego de carreras para disfrutar de aquellos mapas personalizados hechos con este fin."
+                        thumbnail={speedControl}
+                        link="https://github.com/Sauleteh/speed-control"
+                    >nuevo</Proyecto>
+
+                    <Proyecto
                         titulo="Visualizador de horarios de UniOvi"
                         plataforma="Windows | Java"
                         descripcion="Un programa creado con la finalidad de observar los horarios de UniOvi en un formato
@@ -30,7 +40,7 @@ export function App() {
                                     como input los PDFs con los horarios."
                         thumbnail={visualizadorHorariosUniOvi}
                         link="https://github.com/Sauleteh/visualizador-de-conflictos-horarios-uniovi"
-                    >nuevo</Proyecto>
+                    ></Proyecto>
 
                     <Proyecto
                         titulo="Test: Juego de puntería"
@@ -77,7 +87,7 @@ export function App() {
                                     la función principal de detectar los objetos que tienes repetidos para venderlos."
                         thumbnail={rocketLeagueDetectorInventario}
                         link="https://github.com/Sauleteh/rocket-league-visualizador-inventario-y-repetidos"
-                    >progreso</Proyecto>
+                    ></Proyecto>
 
                     <Proyecto
                         titulo="Color Tiles"
@@ -151,8 +161,8 @@ export function App() {
                         descripcion="Un conjunto de programas creados para ser usados en los distintos dispositivos informáticos del mod
                                     OpenComputers para el juego Minecraft. En concreto, tengo bastantes programas de todo tipo para drones,
                                     para el PC, para el robot y para los servidores. No todos los programas están creados de cero por mí,
-                                    algunos son modificaciones de otros programas que encontré en Internet y mejorarlos. Los mejores programas
-                                    que hice fue el tres en raya con modo IA o dos jugadores y el minado automático con drones."
+                                    algunos son modificaciones de otros programas que encontré en Internet y los mejoré. Los programas
+                                    más destacados a mi parecer son el tres en raya con IA o para dos jugadores y el minado automático con robots."
                     >intermitente</Proyecto>
 
                     <Proyecto
@@ -229,16 +239,6 @@ export function App() {
                         descripcion="Hecho en Unity. Mueves a una flecha lateralmente mientras avanza automáticamente
                                     por un plano 3D teniendo que esquivar obstáculos."
                     >pausado</Proyecto>
-
-                    <Proyecto
-                        titulo="Rocket League: Speed Control (Plugin)"
-                        plataforma="Windows | C++"
-                        descripcion="Un plugin creado con el SDK de BakkesMod para el juego Rocket League que permite ajustar
-                                    de forma cómoda ajustes varios para transformar la experiencia por defecto del juego en
-                                    un juego de carreras para disfrutar de aquellos mapas personalizados hechos con este fin."
-                        thumbnail={speedControl}
-                        link="https://github.com/Sauleteh/speed-control"
-                    ></Proyecto>
                 </div>
             </div>
             <br/>

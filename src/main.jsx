@@ -36,4 +36,7 @@ function addTooltip() { // Adición de tooltips a los estados de los proyectos
   document.querySelectorAll(".intermitente").forEach(element => {
     element.setAttribute("title", "Proyecto con un desarrollo casual a lo largo del tiempo conforme a mis necesidades");
   })
+  document.querySelectorAll(".pausado").forEach(element => {
+    element.setAttribute("title", "Proyecto pausado durante un tiempo indeterminado");
+  })
 }
