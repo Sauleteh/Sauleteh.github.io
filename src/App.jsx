@@ -15,6 +15,8 @@ import calculadoraString from "./assets/calculadoraString.png"
 import estadisticaSucesos from "./assets/estadisticaSucesos.png"
 import paginaPokemon from "./assets/paginaPokemon.png"
 import desEncriptador from "./assets/des-encriptador.png"
+import minecraftBotMod from "./assets/minecraftBotMod.png"
+import adivinaElPokemon from "./assets/adivinaElPokemon.png"
 
 export function App() {
     return (
@@ -168,22 +170,31 @@ export function App() {
                     <Proyecto
                         titulo="Adivina el Pokémon"
                         plataforma="Linux | Bash"
+                        descripcion="Un pequeño juego de adivinar el Pokémon el cual te mostrará un dibujo en la terminal y deberás
+                                    adivinar el nombre del Pokémon."
+                        thumbnail={adivinaElPokemon}
+                        link="https://github.com/Sauleteh/adivina-el-pokemon"
                     ></Proyecto>
 
                     <Proyecto
                         titulo="Pack de CSS para páginas web"
                         plataforma="Web | CSS"
-                        descripcion="Lo del plugin. Próximamente..."
+                        descripcion="Repositorio donde tengo almacenados diversos CSS creados con el propósito de cambiar el estilo
+                                    de distintias páginas web como por ejemplo YouTube en modo extra oscuro con tonos en verde, entre otros."
                     >intermitente</Proyecto>
 
                     <Proyecto
                         titulo="IA para Pokémon Showdown"
                         plataforma="Web | JavaScript"
+                        descripcion="Mi propia inteligencia artificial para jugar al Pokémon Showdown sin tocar nada, las decisiones las toma
+                                    el propio programa. Créditos a PokéAPI por el suministro de datos."
                     ></Proyecto>
 
                     <Proyecto
                         titulo="Wallpaper Engine: Mis fondos animados"
                         plataforma="Windows | HTML, CSS y JS"
+                        descripcion="Fondos animados ya sean modificaciones de otros fondos o creaciones propias, hechos específicamente
+                                    para ser usados con el programa Wallpaper Engine."
                     >intermitente</Proyecto>
 
                     <Proyecto
@@ -239,6 +250,16 @@ export function App() {
                         descripcion="Hecho en Unity. Mueves a una flecha lateralmente mientras avanza automáticamente
                                     por un plano 3D teniendo que esquivar obstáculos."
                     >pausado</Proyecto>
+
+                    <Proyecto
+                        titulo="Minecraft Bot Mod"
+                        plataforma="Windows | Java"
+                        descripcion="Un mod creado para el juego Minecraft que permite automatizar acciones relativas
+                                    al movimiento del personaje y movimiento y presionado del ratón. Mod hecho totalmente
+                                    client-side por lo que es usable hasta en servidores vanilla."
+                        thumbnail={minecraftBotMod}
+                        link="https://github.com/Sauleteh/Minecraft-Bot-Mod"
+                    ></Proyecto>
                 </div>
             </div>
             <br/>
