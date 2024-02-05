@@ -17,6 +17,8 @@ import paginaPokemon from "./assets/paginaPokemon.png"
 import desEncriptador from "./assets/des-encriptador.png"
 import minecraftBotMod from "./assets/minecraftBotMod.png"
 import adivinaElPokemon from "./assets/adivinaElPokemon.png"
+import pokemonShowdownIA from "./assets/pokemonShowdownIA.png"
+import programasOpenComputers from "./assets/programasOpenComputers.png"
 
 export function App() {
     return (
@@ -165,6 +167,8 @@ export function App() {
                                     para el PC, para el robot y para los servidores. No todos los programas están creados de cero por mí,
                                     algunos son modificaciones de otros programas que encontré en Internet y los mejoré. Los programas
                                     más destacados a mi parecer son el tres en raya con IA o para dos jugadores y el minado automático con robots."
+                        thumbnail={programasOpenComputers}
+                        link="https://github.com/Sauleteh/opencomputers-programas"
                     >intermitente</Proyecto>
 
                     <Proyecto
@@ -188,6 +192,8 @@ export function App() {
                         plataforma="Web | JavaScript"
                         descripcion="Mi propia inteligencia artificial para jugar al Pokémon Showdown sin tocar nada, las decisiones las toma
                                     el propio programa. Créditos a PokéAPI por el suministro de datos."
+                        thumbnail={pokemonShowdownIA}
+                        link="https://github.com/Sauleteh/pokemon-showdown-ia"
                     ></Proyecto>
 
                     <Proyecto
