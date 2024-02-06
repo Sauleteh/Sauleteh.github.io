@@ -266,6 +266,14 @@ export function App() {
                         thumbnail={minecraftBotMod}
                         link="https://github.com/Sauleteh/Minecraft-Bot-Mod"
                     ></Proyecto>
+
+                    <Proyecto
+                        titulo="Mi virus"
+                        plataforma="Windows | C#"
+                        descripcion="Virus con capacidad de control remoto de dispositivos mediante polling a mi base de datos.
+                                    Las opciones disponibles que tiene el virus, para cada usuario infectado, son: apagar, reiniciar,
+                                    keylogging y llenar la RAM. Utiliza sistemas cliente-servidor mediante Named Pipes y múltiples procesos."
+                    ></Proyecto>
                 </div>
             </div>
             <br/>
