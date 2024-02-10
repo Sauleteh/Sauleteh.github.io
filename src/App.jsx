@@ -206,11 +206,22 @@ export function App() {
                     <Proyecto
                         titulo="Sudoku dibujando a mano"
                         plataforma="Windows | C#"
+                        descripcion="Juego hecho en Unity como primer proyecto en este entorno. Se trata de un tablero de sudoku generado
+                                    de forma aleatoria mediante backtracking (para que se pueda resolver). Cuenta con detección de números
+                                    erróneos y detección de partida terminada. La diferencia de los demás sudokus se encuentra en la forma
+                                    de escribir los números: para escribir un número debes dibujarlo literalmente, el programa intentará
+                                    predecir qué número has dibujado y sustituirá tu dibujo por el número. Inspirado en el sudoku del juego
+                                    de Nintendo DS: Dr. Kawashima's Brain Training."
                     ></Proyecto>
 
                     <Proyecto
                         titulo="Bingo con detección de voz"
                         plataforma="Android | Kotlin"
+                        descripcion="Aplicación Android que cuenta con creación de cartones y con posibilidad de simulación de los
+                                    mismos, para cuando quieras jugar al Bingo con tu familia en Navidad. El toque interesante de esta
+                                    aplicación se encuentra en que puedes automatizar el rellenado de los cartones, es decir, en vez de pulsar
+                                    sobre los números de los cartones para marcarlos como que han salido, el programa detectará los números que
+                                    se digan mediante el micrófono de tu dispositivo y los apuntará automáticamente (Speech To Text)."
                     ></Proyecto>
 
                     <Proyecto
