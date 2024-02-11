@@ -19,6 +19,7 @@ import minecraftBotMod from "./assets/minecraftBotMod.png"
 import adivinaElPokemon from "./assets/adivinaElPokemon.png"
 import pokemonShowdownIA from "./assets/pokemonShowdownIA.png"
 import programasOpenComputers from "./assets/programasOpenComputers.png"
+import sudokuUnity from "./assets/sudokuUnity.png"
 
 export function App() {
     return (
