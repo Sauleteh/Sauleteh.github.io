@@ -20,6 +20,8 @@ import adivinaElPokemon from "./assets/adivinaElPokemon.png"
 import pokemonShowdownIA from "./assets/pokemonShowdownIA.png"
 import programasOpenComputers from "./assets/programasOpenComputers.png"
 import sudokuUnity from "./assets/sudokuUnity.png"
+import packCss from "./assets/packCss.png"
+import autoBingo from "./assets/autoBingo.png"
 
 export function App() {
     return (
@@ -186,6 +188,8 @@ export function App() {
                         plataforma="Web | CSS"
                         descripcion="Repositorio donde tengo almacenados diversos CSS creados con el propósito de cambiar el estilo
                                     de distintias páginas web como por ejemplo YouTube en modo extra oscuro con tonos en verde, entre otros."
+                        thumbnail={packCss}
+                        link="https://github.com/Sauleteh/pack-css"
                     >intermitente</Proyecto>
 
                     <Proyecto
@@ -213,6 +217,8 @@ export function App() {
                                     de escribir los números: para escribir un número debes dibujarlo literalmente, el programa intentará
                                     predecir qué número has dibujado y sustituirá tu dibujo por el número. Inspirado en el sudoku del juego
                                     de Nintendo DS: Dr. Kawashima's Brain Training."
+                        thumbnail={sudokuUnity}
+                        link="https://github.com/Sauleteh/unity-sudoku-handwritten"
                     ></Proyecto>
 
                     <Proyecto
@@ -223,6 +229,8 @@ export function App() {
                                     aplicación se encuentra en que puedes automatizar el rellenado de los cartones, es decir, en vez de pulsar
                                     sobre los números de los cartones para marcarlos como que han salido, el programa detectará los números que
                                     se digan mediante el micrófono de tu dispositivo y los apuntará automáticamente (Speech To Text)."
+                        thumbnail={autoBingo}
+                        link="https://github.com/Sauleteh/android-bingo-audio-recognition"
                     ></Proyecto>
 
                     <Proyecto
