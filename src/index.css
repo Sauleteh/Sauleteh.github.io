@@ -227,6 +227,10 @@ p.titulo {
     text-align: right;
 }
 
+.popup-mostrar {
+    z-index: 1; /* Las etiquetas "Nuevo", etc. estaban por encima del popup */
+}
+
 .popup-mostrar, .popup-esconder {
     display: block;
     position: absolute;

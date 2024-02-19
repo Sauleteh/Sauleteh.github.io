@@ -22,6 +22,7 @@ import programasOpenComputers from "./assets/programasOpenComputers.png"
 import sudokuUnity from "./assets/sudokuUnity.png"
 import packCss from "./assets/packCss.png"
 import autoBingo from "./assets/autoBingo.png"
+import miVirus from "./assets/miVirus.png"
 
 export function App() {
     return (
@@ -30,6 +31,19 @@ export function App() {
                 <h1 className="titulo finalizado">Proyectos finalizados</h1>
                 <div className="contenedorProyectos">
                     <Proyecto
+                        titulo="Mi virus"
+                        plataforma="Windows | C#"
+                        descripcion="Virus con capacidad de control remoto de dispositivos mediante polling a mi base de datos.
+                                    Las opciones disponibles que tiene el virus, para cada usuario infectado, son: apagar, reiniciar,
+                                    keylogging y llenar la RAM. Utiliza sistemas cliente-servidor mediante Named Pipes y múltiples procesos."
+                        thumbnail={miVirus}
+                        link="Por temas de seguridad no puedo subir el código fuente a GitHub. No es que GitHub no deje subirlo, es
+                             que simplemente prefiero no meterme en problemas de ningún tipo. Puedo enseñar el código a quien quiera pero
+                             solo en persona y con gente de confianza."
+                        linkToPopup
+                    >nuevo</Proyecto>
+
+                    <Proyecto
                         titulo="Rocket League: Speed Control (Plugin)"
                         plataforma="Windows | C++"
                         descripcion="Un plugin creado con el SDK de BakkesMod para el juego Rocket League que permite ajustar
@@ -37,7 +51,7 @@ export function App() {
                                     un juego de carreras para disfrutar de aquellos mapas personalizados hechos con este fin."
                         thumbnail={speedControl}
                         link="https://github.com/Sauleteh/speed-control"
-                    >nuevo</Proyecto>
+                    ></Proyecto>
 
                     <Proyecto
                         titulo="Visualizador de horarios de UniOvi"
@@ -285,14 +299,6 @@ export function App() {
                                     client-side por lo que es usable hasta en servidores vanilla."
                         thumbnail={minecraftBotMod}
                         link="https://github.com/Sauleteh/Minecraft-Bot-Mod"
-                    ></Proyecto>
-
-                    <Proyecto
-                        titulo="Mi virus"
-                        plataforma="Windows | C#"
-                        descripcion="Virus con capacidad de control remoto de dispositivos mediante polling a mi base de datos.
-                                    Las opciones disponibles que tiene el virus, para cada usuario infectado, son: apagar, reiniciar,
-                                    keylogging y llenar la RAM. Utiliza sistemas cliente-servidor mediante Named Pipes y múltiples procesos."
                     ></Proyecto>
                 </div>
             </div>
