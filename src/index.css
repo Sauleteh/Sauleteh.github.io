@@ -15,12 +15,12 @@ img {
     border-radius: 5px;
     box-shadow: none;
     transition: all 1s ease;
-    width: 300px;
+    width: 35.4%;
     height: auto;
 }
 
 img:hover {
-    width: 60%;
+    width: 58%;
     box-shadow: 0 8px 20px 0px rgba(0, 0, 0, 0.5);
 }
 
@@ -87,7 +87,7 @@ p.titulo {
     position: relative;
     background-color: rgba(255, 255, 255, 0.1);
     display: flex;
-    flex-basis: 45%;
+    flex-basis: 30%;
     align-items: center;
     margin: 5px;
     margin-right: 1.5%;
