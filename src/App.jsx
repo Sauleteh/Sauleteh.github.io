@@ -158,7 +158,7 @@ export function App() {
 
                 <Proyecto
                     titulo="Calculadora matemática de cadenas de texto"
-                    plataforma="Cualquier plataforma | Python"
+                    plataforma="Cualquier plataforma (CMD) | Python"
                     descripcion="Cálculo de operaciones matemáticas con solo introducir una cadena de texto. El tamaño de la cadena
                                 es ilimitado y se pueden realizar operaciones con paréntesis, números con décimas y funciona con las
                                 cuatro operaciones elementales: suma, resta, multiplicación y división. Fue mi primer programa."
@@ -168,7 +168,7 @@ export function App() {
 
                 <Proyecto
                     titulo="Estadística: Calculadora de sucesos"
-                    plataforma="Cualquier plataforma | Python"
+                    plataforma="Cualquier plataforma (CMD) | Python"
                     descripcion="Un conjunto de programas relativos al cálculo de probabilidades de sucesos, muy útiles para saber
                                 porcentajes de obtención de objetos/personajes en juegos gacha. Uno de los programas cuenta con un
                                 pequeño simulador automático que te presenta los resultados que se obtuvieron en la ejecución."
@@ -276,6 +276,13 @@ export function App() {
                         sabiendo cómo está hecho por dentro el código y dudo de que alguien se moleste en hacer eso a un programa que solo
                         uso yo y que probablemente lo usen unas pocas personas más en el futuro."
                     linkToPopup
+                ></Proyecto>
+
+                <Proyecto
+                    titulo="Snake Terminal"
+                    plataforma="Cualquier plataforma (CMD) | C"
+                    descripcion="El clásico juego de la serpiente, pero en la terminal. Para personalizar el juego (tamaño del tablero,
+                                velocidad de la serpiente, etc) hay que modificar el código fuente."
                 ></Proyecto>
             </div>
         </div>
