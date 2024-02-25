@@ -17,7 +17,8 @@ export function Proyecto({thumbnail = placeholder, titulo = "Sin título", plata
     
     return (
         <div className={`proyecto ${children}`} onClick={handleClick}>
-            <img src={thumbnail}/>
+            <img src="/imagen.svg" className="mostrar-thumbnail"/>
+            <img src={thumbnail} className="thumbnail"/>
             <div className="texto">
                 <p className="titulo">{titulo}</p>
                 <p className="plataforma">{plataforma}</p>
