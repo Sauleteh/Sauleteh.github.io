@@ -18,6 +18,10 @@ export default defineConfig({
       {
         src: 'src/redes/*',
         dest: 'redes'
+      },
+      {
+        src: 'src/tetris/*',
+        dest: 'tetris'
       }
     ]
   })],

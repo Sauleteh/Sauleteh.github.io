@@ -307,6 +307,16 @@ export function App() {
                     thumbnail={minecraftBotMod}
                     link="https://github.com/Sauleteh/Minecraft-Bot-Mod"
                 ></Proyecto>
+
+                <Proyecto
+                    titulo="Tetris"
+                    plataforma="Web | HTML, CSS y JS"
+                    descripcion="El clásico juego del Tetris hecho para jugar en el navegador. A diferencia de otros
+                                proyectos que tengo hechos en JavaScript, este es el primero en el que uso canvas y objetos
+                                con tal de practicar con estas herramientas."
+                    thumbnail={null} /* TODO */
+                    link="./tetris/tetris.html"
+                ></Proyecto>
             </div>
         </div>
         <br/>
