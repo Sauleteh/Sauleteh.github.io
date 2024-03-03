@@ -3,6 +3,8 @@ import * as Constants from "./Constants.js";
 import { Tetromino } from "./Tetromino.js";
 import { Controls } from "./Controls.js";
 
+export const board = []; // El tetrominó necesita acceder al tablero, por eso se exporta
+
 document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando el DOM esté listo
     const canvas = document.querySelector("canvas");
     const ctx = canvas.getContext('2d');
@@ -15,8 +17,6 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
     const controlFps = new FpsController(30);
     const controls = new Controls();
-
-    const board = [];
 
     for (let i = 0; i < Constants.BOARD_HEIGHT; i++) {
         board[i] = [];
@@ -99,25 +99,66 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     }
 
     function movementTetromino() {
+        // Mover izquierda o derecha
         if (controls.keys.left.isPressed && !controls.keys.left.actionDone) {
+            let canMove = true;
+
             for (let i = 0; i < tetromino.squares.length; i++) {
-                tetromino.squares[i].col--;
+                const square = tetromino.squares[i];
+                if (square.col - 1 < 0 || board[square.row][square.col - 1] !== null) {
+                    canMove = false;
+                    break;
+                }
             }
-            controls.keys.left.actionDone = true;
+
+            if (canMove) {
+                for (let i = 0; i < tetromino.squares.length; i++) {
+                    tetromino.squares[i].col--;
+                }
+                controls.keys.left.actionDone = true;
+            }
         }
         else if (controls.keys.right.isPressed && !controls.keys.right.actionDone) {
+            let canMove = true;
+
             for (let i = 0; i < tetromino.squares.length; i++) {
-                tetromino.squares[i].col++;
+                const square = tetromino.squares[i];
+                if (square.col + 1 >= Constants.BOARD_WIDTH || board[square.row][square.col + 1] !== null) {
+                    canMove = false;
+                    break;
+                }
             }
-            controls.keys.right.actionDone = true;
+
+            if (canMove) {
+                for (let i = 0; i < tetromino.squares.length; i++) {
+                    tetromino.squares[i].col++;
+                }
+                controls.keys.right.actionDone = true;
+            }
         }
 
-        // TODO: Rotar la pieza
-        // TODO: Soft drop y hard drop
-        // TODO: No moverse fuera del tablero ni a los lados de las piezas
+        // Rotar la pieza en sentido horario o antihorario
+        if (controls.keys.rotateClockwise.isPressed && !controls.keys.rotateClockwise.actionDone) {
+            tetromino.rotateClockwise();
+            controls.keys.rotateClockwise.actionDone = true;
+        }
+        else if (controls.keys.rotateCounterClockwise.isPressed && !controls.keys.rotateCounterClockwise.actionDone) {
+            tetromino.rotateCounterClockwise();
+            controls.keys.rotateCounterClockwise.actionDone = true;
+        }
 
-        // Esperar para bajar la pieza
-        if (counterFalling < pieceFallingSpeed * controlFps.framesPerSec) {
+        // Hard drop
+        if (controls.keys.dropHard.isPressed && !controls.keys.dropHard.actionDone) {
+            while (!collisionTetromino()) {
+                for (let i = 0; i < tetromino.squares.length; i++) {
+                    tetromino.squares[i].row++;
+                }
+            }
+            controls.keys.dropHard.actionDone = true;
+        }
+
+        // Esperar para bajar la pieza (o no esperar si se está pidiendo hacer un soft drop)
+        if (!controls.keys.dropSoft.isPressed && counterFalling < pieceFallingSpeed * controlFps.framesPerSec) {
             counterFalling++;
             return;
         }
@@ -186,3 +227,4 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     initEvents();
 });
 
+// TODO: Implementar el sistema de puntuación, el sistema de niveles, el sistema de piezas por bolsa, mejorar los gráficos y mejorar el control horizontal de las piezas.
