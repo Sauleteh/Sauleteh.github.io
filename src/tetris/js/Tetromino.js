@@ -17,6 +17,8 @@ export class Tetromino
 
     // Explicación detallada del algoritmo en https://www.baeldung.com/cs/tetris-piece-rotation-algorithm
     rotate(degree) {
+        if (this.centerSquare === null) { return; } // Los tetrominós sin un centro no pueden rotar (como el O
+
         const beta = degree * Math.PI / 180;
         const rotatedSquares = [];
         
@@ -82,10 +84,10 @@ export class Tetromino
 
     pieceI() {
         return [
-            new Square(1, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), "cyan"),
-            new Square(1, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), "cyan"),
-            new Square(1, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), "cyan", true),
-            new Square(1, 3 + Math.ceil(Constants.BOARD_WIDTH / 4), "cyan")
+            new Square(2, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), "cyan"),
+            new Square(2, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), "cyan"),
+            new Square(2, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), "cyan", true),
+            new Square(2, 3 + Math.ceil(Constants.BOARD_WIDTH / 4), "cyan")
         ];
     }
 
@@ -110,7 +112,7 @@ export class Tetromino
     pieceO() {
         return [
             new Square(0, 0 + Math.ceil(Constants.BOARD_WIDTH / 3), "yellow"),
-            new Square(0, 1 + Math.ceil(Constants.BOARD_WIDTH / 3), "yellow", true),
+            new Square(0, 1 + Math.ceil(Constants.BOARD_WIDTH / 3), "yellow"),
             new Square(1, 0 + Math.ceil(Constants.BOARD_WIDTH / 3), "yellow"),
             new Square(1, 1 + Math.ceil(Constants.BOARD_WIDTH / 3), "yellow")
         ];
@@ -118,10 +120,10 @@ export class Tetromino
 
     pieceS() {
         return [
-            new Square(0, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), "green", true),
-            new Square(0, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), "green"),
-            new Square(1, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), "green"),
-            new Square(1, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), "green")
+            new Square(1, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), "green", true),
+            new Square(1, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), "green"),
+            new Square(2, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), "green"),
+            new Square(2, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), "green")
         ];
     }
 
@@ -136,10 +138,10 @@ export class Tetromino
 
     pieceZ() {
         return [
-            new Square(0, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), "red"),
-            new Square(0, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), "red", true),
-            new Square(1, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), "red"),
-            new Square(1, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), "red")
+            new Square(1, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), "red"),
+            new Square(1, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), "red", true),
+            new Square(2, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), "red"),
+            new Square(2, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), "red")
         ];
     }
 
@@ -150,8 +152,6 @@ export class Tetromino
                 return square;
             }
         }
-
-        console.error("No se encontró el cuadrado central");
-        return null;
+        return null; // Los tetrominós sin un centro no pueden rotar
     }
 }

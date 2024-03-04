@@ -12,11 +12,12 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     canvas.width = Constants.SQUARE_SIZE * Constants.BOARD_WIDTH;
     canvas.height = Constants.SQUARE_SIZE * Constants.BOARD_HEIGHT;
 
-    const pieceFallingSpeed = 0.2; // Menor número = mayor velocidad. Recomendado entre 0 y 1
+    let pieceFallingSpeed = Constants.INITIAL_FALLING_SPEED; // Menor número = mayor velocidad. Recomendado entre 0 y 1
     let counterFalling = 0; // Contador para la velocidad de caída de las piezas
 
     const controlFps = new FpsController(30);
     const controls = new Controls();
+    let counterMovementDelay = 0; // Contador para el retraso de movimiento horizontal de las piezas
 
     for (let i = 0; i < Constants.BOARD_HEIGHT; i++) {
         board[i] = [];
@@ -27,6 +28,9 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
     const tetromino = new Tetromino();
     let gameOver = false;
+    let score = 0;
+    let level = 1;
+    let linesCompleted = 0;
 
     function initEvents() {
         document.addEventListener("keydown", function(event) {
@@ -47,7 +51,9 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     function drawUI() {
         ctx.font = "10px Arial";
         ctx.fillStyle = "white";
-        ctx.fillText(`FPS: ${controlFps.framesPerSec}`, 10, 10);
+        ctx.fillText(`FPS: ${controlFps.framesPerSec}`, 10, 12);
+        ctx.fillText(`Score: ${score}`, canvas.width / 1.4, 12);
+        ctx.fillText(`Nivel: ${level}`, canvas.width / 1.4, 24);
     }
 
     function drawBoard() {
@@ -100,9 +106,11 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
     function movementTetromino() {
         // Mover izquierda o derecha
-        if (controls.keys.left.isPressed && !controls.keys.left.actionDone) {
-            let canMove = true;
+        if (controls.keys.left.isPressed) {
+            counterMovementDelay++;
+            if (counterMovementDelay < Constants.MOVEMENT_DELAY_THRESHOLD && controls.keys.left.actionDone) return;
 
+            let canMove = true;
             for (let i = 0; i < tetromino.squares.length; i++) {
                 const square = tetromino.squares[i];
                 if (square.col - 1 < 0 || board[square.row][square.col - 1] !== null) {
@@ -118,9 +126,11 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 controls.keys.left.actionDone = true;
             }
         }
-        else if (controls.keys.right.isPressed && !controls.keys.right.actionDone) {
-            let canMove = true;
+        else if (controls.keys.right.isPressed) {
+            counterMovementDelay++;
+            if (counterMovementDelay < Constants.MOVEMENT_DELAY_THRESHOLD && controls.keys.right.actionDone) return;
 
+            let canMove = true;
             for (let i = 0; i < tetromino.squares.length; i++) {
                 const square = tetromino.squares[i];
                 if (square.col + 1 >= Constants.BOARD_WIDTH || board[square.row][square.col + 1] !== null) {
@@ -135,6 +145,9 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 }
                 controls.keys.right.actionDone = true;
             }
+        }
+        else if (!controls.keys.left.isPressed && !controls.keys.right.isPressed) {
+            counterMovementDelay = 0;
         }
 
         // Rotar la pieza en sentido horario o antihorario
@@ -171,6 +184,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     }
 
     function lineCompleteDetection() {
+        let lines = 0;
         for (let i = 0; i < board.length; i++) {
             let lineComplete = true;
             for (let j = 0; j < board[i].length; j++) {
@@ -180,9 +194,14 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 }
             }
             if (lineComplete) {
+                lines++;
+                linesCompleted++;
+                // Limpiar la línea completada
                 for (let j = 0; j < board[i].length; j++) {
                     board[i][j] = null;
                 }
+
+                // Bajar las piezas que estén por encima de la línea completada
                 for (let k = i; k > 0; k--) {
                     for (let j = 0; j < board[k].length; j++) {
                         board[k][j] = board[k - 1][j];
@@ -190,13 +209,32 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 }
             }
         }
+
+        // Sistema de puntuación del Tetris 1988 BPS
+        switch (lines) {
+            case 1: score += 40; break;
+            case 2: score += 100; break;
+            case 3: score += 300; break;
+            case 4: score += 1200; break;
+        }
+
+        level = Math.floor(linesCompleted / 10) + 1; // Cada 10 líneas, se sube de nivel
+
+        // Sistema de velocidad de caída de las piezas
+        if (level <= 1) pieceFallingSpeed = Constants.INITIAL_FALLING_SPEED; // Primer nivel
+        else if (level <= 10) pieceFallingSpeed = Constants.INITIAL_FALLING_SPEED / (level * 0.6); // Niveles 2-10
+        else if (level >= 11 && level <= 12) pieceFallingSpeed = Constants.INITIAL_FALLING_SPEED / (10 * 0.65); // A partir del 10 no cambia en cada nivel
+        else if (level >= 13 && level <= 15) pieceFallingSpeed = Constants.INITIAL_FALLING_SPEED / (13 * 0.72); // Nivel 13
+        else if (level >= 16 && level <= 18) pieceFallingSpeed = Constants.INITIAL_FALLING_SPEED / (16 * 0.8); // Nivel 16
+        else if (level >= 19 && level <= 28) pieceFallingSpeed = Constants.INITIAL_FALLING_SPEED / (19 * 0.9); // Nivel 19
+        else if (level >= 29) pieceFallingSpeed = 0; // Nivel 29: velocidad máxima, a este punto se le llama "Kill Screen"
     }
 
     function gameOverDetection() {
         for (let i = 0; i < board.length; i++) {
             for (let j = 0; j < board[i].length; j++) {
                 if (board[i][j] !== null && i < 4) {
-                    alert("Game Over");
+                    alert("Game Over\n\nPuntuación: " + score + "\nNivel: " + level + "\nLíneas completadas: " + linesCompleted);
                     gameOver = true;
                     window.location.reload();
                     return;
@@ -218,8 +256,9 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         drawTetromino();
         drawLimitLine();
 
-        if (!collisionTetromino()) movementTetromino();
-        else lineCompleteDetection();
+        movementTetromino();
+        collisionTetromino();
+        lineCompleteDetection();
         gameOverDetection();
     }
     
@@ -227,4 +266,4 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     initEvents();
 });
 
-// TODO: Implementar el sistema de puntuación, el sistema de niveles, el sistema de piezas por bolsa, mejorar los gráficos y mejorar el control horizontal de las piezas.
+// TODO: Implementar el sistema de piezas por bolsa y mejorar los gráficos. También, a ser posible, hacer una previsión fantasma de la caída de la pieza y el sistema de guardado de tetrominós
