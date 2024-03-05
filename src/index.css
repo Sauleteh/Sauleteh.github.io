@@ -1,5 +1,11 @@
 :root { --tamTitulo: 36px; }
 
+html {
+    scrollbar-color: #3d3d47 #111314;
+    overflow-x: hidden;
+    overscroll-behavior-y: none; /* Desactivar el efecto de rebote al llegar al principio/final de la página */
+}
+
 body {
     background: linear-gradient(45deg, #111314, #28292b, #292d31, #161718, #232324, #111314);
     background-repeat: no-repeat;
