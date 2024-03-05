@@ -13,3 +13,13 @@ export const COLORS = {
     PURPLE: 5,
     RED: 6
 }
+
+export const TETROMINO = {
+    I: COLORS.CYAN,
+    J: COLORS.BLUE,
+    L: COLORS.ORANGE,
+    O: COLORS.YELLOW,
+    S: COLORS.GREEN,
+    T: COLORS.PURPLE,
+    Z: COLORS.RED
+}

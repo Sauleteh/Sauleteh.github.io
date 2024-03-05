@@ -74,12 +74,32 @@ export class Tetromino
     rotateClockwise() { this.rotate(90); }
     rotateCounterClockwise() { this.rotate(-90); }
 
+    // Recoge la siguiente pieza de la bolsa
     next() {
+        this.checkBag();
+        this.squares = this.bag.pop();
+    }
+
+    // Recoloca la pieza en su lugar original
+    resetPosition() {
+        // Los tipo de pieza están asociados a su color, por lo que se puede saber qué tipo de pieza es mediante el color del primer cuadrado
+        switch (this.squares[0].color) {
+            case Constants.TETROMINO.I: this.squares = this.pieceI(); break;
+            case Constants.TETROMINO.J: this.squares = this.pieceJ(); break;
+            case Constants.TETROMINO.L: this.squares = this.pieceL(); break;
+            case Constants.TETROMINO.O: this.squares = this.pieceO(); break;
+            case Constants.TETROMINO.S: this.squares = this.pieceS(); break;
+            case Constants.TETROMINO.T: this.squares = this.pieceT(); break;
+            case Constants.TETROMINO.Z: this.squares = this.pieceZ(); break;
+        }
+    }
+
+    // Comprueba si la bolsa de piezas está vacía, la rellena en tal caso y la mezcla
+    checkBag() {
         if (this.bag.length === 0) {
             this.bag = this.getAllPieces();
             this.shuffleBag(this.bag);
         }
-        this.squares = this.bag.pop();
     }
 
     randomPiece() {

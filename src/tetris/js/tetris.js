@@ -6,12 +6,22 @@ import { Controls } from "./Controls.js";
 export const board = []; // El tetrominó necesita acceder al tablero, por eso se exporta
 
 document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando el DOM esté listo
-    const canvas = document.querySelector("canvas");
+    const canvas = document.querySelector("canvas.board");
+    const canvasHold = document.querySelector("canvas.hold");
+    const canvasNext = document.querySelector("canvas.next");
     const ctx = canvas.getContext('2d');
+    const ctxHold = canvasHold.getContext('2d');
+    const ctxNext = canvasNext.getContext('2d');
     const $spriteSquares = document.querySelector("#spriteSquares");
 
     canvas.width = Constants.SQUARE_SIZE * Constants.BOARD_WIDTH;
     canvas.height = Constants.SQUARE_SIZE * Constants.BOARD_HEIGHT;
+
+    canvasHold.width = Constants.SQUARE_SIZE * 5;
+    canvasHold.height = Constants.SQUARE_SIZE * 5;
+
+    canvasNext.width = Constants.SQUARE_SIZE * 5;
+    canvasNext.height = Constants.SQUARE_SIZE * 5;
 
     let pieceFallingSpeed = Constants.INITIAL_FALLING_SPEED; // Menor número = mayor velocidad. Recomendado entre 0 y 1
     let counterFalling = 0; // Contador para la velocidad de caída de las piezas
@@ -28,6 +38,9 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     }
 
     const tetromino = new Tetromino();
+    let holdSquares = null; // Cuadrados guardados en el cuadro de guardado
+    let canHold = true; // Indica si se puede guardar un tetrominó o no. Se usa para evitar que se guarde más de una vez en un solo movimiento
+
     let gameOver = false;
     let score = 0;
     let level = 1;
@@ -47,6 +60,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
     function cleanCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctxHold.clearRect(0, 0, canvasHold.width, canvasHold.height);
+        ctxNext.clearRect(0, 0, canvasNext.width, canvasNext.height);
     }
 
     function drawUI() {
@@ -122,6 +137,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                     board[square.row][square.col] = square;
                 }
                 tetromino.next();
+                canHold = true;
                 return true;
             }
         }
@@ -267,6 +283,184 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         }
     }
 
+    function drawGhostTetromino() {
+        const squares = tetromino.squares.map(square => ({ ...square })); // Clonar los cuadrados del tetrominó
+        
+        // Bajamos los cuadrados del tetrominó fantasma hasta que colisione con algo
+        let canMove = true;
+        while (canMove) {
+            for (let i = 0; i < squares.length; i++) {
+                const square = squares[i];
+                if (square.row + 1 >= Constants.BOARD_HEIGHT || board[square.row + 1][square.col] !== null) {
+                    canMove = false;
+                }
+            }
+            if (canMove)
+            {
+                for (let i = 0; i < squares.length; i++) {
+                    squares[i].row++;
+                }
+            }
+        }
+
+        // Dibujamos el tetrominó fantasma
+        for (let i = 0; i < squares.length; i++) {
+            const square = squares[i];
+            ctx.drawImage(
+                $spriteSquares,
+                square.color * 16, // Posición X del cuadrado en la imagen
+                16, // Posición Y del cuadrado en la imagen
+                16, // Ancho del cuadrado en la imagen
+                16, // Alto del cuadrado en la imagen
+                square.col * Constants.SQUARE_SIZE, // Posición X del cuadrado
+                square.row * Constants.SQUARE_SIZE, // Posición Y del cuadrado
+                Constants.SQUARE_SIZE, // Ancho del cuadrado
+                Constants.SQUARE_SIZE // Alto del cuadrado
+            )
+        }
+    }
+
+    function drawHold() {
+        ctxHold.font = "12px Arial";
+        ctxHold.fillStyle = "white";
+        ctxHold.textAlign = "center";
+        ctxHold.fillText(`Guardado`, canvasHold.width / 2, 16);
+
+        if (holdSquares !== null) {
+            // Desplazamos los cuadrados del tetrominó guardado al punto de origen para poder centrarlos
+            moveSquaresToOrigin(holdSquares);
+
+            // Número de cuadrados horizontales y verticales del tetrominó guardado
+            let numSquaresHorizontally = 0;
+            holdSquares.forEach(square => {
+                if (square.col > numSquaresHorizontally) numSquaresHorizontally = square.col;
+            });
+            numSquaresHorizontally++;
+            
+            let numSquaresVertically = 0;
+            holdSquares.forEach(square => {
+                if (square.row > numSquaresVertically) numSquaresVertically = square.row;
+            });
+            numSquaresVertically++;
+
+            // Dibujamos el tetrominó guardado
+            for (let i = 0; i < holdSquares.length; i++) {
+                const square = holdSquares[i];
+
+                ctxHold.drawImage(
+                    $spriteSquares,
+                    square.color * 16, // Posición X del cuadrado en la imagen
+                    0, // Posición Y del cuadrado en la imagen
+                    16, // Ancho del cuadrado en la imagen
+                    16, // Alto del cuadrado en la imagen
+                    square.col * Constants.SQUARE_SIZE + ((canvasNext.width - numSquaresHorizontally * Constants.SQUARE_SIZE) / 2), // Posición X del cuadrado
+                    square.row * Constants.SQUARE_SIZE + ((canvasNext.height - numSquaresVertically * Constants.SQUARE_SIZE) / 2), // Posición Y del cuadrado
+                    Constants.SQUARE_SIZE, // Ancho del cuadrado
+                    Constants.SQUARE_SIZE // Alto del cuadrado
+                )
+            }
+        }
+    }
+
+    function drawNext() {
+        ctxNext.font = "12px Arial";
+        ctxNext.fillStyle = "white";
+        ctxNext.textAlign = "center";
+        ctxNext.fillText(`Siguiente`, canvasNext.width / 2, 16);
+
+
+        tetromino.checkBag(); // La bolsa de piezas se rellena si está vacía
+        const nextSquares = tetromino.bag[tetromino.bag.length - 1].map(square => ({ ...square })); // Clonar los cuadrados del siguiente tetrominó
+        
+        // Desplazamos los cuadrados del siguiente tetrominó al punto de origen para poder centrarlos
+        moveSquaresToOrigin(nextSquares);
+
+        // Número de cuadrados horizontales y verticales del siguiente tetrominó
+        let numSquaresHorizontally = 0;
+        nextSquares.forEach(square => {
+            if (square.col > numSquaresHorizontally) numSquaresHorizontally = square.col;
+        });
+        numSquaresHorizontally++;
+        
+        let numSquaresVertically = 0;
+        nextSquares.forEach(square => {
+            if (square.row > numSquaresVertically) numSquaresVertically = square.row;
+        });
+        numSquaresVertically++;
+
+        // Dibujamos el siguiente tetrómino
+        for (let i = 0; i < nextSquares.length; i++) {
+            const square = nextSquares[i];
+
+            ctxNext.drawImage(
+                $spriteSquares,
+                square.color * 16, // Posición X del cuadrado en la imagen
+                0, // Posición Y del cuadrado en la imagen
+                16, // Ancho del cuadrado en la imagen
+                16, // Alto del cuadrado en la imagen
+                square.col * Constants.SQUARE_SIZE + ((canvasNext.width - numSquaresHorizontally * Constants.SQUARE_SIZE) / 2), // Posición X del cuadrado
+                square.row * Constants.SQUARE_SIZE + ((canvasNext.height - numSquaresVertically * Constants.SQUARE_SIZE) / 2), // Posición Y del cuadrado
+                Constants.SQUARE_SIZE, // Ancho del cuadrado
+                Constants.SQUARE_SIZE // Alto del cuadrado
+            )
+        }
+    }
+
+    function moveSquaresToOrigin(squares) {
+        // Hacia arriba
+        let canMoveTop = true;
+        while (canMoveTop) {
+            for (let i = 0; i < squares.length; i++) {
+                const square = squares[i];
+                if (square.row <= 0) {
+                    canMoveTop = false;
+                }
+            }
+            if (canMoveTop)
+            {
+                for (let i = 0; i < squares.length; i++) {
+                    squares[i].row--;
+                }
+            }
+        }
+
+        // Hacia la izquierda
+        let canMoveLeft = true;
+        while (canMoveLeft) {
+            for (let i = 0; i < squares.length; i++) {
+                const square = squares[i];
+                if (square.col <= 0) {
+                    canMoveLeft = false;
+                }
+            }
+            if (canMoveLeft)
+            {
+                for (let i = 0; i < squares.length; i++) {
+                    squares[i].col--;
+                }
+            }
+        }
+    }
+
+    function holdTetromino() {
+        // Guardar el tetrominó actual
+        if (controls.keys.hold.isPressed && !controls.keys.hold.actionDone && canHold) {
+            tetromino.resetPosition(); // Reseteamos la posición del tetrominó a guardar para que se dibuje correctamente en el cuadro de guardado
+            if (holdSquares === null) { // Si no hay tetrominó guardado, guardamos el actual y sacamos uno nuevo
+                holdSquares = tetromino.squares.map(square => ({ ...square }));
+                tetromino.next();
+            }
+            else { // Si ya había un tetrominó guardado, intercambiamos el actual con el guardado
+                const temp = holdSquares;
+                holdSquares = tetromino.squares;
+                tetromino.squares = temp;
+                tetromino.resetPosition(); // Colocamos el tetrominó reemplazado en su lugar original
+            }
+            canHold = false;
+            controls.keys.hold.actionDone = true;
+        }
+    }
+
     function draw() {
         if (!gameOver) window.requestAnimationFrame(draw);
         else return;
@@ -278,8 +472,13 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         drawUI();
         drawBoard();
         drawTetromino();
+        drawGhostTetromino();
         drawLimitLine();
 
+        drawHold();
+        drawNext();
+
+        holdTetromino();
         movementTetromino();
         collisionTetromino();
         lineCompleteDetection();
@@ -290,4 +489,4 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     initEvents();
 });
 
-// TODO: También, a ser posible, hacer una previsión fantasma de la caída de la pieza y el sistema de guardado de tetrominós
+// TODO: Implementar un cierto delay antes de colocar la pieza en el tablero para que el jugador pueda moverla un poco antes de que se bloquee
