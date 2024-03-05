@@ -1,0 +1,41 @@
+body {
+    background: linear-gradient(45deg, #111314, #28292b, #292d31, #161718, #232324, #111314);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    background-size: 600% 600%;
+    animation: gradientAnimation 20s ease infinite;
+    display: grid;
+    place-items: center;
+    grid-template-rows: auto 1fr;
+}
+
+div {
+    display: grid;
+    place-items: top;
+    grid-template-columns: auto auto 1fr;
+    column-gap: 2%;
+}
+
+canvas {
+    border: 2px solid white;
+    background-color: black;
+    margin: 0 auto;
+    display: block;
+}
+
+h1 {
+    font-family: 'Raleway', sans-serif;
+    color: white;
+}
+
+p, td, span {
+    font-family: 'Raleway', monospace;
+    color: white;
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
