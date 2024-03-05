@@ -12,7 +12,16 @@ import { board } from './tetris.js';
 export class Tetromino
 {
     constructor() {
-        this.squares = this.randomPiece();
+        this.bag = this.getAllPieces();
+        this.shuffleBag(this.bag);
+        this.squares = this.bag.pop();
+    }
+
+    shuffleBag(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
     }
 
     // Explicación detallada del algoritmo en https://www.baeldung.com/cs/tetris-piece-rotation-algorithm
@@ -66,7 +75,11 @@ export class Tetromino
     rotateCounterClockwise() { this.rotate(-90); }
 
     next() {
-        this.squares = this.randomPiece();
+        if (this.bag.length === 0) {
+            this.bag = this.getAllPieces();
+            this.shuffleBag(this.bag);
+        }
+        this.squares = this.bag.pop();
     }
 
     randomPiece() {
@@ -82,66 +95,79 @@ export class Tetromino
         return pieces[Math.floor(Math.random() * pieces.length)];
     }
 
+    getAllPieces() {
+        const pieces = [
+            this.pieceI(),
+            this.pieceJ(),
+            this.pieceL(),
+            this.pieceO(),
+            this.pieceS(),
+            this.pieceT(),
+            this.pieceZ()
+        ];
+        return pieces;
+    }
+
     pieceI() {
         return [
-            new Square(2, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), "cyan"),
-            new Square(2, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), "cyan"),
-            new Square(2, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), "cyan", true),
-            new Square(2, 3 + Math.ceil(Constants.BOARD_WIDTH / 4), "cyan")
+            new Square(2, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.CYAN),
+            new Square(2, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.CYAN),
+            new Square(2, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.CYAN, true),
+            new Square(2, 3 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.CYAN)
         ];
     }
 
     pieceJ() {
         return [
-            new Square(0, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), "blue"),
-            new Square(1, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), "blue"),
-            new Square(1, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), "blue", true),
-            new Square(1, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), "blue")
+            new Square(0, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.BLUE),
+            new Square(1, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.BLUE),
+            new Square(1, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.BLUE, true),
+            new Square(1, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.BLUE)
         ];
     }
 
     pieceL() {
         return [
-            new Square(1, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), "orange"),
-            new Square(1, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), "orange", true),
-            new Square(1, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), "orange"),
-            new Square(0, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), "orange")
+            new Square(1, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.ORANGE),
+            new Square(1, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.ORANGE, true),
+            new Square(1, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.ORANGE),
+            new Square(0, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.ORANGE)
         ];
     }
 
     pieceO() {
         return [
-            new Square(0, 0 + Math.ceil(Constants.BOARD_WIDTH / 3), "yellow"),
-            new Square(0, 1 + Math.ceil(Constants.BOARD_WIDTH / 3), "yellow"),
-            new Square(1, 0 + Math.ceil(Constants.BOARD_WIDTH / 3), "yellow"),
-            new Square(1, 1 + Math.ceil(Constants.BOARD_WIDTH / 3), "yellow")
+            new Square(0, 0 + Math.ceil(Constants.BOARD_WIDTH / 3), Constants.COLORS.YELLOW),
+            new Square(0, 1 + Math.ceil(Constants.BOARD_WIDTH / 3), Constants.COLORS.YELLOW),
+            new Square(1, 0 + Math.ceil(Constants.BOARD_WIDTH / 3), Constants.COLORS.YELLOW),
+            new Square(1, 1 + Math.ceil(Constants.BOARD_WIDTH / 3), Constants.COLORS.YELLOW)
         ];
     }
 
     pieceS() {
         return [
-            new Square(1, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), "green", true),
-            new Square(1, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), "green"),
-            new Square(2, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), "green"),
-            new Square(2, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), "green")
+            new Square(1, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.GREEN, true),
+            new Square(1, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.GREEN),
+            new Square(2, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.GREEN),
+            new Square(2, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.GREEN)
         ];
     }
 
     pieceT() {
         return [
-            new Square(0, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), "purple"),
-            new Square(1, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), "purple"),
-            new Square(1, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), "purple", true),
-            new Square(1, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), "purple")
+            new Square(0, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.PURPLE),
+            new Square(1, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.PURPLE),
+            new Square(1, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.PURPLE, true),
+            new Square(1, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.PURPLE)
         ];
     }
 
     pieceZ() {
         return [
-            new Square(1, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), "red"),
-            new Square(1, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), "red", true),
-            new Square(2, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), "red"),
-            new Square(2, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), "red")
+            new Square(1, 0 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.RED),
+            new Square(1, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.RED, true),
+            new Square(2, 1 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.RED),
+            new Square(2, 2 + Math.ceil(Constants.BOARD_WIDTH / 4), Constants.COLORS.RED)
         ];
     }
 

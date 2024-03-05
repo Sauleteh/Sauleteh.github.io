@@ -8,6 +8,7 @@ export const board = []; // El tetrominó necesita acceder al tablero, por eso s
 document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando el DOM esté listo
     const canvas = document.querySelector("canvas");
     const ctx = canvas.getContext('2d');
+    const $spriteSquares = document.querySelector("#spriteSquares");
 
     canvas.width = Constants.SQUARE_SIZE * Constants.BOARD_WIDTH;
     canvas.height = Constants.SQUARE_SIZE * Constants.BOARD_HEIGHT;
@@ -60,8 +61,20 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         for (let i = 0; i < Constants.BOARD_HEIGHT; i++) {
             for (let j = 0; j < Constants.BOARD_WIDTH; j++) {
                 if (board[i][j] !== null) {
-                    ctx.fillStyle = board[i][j].color;
-                    ctx.fillRect(j * Constants.SQUARE_SIZE, i * Constants.SQUARE_SIZE, Constants.SQUARE_SIZE, Constants.SQUARE_SIZE);
+                    const square = board[i][j];
+                    //ctx.fillStyle = board[i][j].color;
+                    //ctx.fillRect(j * Constants.SQUARE_SIZE, i * Constants.SQUARE_SIZE, Constants.SQUARE_SIZE, Constants.SQUARE_SIZE);
+                    ctx.drawImage(
+                        $spriteSquares,
+                        square.color * 16, // Posición X del cuadrado en la imagen
+                        0, // Posición Y del cuadrado en la imagen
+                        16, // Ancho del cuadrado en la imagen
+                        16, // Alto del cuadrado en la imagen
+                        j * Constants.SQUARE_SIZE, // Posición X del cuadrado
+                        i * Constants.SQUARE_SIZE, // Posición Y del cuadrado
+                        Constants.SQUARE_SIZE, // Ancho del cuadrado
+                        Constants.SQUARE_SIZE // Alto del cuadrado
+                    )
                 }
             }
         }
@@ -70,8 +83,19 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     function drawTetromino() {
         for (let i = 0; i < tetromino.squares.length; i++) {
             const square = tetromino.squares[i];
-            ctx.fillStyle = square.color;
-            ctx.fillRect(square.col * Constants.SQUARE_SIZE, square.row * Constants.SQUARE_SIZE, Constants.SQUARE_SIZE, Constants.SQUARE_SIZE);
+            //ctx.fillStyle = square.color;
+            //ctx.fillRect(square.col * Constants.SQUARE_SIZE, square.row * Constants.SQUARE_SIZE, Constants.SQUARE_SIZE, Constants.SQUARE_SIZE);
+            ctx.drawImage(
+                $spriteSquares,
+                square.color * 16, // Posición X del cuadrado en la imagen
+                0, // Posición Y del cuadrado en la imagen
+                16, // Ancho del cuadrado en la imagen
+                16, // Alto del cuadrado en la imagen
+                square.col * Constants.SQUARE_SIZE, // Posición X del cuadrado
+                square.row * Constants.SQUARE_SIZE, // Posición Y del cuadrado
+                Constants.SQUARE_SIZE, // Ancho del cuadrado
+                Constants.SQUARE_SIZE // Alto del cuadrado
+            )
         }
     }
 
@@ -266,4 +290,4 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     initEvents();
 });
 
-// TODO: Implementar el sistema de piezas por bolsa y mejorar los gráficos. También, a ser posible, hacer una previsión fantasma de la caída de la pieza y el sistema de guardado de tetrominós
+// TODO: También, a ser posible, hacer una previsión fantasma de la caída de la pieza y el sistema de guardado de tetrominós
