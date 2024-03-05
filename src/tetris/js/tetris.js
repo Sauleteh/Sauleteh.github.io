@@ -490,3 +490,4 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 });
 
 // TODO: Implementar un cierto delay antes de colocar la pieza en el tablero para que el jugador pueda moverla un poco antes de que se bloquee
+// TODO: Añadir una guía de controles en la pantalla

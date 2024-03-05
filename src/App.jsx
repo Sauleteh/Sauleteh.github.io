@@ -23,6 +23,7 @@ import sudokuUnity from "./assets/sudokuUnity.png"
 import packCss from "./assets/packCss.png"
 import autoBingo from "./assets/autoBingo.png"
 import miVirus from "./assets/miVirus.png"
+import tetrisJS from "./assets/tetrisJS.png"
 
 export function App() {
     return (
@@ -313,8 +314,9 @@ export function App() {
                     plataforma="Web | HTML, CSS y JS"
                     descripcion="El clásico juego del Tetris hecho para jugar en el navegador. A diferencia de otros
                                 proyectos que tengo hechos en JavaScript, este es el primero en el que uso canvas y objetos
-                                con tal de practicar con estas herramientas."
-                    thumbnail={null} /* TODO */
+                                con tal de practicar con estas herramientas. He intentado hacerlo lo más parecido posible
+                                al Tetris original."
+                    thumbnail={tetrisJS}
                     link="./tetris/tetris.html"
                 ></Proyecto>
             </div>
