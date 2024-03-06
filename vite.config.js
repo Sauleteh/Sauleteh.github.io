@@ -32,6 +32,7 @@ export default defineConfig({
       input: {
         main: resolve(".", "index.html"),
         noPageFound: resolve(".", "404.html"),
+        googleSearchConsole: resolve(".", "google107a1eae1939d59f.html"),
       },
     },
   },
