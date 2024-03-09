@@ -151,42 +151,42 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         // Mover izquierda o derecha
         if (controls.keys.left.isPressed) {
             counterMovementDelay++;
-            if (counterMovementDelay < Constants.MOVEMENT_DELAY_THRESHOLD && controls.keys.left.actionDone) return;
-
-            let canMove = true;
-            for (let i = 0; i < tetromino.squares.length; i++) {
-                const square = tetromino.squares[i];
-                if (square.col - 1 < 0 || board[square.row][square.col - 1] !== null) {
-                    canMove = false;
-                    break;
-                }
-            }
-
-            if (canMove) {
+            if (!(counterMovementDelay < Constants.MOVEMENT_DELAY_THRESHOLD && controls.keys.left.actionDone)) {
+                let canMove = true;
                 for (let i = 0; i < tetromino.squares.length; i++) {
-                    tetromino.squares[i].col--;
+                    const square = tetromino.squares[i];
+                    if (square.col - 1 < 0 || board[square.row][square.col - 1] !== null) {
+                        canMove = false;
+                        break;
+                    }
                 }
-                controls.keys.left.actionDone = true;
+
+                if (canMove) {
+                    for (let i = 0; i < tetromino.squares.length; i++) {
+                        tetromino.squares[i].col--;
+                    }
+                    controls.keys.left.actionDone = true;
+                }
             }
         }
         else if (controls.keys.right.isPressed) {
             counterMovementDelay++;
-            if (counterMovementDelay < Constants.MOVEMENT_DELAY_THRESHOLD && controls.keys.right.actionDone) return;
-
-            let canMove = true;
-            for (let i = 0; i < tetromino.squares.length; i++) {
-                const square = tetromino.squares[i];
-                if (square.col + 1 >= Constants.BOARD_WIDTH || board[square.row][square.col + 1] !== null) {
-                    canMove = false;
-                    break;
-                }
-            }
-
-            if (canMove) {
+            if (!(counterMovementDelay < Constants.MOVEMENT_DELAY_THRESHOLD && controls.keys.right.actionDone)) {
+                let canMove = true;
                 for (let i = 0; i < tetromino.squares.length; i++) {
-                    tetromino.squares[i].col++;
+                    const square = tetromino.squares[i];
+                    if (square.col + 1 >= Constants.BOARD_WIDTH || board[square.row][square.col + 1] !== null) {
+                        canMove = false;
+                        break;
+                    }
                 }
-                controls.keys.right.actionDone = true;
+
+                if (canMove) {
+                    for (let i = 0; i < tetromino.squares.length; i++) {
+                        tetromino.squares[i].col++;
+                    }
+                    controls.keys.right.actionDone = true;
+                }
             }
         }
         else if (!controls.keys.left.isPressed && !controls.keys.right.isPressed) {
