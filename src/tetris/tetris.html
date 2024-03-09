@@ -5,6 +5,10 @@
     <title>Tetris</title>
     <link rel="stylesheet" href="tetris.css">
     <script type="module" src="./js/tetris.js"></script>
+
+    <!-- Controles flotantes: https://www.w3schools.com/howto/howto_js_draggable.asp -->
+    <link rel="stylesheet" href="FloatingControls/fc.css">
+    <script src="FloatingControls/fc.js"></script>
 </head>
 <body>
     <h1>Tetris</h1>
@@ -13,16 +17,18 @@
         <canvas class="board"></canvas>
         <canvas class="next"></canvas>
     </div>
-    <div class="controls">
+    <div id="controlsdiv">
+        <div id="controlsdivheader"><label>Controles</label></div>
+        <hr/>
         <ul>
-            <li>Controles:</li>
-            <li>← / A: Mover a la izquierda</li>
-            <li>→ / D: Mover a la derecha</li>
-            <li>↓ / S: Soft drop</li>
-            <li>↑ / X: Rotar (horario)</li>
-            <li>Z: Rotar (antihorario)</li>
-            <li>Space: Hard drop</li>
-            <li>C: Guardar pieza</li>
+            <li><span class="control">← / A</span>: Mover a la izquierda</li>
+            <li><span class="control">→ / D</span>: Mover a la derecha</li>
+            <li><span class="control">↓ / S</span>: Soft drop</li>
+            <li><span class="control">↑ / X</span>: Rotar (horario)</li>
+            <li><span class="control">Z</span>: Rotar (antihorario)</li>
+            <li><span class="control">Space</span>: Hard drop</li>
+            <li><span class="control">C</span>: Guardar pieza</li>
+            <li><span class="control">Escape</span>: Pausar</li>
         </ul>
     </div>
     <img hidden id="spriteSquares" src="./squares.png" alt="Sprite cuadrados de los tetrominós" />

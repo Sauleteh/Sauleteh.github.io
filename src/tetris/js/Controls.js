@@ -49,6 +49,12 @@ export class Controls
                 isPressed: false,
                 actionDone: false,
                 check: (key) => { return key.toLowerCase() === "c"; }
+            },
+
+            pause: {
+                isPressed: false,
+                actionDone: false,
+                check: (key) => { return key === "Escape"; }
             }
         };
     }
