@@ -559,5 +559,3 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     draw();
     initEvents();
 });
-
-// TODO: Poder girar la pieza y que suba un poco si está pegada al suelo y no puede rotar
