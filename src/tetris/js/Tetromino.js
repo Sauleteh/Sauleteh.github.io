@@ -26,7 +26,7 @@ export class Tetromino
 
     // Explicación detallada del algoritmo en https://www.baeldung.com/cs/tetris-piece-rotation-algorithm
     rotate(degree) {
-        if (this.centerSquare === null) { return; } // Los tetrominós sin un centro no pueden rotar (como el O
+        if (this.centerSquare === null) { return; } // Los tetrominós sin un centro no pueden rotar (como el O)
 
         const beta = degree * Math.PI / 180;
         const rotatedSquares = [];
@@ -44,10 +44,10 @@ export class Tetromino
 
         // Comprobar si la rotación es válida (no colisiona con otras piezas o con el tablero)
 
-        // Si la pieza se sale del tablero verticalmente, no es una rotación válida
+        // Si la pieza se sale del tablero verticalmente o choca con un cuadrado, no es una rotación válida
         for (let i = 0; i < rotatedSquares.length; i++) {
             const square = rotatedSquares[i];
-            if (square.row < 0 || square.row >= Constants.BOARD_HEIGHT) {
+            if (square.row < 0 || square.row >= Constants.BOARD_HEIGHT || board[square.row][square.col] !== null) {
                 return;
             }
         }
@@ -103,15 +103,7 @@ export class Tetromino
     }
 
     randomPiece() {
-        const pieces = [
-            this.pieceI(),
-            this.pieceJ(),
-            this.pieceL(),
-            this.pieceO(),
-            this.pieceS(),
-            this.pieceT(),
-            this.pieceZ()
-        ];
+        const pieces = this.getAllPieces();
         return pieces[Math.floor(Math.random() * pieces.length)];
     }
 
