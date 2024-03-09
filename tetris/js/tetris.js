@@ -42,6 +42,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     let canHold = true; // Indica si se puede guardar un tetrominó o no. Se usa para evitar que se guarde más de una vez en un solo movimiento
 
     let gameOver = false;
+    let gamePaused = false;
     let score = 0;
     let level = 1;
     let linesCompleted = 0;
@@ -65,11 +66,13 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     }
 
     function drawUI() {
-        ctx.font = "10px Arial";
+        ctx.font = "7px PressStart2P";
         ctx.fillStyle = "white";
-        ctx.fillText(`FPS: ${controlFps.framesPerSec}`, 10, 12);
-        ctx.fillText(`Score: ${score}`, canvas.width / 1.4, 12);
-        ctx.fillText(`Nivel: ${level}`, canvas.width / 1.4, 24);
+        ctx.textAlign = "left";
+        ctx.fillText(`FPS: ${controlFps.framesPerSec}`, 10, 13);
+        ctx.textAlign = "right";
+        ctx.fillText(`Score: ${score}`, canvas.width - 10, 13);
+        ctx.fillText(`Nivel: ${level}`, canvas.width - 10, 26);
     }
 
     function drawBoard() {
@@ -321,7 +324,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     }
 
     function drawHold() {
-        ctxHold.font = "12px Arial";
+        ctxHold.font = "9px PressStart2P";
         ctxHold.fillStyle = "white";
         ctxHold.textAlign = "center";
         ctxHold.fillText(`Guardado`, canvasHold.width / 2, 16);
@@ -363,7 +366,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     }
 
     function drawNext() {
-        ctxNext.font = "12px Arial";
+        ctxNext.font = "9px PressStart2P";
         ctxNext.fillStyle = "white";
         ctxNext.textAlign = "center";
         ctxNext.fillText(`Siguiente`, canvasNext.width / 2, 16);
@@ -461,13 +464,34 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         }
     }
 
+    function pauseDetection() {
+        if (controls.keys.pause.isPressed && !controls.keys.pause.actionDone) {
+            gamePaused = !gamePaused;
+            controls.keys.pause.actionDone = true;
+        }
+    }
+
+    function drawPauseUI() {
+        ctx.font = "24px PressStart2P";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText("Juego", canvas.width / 2, canvas.height / 2 - 15);
+        ctx.fillText("pausado", canvas.width / 2, canvas.height / 2 + 15);
+    }
+
     function draw() {
         if (!gameOver) window.requestAnimationFrame(draw);
         else return;
 
         if (!controlFps.shouldDrawFrame()) return;
-
+        
         cleanCanvas();
+
+        pauseDetection();
+        if (gamePaused) {
+            drawPauseUI();   
+            return;
+        }
 
         drawUI();
         drawBoard();
@@ -490,4 +514,4 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 });
 
 // TODO: Implementar un cierto delay antes de colocar la pieza en el tablero para que el jugador pueda moverla un poco antes de que se bloquee
-// TODO: Añadir una guía de controles en la pantalla
+// TODO: Añadir el botón de pause

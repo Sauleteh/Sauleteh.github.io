@@ -1,3 +1,8 @@
+@font-face {
+    font-family: 'PressStart2P';
+    src: url('./PressStart2P-Regular.ttf') format('truetype');
+}
+
 body {
     background: linear-gradient(45deg, #111314, #28292b, #292d31, #161718, #232324, #111314);
     background-repeat: no-repeat;
@@ -10,47 +15,28 @@ body {
     grid-template-rows: auto 1fr;
 }
 
-div {
-    display: grid;
-    place-items: top;
-    grid-template-columns: auto auto auto 1fr;
-    column-gap: 2%;
+div.game {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 auto;
+    padding: 10px;
 }
 
 canvas {
     border: 2px solid white;
     background-color: black;
     margin: 0 auto;
-    display: block;
+    image-rendering: pixelated;
 }
 
 h1 {
-    font-family: 'Raleway', sans-serif;
+    font-family: 'PressStart2P', sans-serif;
+    font-size: 32px;
     color: white;
-}
-
-p, td, span {
-    font-family: 'Raleway', monospace;
-    color: white;
-}
-
-li {
-    font-family: 'Raleway', sans-serif;
-    color: white;
-    list-style-type: none;
-    font-size: 16px;
-}
-
-li:first-child {
-    margin-bottom: 7px;
-    font-size: 24px;
-}
-
-div.controls {
-    position: absolute;
-    width: 100%;
-    top: 50%;
-    left: 0;
 }
 
 @keyframes gradientAnimation {
