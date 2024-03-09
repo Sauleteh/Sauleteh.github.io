@@ -542,8 +542,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
         drawUI();
         drawBoard();
-        drawTetromino();
         drawGhostTetromino();
+        drawTetromino();
         drawLimitLine();
 
         drawHold();
@@ -560,5 +560,4 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     initEvents();
 });
 
-// TODO: Z-index del fantasma por detrás de la pieza principal
 // TODO: Poder girar la pieza y que suba un poco si está pegada al suelo y no puede rotar
