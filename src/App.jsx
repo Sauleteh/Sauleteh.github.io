@@ -32,6 +32,17 @@ export function App() {
             <h1 className="titulo finalizado">Proyectos finalizados</h1>
             <div className="contenedorProyectos">
                 <Proyecto
+                    titulo="Tetris"
+                    plataforma="Web | HTML, CSS y JS"
+                    descripcion="El clásico juego del Tetris hecho para jugar en el navegador. A diferencia de otros
+                                proyectos que tengo hechos en JavaScript, este es el primero en el que uso canvas y objetos
+                                con tal de practicar con estas herramientas. He intentado hacerlo lo más parecido posible
+                                al Tetris original."
+                    thumbnail={tetrisJS}
+                    link="./tetris/tetris.html"
+                >nuevo</Proyecto>
+
+                <Proyecto
                     titulo="Mi virus"
                     plataforma="Windows | C#"
                     descripcion="Virus con capacidad de control remoto de dispositivos mediante polling a mi base de datos.
@@ -42,7 +53,7 @@ export function App() {
                             que simplemente prefiero no meterme en problemas de ningún tipo. Puedo enseñar el código a quien quiera pero
                             solo en persona y con gente de confianza."
                     linkToPopup
-                >nuevo</Proyecto>
+                ></Proyecto>
 
                 <Proyecto
                     titulo="Rocket League: Speed Control (Plugin)"
@@ -307,17 +318,6 @@ export function App() {
                                 client-side por lo que es usable hasta en servidores vanilla."
                     thumbnail={minecraftBotMod}
                     link="https://github.com/Sauleteh/Minecraft-Bot-Mod"
-                ></Proyecto>
-
-                <Proyecto
-                    titulo="Tetris"
-                    plataforma="Web | HTML, CSS y JS"
-                    descripcion="El clásico juego del Tetris hecho para jugar en el navegador. A diferencia de otros
-                                proyectos que tengo hechos en JavaScript, este es el primero en el que uso canvas y objetos
-                                con tal de practicar con estas herramientas. He intentado hacerlo lo más parecido posible
-                                al Tetris original."
-                    thumbnail={tetrisJS}
-                    link="./tetris/tetris.html"
                 ></Proyecto>
             </div>
         </div>
