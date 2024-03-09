@@ -25,6 +25,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
     let pieceFallingSpeed = Constants.INITIAL_FALLING_SPEED; // Menor número = mayor velocidad. Recomendado entre 0 y 1
     let counterFalling = 0; // Contador para la velocidad de caída de las piezas
+    let counterGround = 0; // Contador para cuando una pieza toque el suelo
+    let groundResetTimes = 0; // Veces que la pieza ha reseteado el temporizador de tocar el suelo
 
     const controlFps = new FpsController(30);
     const controls = new Controls();
@@ -46,6 +48,21 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     let score = 0;
     let level = 1;
     let linesCompleted = 0;
+
+    function resetGroundDelay() {
+        let isOnGround = false;
+        for (let i = 0; i < tetromino.squares.length; i++) {
+            const square = tetromino.squares[i];
+            if (square.row + 1 >= Constants.BOARD_HEIGHT || board[square.row + 1][square.col] !== null) {
+                isOnGround = true;
+                break;
+            }
+        }
+        if (groundResetTimes < Constants.GROUND_RESET_LIMIT && isOnGround) {
+            counterGround = 0;
+            groundResetTimes++;
+        }
+    }
 
     function initEvents() {
         document.addEventListener("keydown", function(event) {
@@ -129,9 +146,26 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
     /**
      * Comprueba si el tetromino colisiona con el suelo o con otra pieza
+     * @param {*} ignore si debe ignorar los frames de espera para colocar la pieza en el tablero (true cuando se pide un hard drop, false en cualquier otro caso)
      * @returns {boolean} true si hay colisión o false en caso contrario
      */
-    function collisionTetromino() {
+    function collisionTetromino(ignore) {
+        if (!ignore) {
+            if (counterGround < Constants.GROUND_RESET_THRESHOLD * controlFps.framesPerSec) {
+                let isOnGround = false;
+                for (let i = 0; i < tetromino.squares.length; i++) {
+                    const square = tetromino.squares[i];
+                    if (square.row + 1 >= Constants.BOARD_HEIGHT || board[square.row + 1][square.col] !== null) {
+                        isOnGround = true;
+                        break;
+                    }
+                }
+                if (isOnGround) counterGround++;
+                return false;
+            }
+            else counterGround = 0;
+        }
+
         for (let i = 0; i < tetromino.squares.length; i++) {
             const square = tetromino.squares[i];
             if (square.row + 1 >= Constants.BOARD_HEIGHT || board[square.row + 1][square.col] !== null) {
@@ -140,6 +174,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                     board[square.row][square.col] = square;
                 }
                 tetromino.next();
+                groundResetTimes = 0;
+                counterGround = 0;
                 canHold = true;
                 return true;
             }
@@ -151,42 +187,44 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         // Mover izquierda o derecha
         if (controls.keys.left.isPressed) {
             counterMovementDelay++;
-            if (counterMovementDelay < Constants.MOVEMENT_DELAY_THRESHOLD && controls.keys.left.actionDone) return;
-
-            let canMove = true;
-            for (let i = 0; i < tetromino.squares.length; i++) {
-                const square = tetromino.squares[i];
-                if (square.col - 1 < 0 || board[square.row][square.col - 1] !== null) {
-                    canMove = false;
-                    break;
-                }
-            }
-
-            if (canMove) {
+            if (!(counterMovementDelay < Constants.MOVEMENT_DELAY_THRESHOLD && controls.keys.left.actionDone)) {
+                let canMove = true;
                 for (let i = 0; i < tetromino.squares.length; i++) {
-                    tetromino.squares[i].col--;
+                    const square = tetromino.squares[i];
+                    if (square.col - 1 < 0 || board[square.row][square.col - 1] !== null) {
+                        canMove = false;
+                        break;
+                    }
                 }
-                controls.keys.left.actionDone = true;
+
+                if (canMove) {
+                    resetGroundDelay();
+                    for (let i = 0; i < tetromino.squares.length; i++) {
+                        tetromino.squares[i].col--;
+                    }
+                    controls.keys.left.actionDone = true;
+                }
             }
         }
         else if (controls.keys.right.isPressed) {
             counterMovementDelay++;
-            if (counterMovementDelay < Constants.MOVEMENT_DELAY_THRESHOLD && controls.keys.right.actionDone) return;
-
-            let canMove = true;
-            for (let i = 0; i < tetromino.squares.length; i++) {
-                const square = tetromino.squares[i];
-                if (square.col + 1 >= Constants.BOARD_WIDTH || board[square.row][square.col + 1] !== null) {
-                    canMove = false;
-                    break;
-                }
-            }
-
-            if (canMove) {
+            if (!(counterMovementDelay < Constants.MOVEMENT_DELAY_THRESHOLD && controls.keys.right.actionDone)) {
+                let canMove = true;
                 for (let i = 0; i < tetromino.squares.length; i++) {
-                    tetromino.squares[i].col++;
+                    const square = tetromino.squares[i];
+                    if (square.col + 1 >= Constants.BOARD_WIDTH || board[square.row][square.col + 1] !== null) {
+                        canMove = false;
+                        break;
+                    }
                 }
-                controls.keys.right.actionDone = true;
+
+                if (canMove) {
+                    resetGroundDelay();
+                    for (let i = 0; i < tetromino.squares.length; i++) {
+                        tetromino.squares[i].col++;
+                    }
+                    controls.keys.right.actionDone = true;
+                }
             }
         }
         else if (!controls.keys.left.isPressed && !controls.keys.right.isPressed) {
@@ -196,16 +234,18 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         // Rotar la pieza en sentido horario o antihorario
         if (controls.keys.rotateClockwise.isPressed && !controls.keys.rotateClockwise.actionDone) {
             tetromino.rotateClockwise();
+            resetGroundDelay();
             controls.keys.rotateClockwise.actionDone = true;
         }
         else if (controls.keys.rotateCounterClockwise.isPressed && !controls.keys.rotateCounterClockwise.actionDone) {
             tetromino.rotateCounterClockwise();
+            resetGroundDelay();
             controls.keys.rotateCounterClockwise.actionDone = true;
         }
 
         // Hard drop
         if (controls.keys.dropHard.isPressed && !controls.keys.dropHard.actionDone) {
-            while (!collisionTetromino()) {
+            while (!collisionTetromino(true)) {
                 for (let i = 0; i < tetromino.squares.length; i++) {
                     tetromino.squares[i].row++;
                 }
@@ -221,8 +261,15 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         else counterFalling = 0;
 
         // Bajar la pieza
+        let canMove = true;
         for (let i = 0; i < tetromino.squares.length; i++) {
-            tetromino.squares[i].row++;
+            const square = tetromino.squares[i];
+            if (square.row >= Constants.BOARD_HEIGHT - 1 || board[square.row + 1][square.col] !== null) canMove = false;
+        }
+        if (canMove) {
+            for (let i = 0; i < tetromino.squares.length; i++) {
+                tetromino.squares[i].row++;
+            }
         }
     }
 
@@ -495,8 +542,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
         drawUI();
         drawBoard();
-        drawTetromino();
         drawGhostTetromino();
+        drawTetromino();
         drawLimitLine();
 
         drawHold();
@@ -504,7 +551,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
         holdTetromino();
         movementTetromino();
-        collisionTetromino();
+        collisionTetromino(false);
         lineCompleteDetection();
         gameOverDetection();
     }
@@ -512,6 +559,3 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     draw();
     initEvents();
 });
-
-// TODO: Implementar un cierto delay antes de colocar la pieza en el tablero para que el jugador pueda moverla un poco antes de que se bloquee
-// TODO: Añadir el botón de pause

@@ -26,7 +26,7 @@ export class Tetromino
 
     // Explicación detallada del algoritmo en https://www.baeldung.com/cs/tetris-piece-rotation-algorithm
     rotate(degree) {
-        if (this.centerSquare === null) { return; } // Los tetrominós sin un centro no pueden rotar (como el O
+        if (this.centerSquare === null) { return; } // Los tetrominós sin un centro no pueden rotar (como el O)
 
         const beta = degree * Math.PI / 180;
         const rotatedSquares = [];
@@ -44,18 +44,26 @@ export class Tetromino
 
         // Comprobar si la rotación es válida (no colisiona con otras piezas o con el tablero)
 
-        // Si la pieza se sale del tablero verticalmente, no es una rotación válida
+        // Si la pieza se sale del tablero verticalmente o choca con un cuadrado, intentar subirla para que entre en el tablero
+        let tries = 0;
         for (let i = 0; i < rotatedSquares.length; i++) {
+            if (tries > 2) return; // Si se intenta subir la pieza más de 2 veces, no es una rotación válida (el tetrominó choca en la parte superior de alguna pieza y por tanto no tiene espacio para rotar)
+            
             const square = rotatedSquares[i];
-            if (square.row < 0 || square.row >= Constants.BOARD_HEIGHT) {
-                return;
+            if (square.row < 0 || square.row >= Constants.BOARD_HEIGHT || board[square.row][square.col] !== null) {
+                const offset = square.row < 0 ? 1 : -1;
+                tries++;
+                for (let j = 0; j < rotatedSquares.length; j++) {
+                    rotatedSquares[j].row += offset;
+                }
+                i = -1;
             }
         }
 
         // Si la pieza se sale del tablero horizontalmente o choca con un cuadrado, intentar moverla para que entre en el tablero
-        let tries = 0;
+        tries = 0;
         for (let i = 0; i < rotatedSquares.length; i++) {
-            if (tries > 2) { return; } // Si se intenta mover la pieza más de 2 veces, no es una rotación válida (el tetrominó choca en ambos lados y por tanto no tiene espacio para rotar)
+            if (tries > 2) return; // Si se intenta mover la pieza más de 2 veces, no es una rotación válida (el tetrominó choca en ambos lados y por tanto no tiene espacio para rotar)
 
             const square = rotatedSquares[i];
             if (square.col < 0 || square.col >= Constants.BOARD_WIDTH || board[square.row][square.col] !== null) {
@@ -103,15 +111,7 @@ export class Tetromino
     }
 
     randomPiece() {
-        const pieces = [
-            this.pieceI(),
-            this.pieceJ(),
-            this.pieceL(),
-            this.pieceO(),
-            this.pieceS(),
-            this.pieceT(),
-            this.pieceZ()
-        ];
+        const pieces = this.getAllPieces();
         return pieces[Math.floor(Math.random() * pieces.length)];
     }
 
