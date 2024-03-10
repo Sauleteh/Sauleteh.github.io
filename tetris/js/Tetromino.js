@@ -26,10 +26,13 @@ export class Tetromino
 
     // Explicación detallada del algoritmo en https://www.baeldung.com/cs/tetris-piece-rotation-algorithm
     rotate(degree) {
-        if (this.centerSquare === null) { return; } // Los tetrominós sin un centro no pueden rotar (como el O)
+        if (this.centerSquare === null) return; // Los tetrominós sin un centro no pueden rotar (como el O)
 
         const beta = degree * Math.PI / 180;
-        const rotatedSquares = [];
+        let rotatedSquares = [];
+        let rotatedSquaresCopy = [];
+        let verticalRotFailed = false;
+        let horizontalRotFailed = false;
         
         for (let i = 0; i < this.squares.length; i++) {
             const square = this.squares[i];
@@ -40,6 +43,7 @@ export class Tetromino
             const row = Math.round(x * Math.sin(beta) + y * Math.cos(beta) + this.centerSquare.row);
 
             rotatedSquares.push(new Square(row, col, square.color, square.center));
+            rotatedSquaresCopy.push(new Square(row, col, square.color, square.center));
         }
 
         // Comprobar si la rotación es válida (no colisiona con otras piezas o con el tablero)
@@ -47,7 +51,12 @@ export class Tetromino
         // Si la pieza se sale del tablero verticalmente o choca con un cuadrado, intentar subirla para que entre en el tablero
         let tries = 0;
         for (let i = 0; i < rotatedSquares.length; i++) {
-            if (tries > 2) return; // Si se intenta subir la pieza más de 2 veces, no es una rotación válida (el tetrominó choca en la parte superior de alguna pieza y por tanto no tiene espacio para rotar)
+            if (tries > 2) { // Si se intenta subir la pieza más de 2 veces, no es una rotación válida (el tetrominó choca en la parte superior de alguna pieza y por tanto no tiene espacio para rotar)
+                rotatedSquares = [];
+                for (let j = 0; j < rotatedSquaresCopy.length; j++) { rotatedSquares.push(rotatedSquaresCopy[j]); }
+                verticalRotFailed = true;
+                break; 
+            }
             
             const square = rotatedSquares[i];
             if (square.row < 0 || square.row >= Constants.BOARD_HEIGHT || board[square.row][square.col] !== null) {
@@ -60,10 +69,19 @@ export class Tetromino
             }
         }
 
+        // Actualizamos la copia de los cuadrados rotados
+        rotatedSquaresCopy = [];
+        for (let i = 0; i < rotatedSquares.length; i++) { rotatedSquaresCopy.push(rotatedSquares[i]); }
+
         // Si la pieza se sale del tablero horizontalmente o choca con un cuadrado, intentar moverla para que entre en el tablero
         tries = 0;
         for (let i = 0; i < rotatedSquares.length; i++) {
-            if (tries > 2) return; // Si se intenta mover la pieza más de 2 veces, no es una rotación válida (el tetrominó choca en ambos lados y por tanto no tiene espacio para rotar)
+            if (tries > 2) { // Si se intenta mover la pieza más de 2 veces, no es una rotación válida (el tetrominó choca en ambos lados y por tanto no tiene espacio para rotar)
+                rotatedSquares = [];
+                for (let j = 0; j < rotatedSquaresCopy.length; j++) { rotatedSquares.push(rotatedSquaresCopy[j]); }
+                horizontalRotFailed = true;
+                break;
+            }
 
             const square = rotatedSquares[i];
             if (square.col < 0 || square.col >= Constants.BOARD_WIDTH || board[square.row][square.col] !== null) {
@@ -76,6 +94,7 @@ export class Tetromino
             }
         }
 
+        if (verticalRotFailed && horizontalRotFailed) return; // Si no hubo ninguna rotación válida, no se puede rotar
         this.squares = rotatedSquares;
     }
 
