@@ -279,7 +279,6 @@ p.titulo {
     animation: gradientAnimation 18s ease infinite, aparecerAnimation 0.5s ease;
     border-radius: 3px;
     cursor: default;
-    border: 1px solid #3d3d47;
     opacity: 1;
 }
 
