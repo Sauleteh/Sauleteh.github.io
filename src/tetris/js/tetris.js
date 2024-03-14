@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     const ctxHold = canvasHold.getContext('2d');
     const ctxNext = canvasNext.getContext('2d');
     const $spriteSquares = document.querySelector("#spriteSquares");
+    const $niceVideo = document.querySelector("#niceVideo"); // TODO:
 
     canvas.width = Constants.SQUARE_SIZE * Constants.BOARD_WIDTH;
     canvas.height = Constants.SQUARE_SIZE * Constants.BOARD_HEIGHT;
@@ -20,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     canvasHold.width = Constants.SQUARE_SIZE * 5;
     canvasHold.height = Constants.SQUARE_SIZE * 5;
 
-    canvasNext.width = Constants.SQUARE_SIZE * 5;
+    canvasNext.width = Constants.SQUARE_SIZE * 5; 
     canvasNext.height = Constants.SQUARE_SIZE * 5;
 
     let pieceFallingSpeed = Constants.INITIAL_FALLING_SPEED; // Menor número = mayor velocidad. Recomendado entre 0 y 1
@@ -42,6 +43,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     const tetromino = new Tetromino();
     let holdSquares = null; // Cuadrados guardados en el cuadro de guardado
     let canHold = true; // Indica si se puede guardar un tetrominó o no. Se usa para evitar que se guarde más de una vez en un solo movimiento
+    let floatingPixels = []; // Píxeles flotantes que aparecen cuando se completa una línea
 
     let gameOver = false;
     let gamePaused = false;
@@ -74,6 +76,14 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             const { key } = event;
             controls.checkControls(key, "up");
         });
+
+        $niceVideo.addEventListener("play", () => {
+            function step() { // TODO:
+              ctx.drawImage($niceVideo, 0, 0, canvas.width, canvas.height);
+              requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+          });
     }
 
     function cleanCanvas() {
@@ -286,6 +296,18 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             if (lineComplete) {
                 lines++;
                 linesCompleted++;
+                
+                // Animar la línea completada
+                for (let j = 0; j < board[i].length; j++) {
+                    floatingPixels.push({
+                        x: board[i][j].col * Constants.SQUARE_SIZE + Constants.SQUARE_SIZE / 2,
+                        y: board[i][j].row * Constants.SQUARE_SIZE + Constants.SQUARE_SIZE / 2,
+                        velocidadX: Math.random() * 4 - 2,
+                        velocidadY: Math.random() * -4 - 2,
+                        color: Constants.COLOR_TO_HEX[board[i][j].color]
+                    });
+                }
+
                 // Limpiar la línea completada
                 for (let j = 0; j < board[i].length; j++) {
                     board[i][j] = null;
@@ -526,6 +548,21 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         ctx.fillText("pausado", canvas.width / 2, canvas.height / 2 + 15);
     }
 
+    function drawAnimation() {
+        for (let i = 0; i < floatingPixels.length; i++) {
+            const pixel = floatingPixels[i];
+            ctx.fillStyle = pixel.color;
+            ctx.fillRect(pixel.x, pixel.y, 2, 2);
+            pixel.x += pixel.velocidadX;
+            pixel.y += pixel.velocidadY;
+            pixel.velocidadY += 0.1;
+            pixel.velocidadX *= 0.99;
+            if (pixel.y > canvas.height || pixel.x < 0 || pixel.x > canvas.width) {
+                floatingPixels.splice(i, 1);
+            }
+        }
+    }
+
     function draw() {
         if (!gameOver) window.requestAnimationFrame(draw);
         else return;
@@ -545,6 +582,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         drawGhostTetromino();
         drawTetromino();
         drawLimitLine();
+        drawAnimation();
 
         drawHold();
         drawNext();
