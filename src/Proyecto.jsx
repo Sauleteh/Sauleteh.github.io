@@ -1,5 +1,5 @@
 import PropTypes from "prop-types"
-import placeholder from "./assets/placeholder.png"
+import placeholder from "./assets/placeholder.webp"
 import { Popup } from "./Popup.jsx"
 import { useRef } from "react";
 
@@ -17,8 +17,8 @@ export function Proyecto({thumbnail = placeholder, titulo = "Sin título", plata
     
     return (
         <div className={`proyecto ${children}`} onClick={handleClick}>
-            <img src="/imagen.svg" className="mostrar-thumbnail"/>
-            <img src={thumbnail} className="thumbnail"/>
+            <img src="/imagen.svg" className="mostrar-thumbnail" alt=""/>
+            <img src={thumbnail} className="thumbnail" alt={titulo}/>
             <div className="texto">
                 <p className="titulo">{titulo}</p>
                 <p className="plataforma">{plataforma}</p>
