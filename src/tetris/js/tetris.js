@@ -105,6 +105,14 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             
             requestAnimationFrame(step);
         });
+
+        cbEffects.addEventListener("click", function() {
+            document.activeElement.blur();
+        });
+
+        cbExperimental.addEventListener("click", function() {
+            document.activeElement.blur();
+        });
     }
 
     function cleanCanvas() {
