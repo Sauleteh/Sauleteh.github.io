@@ -2,6 +2,7 @@ import { FpsController } from "./FpsController.js";
 import * as Constants from "./Constants.js";
 import { Tetromino } from "./Tetromino.js";
 import { Controls } from "./Controls.js";
+import { KonamiCode } from "./KonamiCode.js";
 
 export const board = []; // El tetrominó necesita acceder al tablero, por eso se exporta
 
@@ -13,7 +14,12 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     const ctxHold = canvasHold.getContext('2d');
     const ctxNext = canvasNext.getContext('2d');
     const $spriteSquares = document.querySelector("#spriteSquares");
-    const $niceVideo = document.querySelector("#niceVideo"); // TODO:
+    const $niceVideo = document.querySelector("#niceVideo");
+
+    const cbEffects = document.querySelector("#cbEffLine");
+    const cbExperimental = document.querySelector("#cbExpOpt");
+    const konamiCode = new KonamiCode();
+    konamiCode.addListener();
 
     canvas.width = Constants.SQUARE_SIZE * Constants.BOARD_WIDTH;
     canvas.height = Constants.SQUARE_SIZE * Constants.BOARD_HEIGHT;
@@ -78,12 +84,27 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         });
 
         $niceVideo.addEventListener("play", () => {
-            function step() { // TODO:
-              ctx.drawImage($niceVideo, 0, 0, canvas.width, canvas.height);
-              requestAnimationFrame(step);
+            function step() {
+                ctx.drawImage($niceVideo, 0, 0, canvas.width, canvas.height);
+                
+                let frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < frame.data.length; i += 4) {
+                    let r = frame.data[i];
+                    let g = frame.data[i + 1];
+                    let b = frame.data[i + 2];
+                    if (r < 142 && r > 70 && g <= 255 && g > 160 && b < 120 && b > 20) {
+                        frame.data[i + 3] = 0; // Alpha
+                    }
+                }
+                ctx.putImageData(frame, 0, 0);
+                drawEntireBoard()
+
+                if ($niceVideo.ended) return;
+                requestAnimationFrame(step);
             }
+            
             requestAnimationFrame(step);
-          });
+        });
     }
 
     function cleanCanvas() {
@@ -298,14 +319,16 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 linesCompleted++;
                 
                 // Animar la línea completada
-                for (let j = 0; j < board[i].length; j++) {
-                    floatingPixels.push({
-                        x: board[i][j].col * Constants.SQUARE_SIZE + Constants.SQUARE_SIZE / 2,
-                        y: board[i][j].row * Constants.SQUARE_SIZE + Constants.SQUARE_SIZE / 2,
-                        velocidadX: Math.random() * 4 - 2,
-                        velocidadY: Math.random() * -4 - 2,
-                        color: Constants.COLOR_TO_HEX[board[i][j].color]
-                    });
+                if (cbEffects.checked) {
+                    for (let j = 0; j < board[i].length; j++) {
+                        floatingPixels.push({
+                            x: board[i][j].col * Constants.SQUARE_SIZE + Constants.SQUARE_SIZE / 2,
+                            y: board[i][j].row * Constants.SQUARE_SIZE + Constants.SQUARE_SIZE / 2,
+                            velocidadX: Math.random() * 4 - 2,
+                            velocidadY: Math.random() * -4 - 2,
+                            color: Constants.COLOR_TO_HEX[board[i][j].color]
+                        });
+                    }
                 }
 
                 // Limpiar la línea completada
@@ -324,10 +347,14 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
         // Sistema de puntuación del Tetris 1988 BPS
         switch (lines) {
-            case 1: score += 40; break;
-            case 2: score += 100; break;
-            case 3: score += 300; break;
-            case 4: score += 1200; break;
+            case 1: { score += 40; break; }
+            case 2: { score += 100; break; }
+            case 3: { score += 300; break; }
+            case 4: {
+                score += 1200;
+                if (cbExperimental.checked) $niceVideo.play();
+                break;
+            }
         }
 
         level = Math.floor(linesCompleted / 10) + 1; // Cada 10 líneas, se sube de nivel
@@ -563,6 +590,18 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         }
     }
 
+    /**
+     * Conjunto de funciones para dibujar el tablero y todo lo relacionado con él
+     */
+    function drawEntireBoard() {
+        drawUI();
+        drawBoard();
+        drawGhostTetromino();
+        drawTetromino();
+        drawLimitLine();
+        drawAnimation();
+    }
+
     function draw() {
         if (!gameOver) window.requestAnimationFrame(draw);
         else return;
@@ -577,13 +616,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             return;
         }
 
-        drawUI();
-        drawBoard();
-        drawGhostTetromino();
-        drawTetromino();
-        drawLimitLine();
-        drawAnimation();
-
+        drawEntireBoard();
         drawHold();
         drawNext();
 

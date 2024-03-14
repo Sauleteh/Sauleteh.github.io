@@ -8,9 +8,9 @@
     <link rel="stylesheet" href="/background.css">
     <script type="module" src="./js/tetris.js"></script>
 
-    <!-- Controles flotantes: https://www.w3schools.com/howto/howto_js_draggable.asp -->
-    <link rel="stylesheet" href="FloatingControls/fc.css">
-    <script src="FloatingControls/fc.js"></script>
+    <!-- Ventanas flotantes: https://www.w3schools.com/howto/howto_js_draggable.asp -->
+    <link rel="stylesheet" href="FloatingWindow/fw.css">
+    <script src="FloatingWindow/fw.js"></script>
 </head>
 <body>
     <h1>Tetris</h1>
@@ -20,7 +20,7 @@
         <canvas class="next"></canvas>
     </div>
     <div id="controlsdiv">
-        <div id="controlsdivheader"><label>Controles</label></div>
+        <div id="controlsdivheader"><label class="title">Controles</label></div>
         <hr/>
         <ul>
             <li><span class="control">← / A</span>: Mover a la izquierda</li>
@@ -33,6 +33,27 @@
             <li><span class="control">Escape</span>: Pausar</li>
         </ul>
     </div>
+    <div id="optionsdiv">
+        <div id="optionsdivheader"><label class="title">Opciones</label></div>
+        <hr/>
+        <ul>
+            <li>
+                <span>Efecto al destruir l&iacute;neas</span>
+                <label class="switch">
+                    <input id="cbEffLine" type="checkbox">
+                    <span class="slider round"></span>
+                </label>
+            </li>
+            <li class="hide">
+                <span>Opción experimental</span>
+                <label class="switch">
+                    <input id="cbExpOpt" type="checkbox">
+                    <span class="slider round"></span>
+                </label>
+            </li>
+        </ul>
+    </div>
     <img hidden id="spriteSquares" src="./squares.png" alt="Sprite cuadrados de los tetrominós" />
+    <video hidden id="niceVideo" src="./niceVideo.mp4" alt="Video oculto"></video>
 </body>
 </html>
