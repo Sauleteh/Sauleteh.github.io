@@ -1,0 +1,142 @@
+@font-face {
+    font-family: 'PressStart2P';
+    src: url('../PressStart2P-Regular.ttf') format('truetype');
+}
+
+#controlsdiv, #optionsdiv {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(45deg, #2c3133, #28292b, #292d31, #282a2c, #212124, #242a2c);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    background-size: 600% 600%;
+    animation: gradientAnimation 18s ease infinite;
+    border: 1px solid #3d3d47;
+    border-radius: 3px;
+    text-align: center;
+    align-items: center;
+}
+
+#controlsdiv {
+    z-index: 10;
+    left: 7%;
+    top: 20%;
+}
+
+#optionsdiv {
+    z-index: 9;
+    left: 7%;
+    top: 50%;
+}
+
+#controlsdivheader, #optionsdivheader {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    width: 100%;
+    cursor: move;
+    z-index: 10;
+}
+
+#controlsdiv hr, #optionsdiv hr {
+    width: 100%;
+    border: 0;
+    height: 1px;
+    margin: 0;
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0));
+}
+
+#controlsdiv ul, #optionsdiv ul {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+#controlsdiv li, #optionsdiv li {
+    font-family: 'PressStart2P', sans-serif;
+    color: white;
+    list-style-type: none;
+    font-size: 7px;
+    text-align: left;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+#optionsdiv li:has(> label.switch) {
+    justify-content: space-between;
+}
+
+#controlsdiv li+li, #optionsdiv li+li {
+    margin-top: 8px;
+}
+
+#controlsdiv label.title, #optionsdiv label.title {
+    font-family: 'PressStart2P', sans-serif;
+    color: white;
+    font-size: 13px;
+    cursor: move;
+}
+
+#controlsdiv span.control {
+    color: rgb(0, 255, 255);
+}
+
+/* Checkbox redondeado: https://www.w3schools.com/howto/howto_css_switch.asp */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 30px;
+    height: 17px;
+    margin-left: 5px;
+}
+.switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #252627;
+    border: 1px solid #3d3d47;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 11px;
+    width: 11px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+input:checked + .slider {
+    background-color: rgb(220, 242, 255);
+}
+input:focus + .slider {
+    box-shadow: 0 0 1px black;
+}
+input:checked + .slider:before {
+    -webkit-transform: translateX(13px);
+    -ms-transform: translateX(13px);
+    transform: translateX(13px);
+    background-color: black;
+}
+.slider.round {
+    border-radius: 17px;
+}
+.slider.round:before {
+    border-radius: 50%;
+}
+
+.hide {
+    display: none !important;
+}

@@ -25,3 +25,13 @@ export const TETROMINO = {
     T: COLORS.PURPLE,
     Z: COLORS.RED
 }
+
+export const COLOR_TO_HEX = {
+    [COLORS.CYAN]: '#00FFFF',
+    [COLORS.BLUE]: '#0000FF',
+    [COLORS.ORANGE]: '#FFA500',
+    [COLORS.YELLOW]: '#FFFF00',
+    [COLORS.GREEN]: '#00FF00',
+    [COLORS.PURPLE]: '#800080',
+    [COLORS.RED]: '#FF0000'
+}

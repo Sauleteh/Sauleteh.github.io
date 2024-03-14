@@ -1,0 +1,12 @@
+html {
+    overscroll-behavior-y: none; /* Desactivar el efecto de rebote al llegar al principio/final de la página */
+    overflow-x: hidden;
+}
+
+body {
+    background: linear-gradient(45deg, #111314, #28292b, #292d31, #161718, #232324, #111314);
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    background-size: 800% 800%;
+    animation: gradientAnimation 60s ease infinite;
+}
