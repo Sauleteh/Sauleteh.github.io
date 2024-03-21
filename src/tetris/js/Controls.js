@@ -8,6 +8,7 @@
 export class Controls
 {
     constructor() {
+        this.lastKeyPressed = '';
         this.keys = {
             left: {
                 isPressed: false,
@@ -55,6 +56,18 @@ export class Controls
                 isPressed: false,
                 actionDone: false,
                 check: (key) => { return key === "Escape"; }
+            },
+
+            deleteLetter: {
+                isPressed: false,
+                actionDone: false,
+                check: (key) => { return key === "Backspace"; }
+            },
+
+            writeLetter: {
+                isPressed: false,
+                actionDone: false,
+                check: (key) => { return key.length === 1 && key !== " "; }
             }
         };
     }
@@ -66,12 +79,17 @@ export class Controls
      */
     checkControls(key, action) {
         for (let control in this.keys) {
-            if (this.keys[control].check(key) && action === "down") this.keys[control].isPressed = true;
+            if (this.keys[control].check(key) && action === "down") {
+                this.keys[control].isPressed = true;
+            }
             else if (this.keys[control].check(key) && action === "up") {
                 this.keys[control].isPressed = false;
                 this.keys[control].actionDone = false;
             }
         }
+
+        if (action === "down") this.lastKeyPressed = key;
+        else if (action === "up") this.lastKeyPressed = '';
     }
 
     debugControls() {

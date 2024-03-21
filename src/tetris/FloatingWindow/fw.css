@@ -3,7 +3,7 @@
     src: url('../PressStart2P-Regular.ttf') format('truetype');
 }
 
-#controlsdiv, #optionsdiv {
+#controlsdiv, #optionsdiv, #scoreboarddiv {
     position: absolute;
     display: flex;
     flex-direction: column;
@@ -31,15 +31,22 @@
     top: 50%;
 }
 
-#controlsdivheader, #optionsdivheader {
+#scoreboarddiv {
+    z-index: 11;
+    left: 76%;
+    top: 38%;
+    padding: 5px;
+}
+
+#controlsdivheader, #optionsdivheader, #scoreboarddivheader {
     padding-top: 10px;
     padding-bottom: 10px;
     width: 100%;
     cursor: move;
-    z-index: 10;
+    z-index: 99;
 }
 
-#controlsdiv hr, #optionsdiv hr {
+#controlsdiv hr, #optionsdiv hr, #scoreboarddiv hr {
     width: 100%;
     border: 0;
     height: 1px;
@@ -47,16 +54,16 @@
     background-image: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0));
 }
 
-#controlsdiv ul, #optionsdiv ul {
+#controlsdiv ul, #optionsdiv ul, #scoreboarddiv ol {
     padding-left: 8px;
     padding-right: 8px;
 }
 
-#controlsdiv li, #optionsdiv li {
+#controlsdiv li, #optionsdiv li, #scoreboarddiv li {
     font-family: 'PressStart2P', sans-serif;
     color: white;
     list-style-type: none;
-    font-size: 7px;
+    font-size: 8px;
     text-align: left;
     display: flex;
     justify-content: left;
@@ -67,19 +74,57 @@
     justify-content: space-between;
 }
 
-#controlsdiv li+li, #optionsdiv li+li {
+#controlsdiv li+li, #optionsdiv li+li, #scoreboarddiv li+li {
     margin-top: 8px;
 }
 
-#controlsdiv label.title, #optionsdiv label.title {
+#controlsdiv label.title, #optionsdiv label.title, #scoreboarddiv label.title{
     font-family: 'PressStart2P', sans-serif;
     color: white;
     font-size: 13px;
     cursor: move;
 }
 
-#controlsdiv span.control {
+#controlsdiv span.control, #scoreboarddiv ol li::marker {
     color: rgb(0, 255, 255);
+}
+
+#scoreboarddiv label.credits {
+    font-family: 'PressStart2P', sans-serif;
+    font-size: 7px;
+    color: white;
+    max-width: 260px;
+    text-align: center;
+}
+
+#scoreboarddiv li {
+    text-align: left;
+    display: list-item;
+    list-style-type: decimal;
+    list-style-position: outside;
+    margin-left: 1em;
+}
+
+#scoreboarddiv ol {
+    text-align: left;
+    width: 100%;
+    padding-left: 60px;
+}
+
+#scoreboarddiv label.myscore {
+    font-family: 'PressStart2P', sans-serif;
+    font-size: 8px;
+    color: white;
+    text-align: left;
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-left: 5px;
+}
+
+#scoreboarddiv label.credits {
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 /* Checkbox redondeado: https://www.w3schools.com/howto/howto_css_switch.asp */
@@ -139,4 +184,61 @@ input:checked + .slider:before {
 
 .hide {
     display: none !important;
+}
+
+.golden {
+    color: yellow;
+    text-shadow: 0 0 1px rgb(255, 255, 0);
+    background: linear-gradient(to right, yellow, white, yellow, white, rgb(255, 145, 0), yellow, white, yellow, white, yellow, white);
+    animation: goldenAnimation 6s linear infinite;
+
+    font-weight: 500;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-size: 400% auto;
+}
+
+.silver {
+    color: silver;
+    text-shadow: 0 0 1px rgb(192, 192, 192);
+    background: linear-gradient(to right, silver, white, silver, white, rgb(192, 192, 192), silver, white, silver, white, silver, white);
+    animation: silverAnimation 6s ease infinite;
+
+    font-weight: 500;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-size: 400% auto;
+}
+
+.copper {
+    color: rgb(184, 115, 51);
+    text-shadow: 0 0 1px rgb(184, 115, 51);
+    background: linear-gradient(to right, rgb(184, 115, 51), white, rgb(184, 115, 51), white, rgb(184, 115, 51), rgb(184, 115, 51), white, rgb(184, 115, 51), white, rgb(184, 115, 51), white);
+    animation: copperAnimation 6s ease infinite;
+
+    font-weight: 500;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-size: 400% auto;
+}
+
+@keyframes goldenAnimation {
+    0% { background-position: 0% 50%; text-shadow: 0 0 1px yellow; }
+    3% { background-position: 65% 50%; text-shadow: 0 0 2px rgb(255, 180, 0); }
+    100% { background-position: 100% 50%; text-shadow: 0 0 1px yellow; }
+}
+
+@keyframes silverAnimation {
+    0% { background-position: 0% 50%; text-shadow: 0 0 1px silver; }
+    3% { background-position: 65% 50%; text-shadow: 0 0 2px rgb(141, 141, 141); }
+    100% { background-position: 100% 50%; text-shadow: 0 0 1px silver; }
+}
+
+@keyframes copperAnimation {
+    0% { background-position: 0% 50%; text-shadow: 0 0 1px rgb(184, 115, 51); }
+    3% { background-position: 65% 50%; text-shadow: 0 0 2px rgb(156, 85, 18); }
+    100% { background-position: 100% 50%; text-shadow: 0 0 1px rgb(184, 115, 51); }
 }

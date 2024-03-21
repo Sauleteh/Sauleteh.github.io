@@ -52,6 +52,9 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     let floatingPixels = []; // Píxeles flotantes que aparecen cuando se completa una línea
 
     let gameOver = false;
+    const name = ['', '', ''];
+    let nameIndex = 0;
+
     let gamePaused = false;
     let score = 0;
     let level = 1;
@@ -113,6 +116,15 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         cbExperimental.addEventListener("click", function() {
             document.activeElement.blur();
         });
+
+        fetch("http://gayofo.com:3000/api/tetris/scoreboard", {
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
+        }).then(response => {
+            console.log(response); // TODO:
+        }).catch(error => {
+            console.log("No se pudo conectar con el servidor:", error);    
+        })
     }
 
     function cleanCanvas() {
@@ -381,9 +393,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         for (let i = 0; i < board.length; i++) {
             for (let j = 0; j < board[i].length; j++) {
                 if (board[i][j] !== null && i < 4) {
-                    alert("Game Over\n\nPuntuación: " + score + "\nNivel: " + level + "\nLíneas completadas: " + linesCompleted);
                     gameOver = true;
-                    window.location.reload();
                     return;
                 }
             }
@@ -598,6 +608,61 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         }
     }
 
+    function drawGameOverScreen() {
+        ctx.font = "22px PressStart2P";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText(`GAME OVER`, canvas.width / 2, canvas.height / 2 - 200);
+
+        // Dibujar el subrayado de las letras
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "white";
+        const paddingEdges = 1/1.8; // Factor de tamaño con respecto al ancho del subrayado para los extremos
+        const paddingBetween = 1/5; // Factor de tamaño con respecto al ancho del subrayado para los espacios entre letras
+        const numberLetters = 3;
+        const lineWidth = canvas.width / (2*paddingEdges + numberLetters + (numberLetters-1)*paddingBetween);
+        ctx.font = "50px PressStart2P";
+        for (let i = 0; i < numberLetters; i++) {
+            ctx.beginPath();
+            ctx.moveTo(lineWidth*paddingEdges + lineWidth*i + lineWidth*paddingBetween*i, canvas.height / 2);
+            ctx.lineTo(lineWidth*paddingEdges + lineWidth*(i+1) + lineWidth*paddingBetween*i, canvas.height / 2);
+            ctx.stroke();
+            ctx.closePath();
+
+            ctx.fillText(name[i], lineWidth*paddingEdges + lineWidth*i + lineWidth*paddingBetween*i + lineWidth/2 + 3, canvas.height / 2 - 5);
+        }
+
+        ctx.font = "14px PressStart2P";
+        ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 6 * 4);
+        ctx.fillText(`Nivel: ${level}`, canvas.width / 2, canvas.height / 6 * 4 + 20);
+        ctx.fillText(`Líneas: ${linesCompleted}`, canvas.width / 2, canvas.height / 6 * 4 + 40);
+
+        ctx.font = "12px PressStart2P";
+        ctx.fillText("Presiona ENTER", canvas.width / 2, canvas.height / 8 * 7);
+        ctx.fillText("para continuar", canvas.width / 2, canvas.height / 8 * 7 + 15);
+    }
+
+    function manageNameInput() {
+        if (controls.keys.deleteLetter.isPressed && !controls.keys.deleteLetter.actionDone) {
+            if (nameIndex > 0) {
+                nameIndex--;
+                name[nameIndex] = '';
+            }
+
+            controls.keys.deleteLetter.actionDone = true;
+        }
+        else if (controls.keys.writeLetter.isPressed && !controls.keys.writeLetter.actionDone && controls.lastKeyPressed.length === 1) {
+            if (nameIndex < 3 name[nameIndex].length < 1) {
+                name[nameIndex] = controls.lastKeyPressed.toUpperCase();
+                nameIndex++;
+            }
+
+            controls.keys.writeLetter.actionDone = true;
+        }
+
+        console.log(nameIndex, controls.lastKeyPressed);
+    }
+
     /**
      * Conjunto de funciones para dibujar el tablero y todo lo relacionado con él
      */
@@ -611,30 +676,38 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     }
 
     function draw() {
-        if (!gameOver) window.requestAnimationFrame(draw);
-        else return;
+        window.requestAnimationFrame(draw);
 
         if (!controlFps.shouldDrawFrame()) return;
         
         cleanCanvas();
 
-        pauseDetection();
-        if (gamePaused) {
-            drawPauseUI();   
-            return;
+        if (!gameOver) {
+            pauseDetection();
+            if (gamePaused) {
+                drawPauseUI();   
+                return;
+            }
+
+            drawEntireBoard();
+            drawHold();
+            drawNext();
+
+            holdTetromino();
+            movementTetromino();
+            collisionTetromino(false);
+            lineCompleteDetection();
+            gameOverDetection();
         }
-
-        drawEntireBoard();
-        drawHold();
-        drawNext();
-
-        holdTetromino();
-        movementTetromino();
-        collisionTetromino(false);
-        lineCompleteDetection();
-        gameOverDetection();
+        else {
+            drawGameOverScreen();
+            manageNameInput();
+        }
     }
     
     draw();
     initEvents();
 });
+
+// TODO: Mejorar el sistema de score para que sea el scoring moderno (https://tetris.wiki/Scoring) y el de la velocidad de caída de las piezas (https://tetris.fandom.com/wiki/Tetris_(NES,_Nintendo)
+// TODO: Implementar controles móviles
