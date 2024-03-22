@@ -3,6 +3,7 @@ import * as Constants from "./Constants.js";
 import { Tetromino } from "./Tetromino.js";
 import { Controls } from "./Controls.js";
 import { KonamiCode } from "./KonamiCode.js";
+import { Square } from "./Square.js";
 
 export const board = []; // El tetrominó necesita acceder al tablero, por eso se exporta
 
@@ -15,9 +16,12 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     const ctxNext = canvasNext.getContext('2d');
     const $spriteSquares = document.querySelector("#spriteSquares");
     const $niceVideo = document.querySelector("#niceVideo");
+    const $spriteArrow = document.querySelector("#spriteArrow");
+    const status = document.querySelector("#scoreboarddiv span.statusCheck");
 
     const cbEffects = document.querySelector("#cbEffLine");
     const cbExperimental = document.querySelector("#cbExpOpt");
+    const cbLimitFPS = document.querySelector("#cbLimitFPS");
     const konamiCode = new KonamiCode();
     konamiCode.addListener();
 
@@ -35,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     let counterGround = 0; // Contador para cuando una pieza toque el suelo
     let groundResetTimes = 0; // Veces que la pieza ha reseteado el temporizador de tocar el suelo
 
-    const controlFps = new FpsController(30);
+    const controlFps = new FpsController(Constants.DEFAULT_FPS_CAP);
     const controls = new Controls();
     let counterMovementDelay = 0; // Contador para el retraso de movimiento horizontal de las piezas
 
@@ -54,6 +58,20 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     let gameOver = false;
     const name = ['', '', ''];
     let nameIndex = 0;
+    let nameConfirmed = false;
+    let counterNameArrowOffset = 0; // Contador para el desplazamiento del cursor de nombre verticalmente (animación)
+    let nameArrowDirection = 1; // Dirección del cursor de nombre (1: hacia abajo, -1: hacia arriba)
+
+    let startGame = false;
+    const fakeBoard = [];
+
+    // Creación del tablero falso para el fondo de la pantalla de inicio
+    for (let i = 0; i < Constants.BOARD_HEIGHT; i++) {
+        fakeBoard[i] = [];
+        for (let j = 0; j < Constants.BOARD_WIDTH; j++) {
+            fakeBoard[i][j] = new Square(i * Constants.SQUARE_SIZE, j * Constants.SQUARE_SIZE, Math.floor(Math.random() * Object.keys(Constants.COLORS).length));
+        }
+    }
 
     let gamePaused = false;
     let score = 0;
@@ -117,13 +135,29 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             document.activeElement.blur();
         });
 
+        cbLimitFPS.addEventListener("click", function() {
+            document.activeElement.blur();
+
+            if (cbLimitFPS.checked) controlFps.fpsCap = Constants.DEFAULT_FPS_CAP;
+            else controlFps.fpsCap = 999;
+
+            controlFps.msPerFrame = 1000 / controlFps.fpsCap;
+            controlFps.framesPerSec = controlFps.fpsCap;
+        });
+
         fetch("http://gayofo.com:3000/api/tetris/scoreboard", {
             method: "GET",
             headers: { "Content-Type": "application/json" }
         }).then(response => {
             console.log(response); // TODO:
+
+            status.textContent = "Online";
+            status.style.color = "green";
         }).catch(error => {
-            console.log("No se pudo conectar con el servidor:", error);    
+            console.log("No se pudo conectar con el servidor:", error);
+            
+            status.textContent = "Offline";
+            status.style.color = "red";
         })
     }
 
@@ -623,14 +657,30 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         const lineWidth = canvas.width / (2*paddingEdges + numberLetters + (numberLetters-1)*paddingBetween);
         ctx.font = "50px PressStart2P";
         for (let i = 0; i < numberLetters; i++) {
-            ctx.beginPath();
+            ctx.beginPath(); // Subrayados
             ctx.moveTo(lineWidth*paddingEdges + lineWidth*i + lineWidth*paddingBetween*i, canvas.height / 2);
             ctx.lineTo(lineWidth*paddingEdges + lineWidth*(i+1) + lineWidth*paddingBetween*i, canvas.height / 2);
             ctx.stroke();
             ctx.closePath();
 
-            ctx.fillText(name[i], lineWidth*paddingEdges + lineWidth*i + lineWidth*paddingBetween*i + lineWidth/2 + 3, canvas.height / 2 - 5);
+            ctx.fillText(name[i], lineWidth*paddingEdges + lineWidth*i + lineWidth*paddingBetween*i + lineWidth/2 + 3, canvas.height / 2 - 5); // Letras a escribir
         }
+
+        ctx.drawImage(
+            $spriteArrow,
+            0, // Posición X en la imagen
+            0, // Posición Y en la imagen
+            16, // Ancho en la imagen
+            16, // Alto en la imagen
+            lineWidth*paddingEdges + lineWidth*nameIndex + lineWidth*paddingBetween*nameIndex + lineWidth/2 - 13, // Posición X
+            canvas.height / 2 - 100 + counterNameArrowOffset / controlFps.framesPerSec, // Posición Y
+            25, // Ancho
+            25 // Alto
+        )
+
+        if (counterNameArrowOffset / controlFps.framesPerSec >= 10) nameArrowDirection = -1;
+        else if (counterNameArrowOffset / controlFps.framesPerSec <= 0) nameArrowDirection = 1;
+        counterNameArrowOffset += nameArrowDirection * 30;
 
         ctx.font = "14px PressStart2P";
         ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 6 * 4);
@@ -652,7 +702,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             controls.keys.deleteLetter.actionDone = true;
         }
         else if (controls.keys.writeLetter.isPressed && !controls.keys.writeLetter.actionDone && controls.lastKeyPressed.length === 1) {
-            if (nameIndex < 3 name[nameIndex].length < 1) {
+            if (nameIndex < 3 && name[nameIndex].length < 1) {
                 name[nameIndex] = controls.lastKeyPressed.toUpperCase();
                 nameIndex++;
             }
@@ -660,7 +710,49 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             controls.keys.writeLetter.actionDone = true;
         }
 
-        console.log(nameIndex, controls.lastKeyPressed);
+        if (controls.keys.enter.isPressed && !controls.keys.enter.actionDone) {
+            if (name[0] !== '' && name[1] !== '' && name[2] !== '' && !nameConfirmed && gameOver && nameIndex === 3) {
+                fetch("http://gayofo.com:3000/api/tetris/scoreboard/" + name.join(''), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ score: score, date: new Date() })
+                }).then(response => {
+                    console.log(response); // TODO:
+                    window.location.reload();
+                }).catch(error => {
+                    console.log("No se pudo conectar con el servidor:", error);    
+                    window.location.reload();
+                })
+                nameConfirmed = true;
+            }
+            controls.keys.enter.actionDone = true;
+        }
+    }
+
+    function drawSavingScore() {
+        ctx.font = "14px PressStart2P";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText(`Guardando`, canvas.width / 2, canvas.height / 2 - 10);
+        ctx.fillText(`puntuación...`, canvas.width / 2, canvas.height / 2 + 10);
+    }
+
+    function drawStartScreen() {
+        ctx.font = "26px PressStart2P";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText(`TETRIS`, canvas.width / 2, canvas.height / 2 - 80);
+
+        ctx.font = "14px PressStart2P";
+        ctx.fillText(`Presiona ENTER`, canvas.width / 2, canvas.height / 2 + 70);
+        ctx.fillText(`para comenzar`, canvas.width / 2, canvas.height / 2 + 90);
+    }
+
+    function manageStartGame() {
+        if (controls.keys.enter.isPressed && !controls.keys.enter.actionDone) {
+            startGame = true;
+            controls.keys.enter.actionDone = true;
+        }
     }
 
     /**
@@ -675,14 +767,42 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         drawAnimation();
     }
 
+    function drawRandomFakeBoard() {
+        for (let i = 0; i < Constants.BOARD_HEIGHT; i++) {
+            for (let j = 0; j < Constants.BOARD_WIDTH; j++) {
+                const square = fakeBoard[i][j];
+                //ctx.fillStyle = board[i][j].color;
+                //ctx.fillRect(j * Constants.SQUARE_SIZE, i * Constants.SQUARE_SIZE, Constants.SQUARE_SIZE, Constants.SQUARE_SIZE);
+                ctx.drawImage(
+                    $spriteSquares,
+                    square.color * 16, // Posición X del cuadrado en la imagen
+                    0, // Posición Y del cuadrado en la imagen
+                    16, // Ancho del cuadrado en la imagen
+                    16, // Alto del cuadrado en la imagen
+                    j * Constants.SQUARE_SIZE, // Posición X del cuadrado
+                    i * Constants.SQUARE_SIZE, // Posición Y del cuadrado
+                    Constants.SQUARE_SIZE, // Ancho del cuadrado
+                    Constants.SQUARE_SIZE // Alto del cuadrado
+                )
+            }
+        }
+    }
+
     function draw() {
         window.requestAnimationFrame(draw);
 
         if (!controlFps.shouldDrawFrame()) return;
         
         cleanCanvas();
-
-        if (!gameOver) {
+        
+        if (!startGame) {
+            ctx.globalAlpha = 0.1;
+            drawRandomFakeBoard();
+            ctx.globalAlpha = 1;
+            drawStartScreen();
+            manageStartGame();
+        }
+        else if (!gameOver) {
             pauseDetection();
             if (gamePaused) {
                 drawPauseUI();   
@@ -700,8 +820,19 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             gameOverDetection();
         }
         else {
-            drawGameOverScreen();
-            manageNameInput();
+            if (!nameConfirmed) {
+                ctx.globalAlpha = 0.1;
+                drawBoard();
+                ctx.globalAlpha = 1;
+                drawGameOverScreen();
+                manageNameInput();
+            }
+            else {
+                ctx.globalAlpha = 0.1;
+                drawBoard();
+                ctx.globalAlpha = 1;
+                drawSavingScore();
+            }
         }
     }
     
@@ -711,3 +842,4 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
 // TODO: Mejorar el sistema de score para que sea el scoring moderno (https://tetris.wiki/Scoring) y el de la velocidad de caída de las piezas (https://tetris.fandom.com/wiki/Tetris_(NES,_Nintendo)
 // TODO: Implementar controles móviles
+// TODO: Arreglar el delta time para la explosión de partículas y el delay de movimiento horizontal de las piezas

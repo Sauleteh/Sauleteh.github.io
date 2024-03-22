@@ -89,12 +89,16 @@
     color: rgb(0, 255, 255);
 }
 
-#scoreboarddiv label.credits {
+#scoreboarddiv label.credits, #scoreboarddiv label.status {
     font-family: 'PressStart2P', sans-serif;
     font-size: 7px;
     color: white;
     max-width: 260px;
     text-align: center;
+
+    padding-top: 10px;
+    padding-bottom: 10px;
+    line-height: 10px;
 }
 
 #scoreboarddiv li {
@@ -108,23 +112,7 @@
 #scoreboarddiv ol {
     text-align: left;
     width: 100%;
-    padding-left: 60px;
-}
-
-#scoreboarddiv label.myscore {
-    font-family: 'PressStart2P', sans-serif;
-    font-size: 8px;
-    color: white;
-    text-align: left;
-    width: 100%;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    margin-left: 5px;
-}
-
-#scoreboarddiv label.credits {
-    padding-top: 10px;
-    padding-bottom: 10px;
+    padding-left: 80px;
 }
 
 /* Checkbox redondeado: https://www.w3schools.com/howto/howto_css_switch.asp */

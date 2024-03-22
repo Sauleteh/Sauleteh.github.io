@@ -68,6 +68,12 @@ export class Controls
                 isPressed: false,
                 actionDone: false,
                 check: (key) => { return key.length === 1 && key !== " "; }
+            },
+
+            enter: {
+                isPressed: false,
+                actionDone: false,
+                check: (key) => { return key === "Enter"; }
             }
         };
     }

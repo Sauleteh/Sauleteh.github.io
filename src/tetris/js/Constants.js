@@ -5,6 +5,7 @@ export const INITIAL_FALLING_SPEED = 1; // Velocidad inicial de caída de las pi
 export const MOVEMENT_DELAY_THRESHOLD = 8; // Número de frames a esperar para considerar que la tecla de movimiento se mantiene en vez de solo ser presionada
 export const GROUND_RESET_LIMIT = 10; // Número de veces que la pieza puede resetear el temporizador de caída antes de quedar fija
 export const GROUND_RESET_THRESHOLD = 0.5; // Número de segundos a esperar para dejar una pieza fija después de tocar un suelo
+export const DEFAULT_FPS_CAP = 30;
 
 export const COLORS = {
     CYAN: 0,
