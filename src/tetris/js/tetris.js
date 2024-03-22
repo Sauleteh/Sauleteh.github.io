@@ -77,6 +77,9 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     let score = 0;
     let level = 1;
     let linesCompleted = 0;
+    let combo = -1;
+    let tetrominoPlaced = false; // Indica si el tetrominó actual ya fue colocado en el tablero (para el combo)
+    let backToBack = false; // Indica si se hizo un back-to-back
 
     function resetGroundDelay() {
         let isOnGround = false;
@@ -262,6 +265,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 groundResetTimes = 0;
                 counterGround = 0;
                 canHold = true;
+                tetrominoPlaced = true;
                 return true;
             }
         }
@@ -330,11 +334,14 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
         // Hard drop
         if (controls.keys.dropHard.isPressed && !controls.keys.dropHard.actionDone) {
+            let numRows = 0;
             while (!collisionTetromino(true)) {
                 for (let i = 0; i < tetromino.squares.length; i++) {
                     tetromino.squares[i].row++;
                 }
+                numRows++;
             }
+            score += numRows * 2; // 2 puntos por cada fila bajada
             controls.keys.dropHard.actionDone = true;
         }
 
@@ -355,6 +362,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             for (let i = 0; i < tetromino.squares.length; i++) {
                 tetromino.squares[i].row++;
             }
+            if (controls.keys.dropSoft.isPressed) score += 1; // 1 punto por cada fila bajada con soft drop
         }
     }
 
@@ -398,17 +406,42 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 }
             }
         }
-
-        // Sistema de puntuación del Tetris 1988 BPS
-        switch (lines) {
-            case 1: { score += 40; break; }
-            case 2: { score += 100; break; }
-            case 3: { score += 300; break; }
+        
+        switch (lines) { // Puntos por líneas completadas
+            case 1: {
+                score += 100 * level;
+                if (isBoardCleared()) score += 800 * level; // Perfect clear single-line
+                break;
+            }
+            case 2: {
+                score += 300 * level;
+                if (isBoardCleared()) score += 1200 * level; // Perfect clear double-line
+                break;
+            }
+            case 3: {
+                score += 500 * level;
+                if (isBoardCleared()) score += 1800 * level; // Perfect clear triple-line
+                break;
+            }
             case 4: {
-                score += 1200;
+                score += 800 * level * (backToBack ? 1.5 : 1); // Back-to-back: 1.5x puntos
+                if (isBoardCleared()) score += (backToBack ? 3200 : 2000) * level; // Perfect clear tetris (con o sin back-to-back)
                 if (cbExperimental.checked) $niceVideo.play();
                 break;
             }
+        }
+
+        if (tetrominoPlaced) {
+            if (lines > 0) {
+                combo++;
+                score += 50 * combo * level; // Puntos por combo
+            }
+            else combo = -1;
+
+            if (lines === 4) backToBack = true;
+            else backToBack = false;
+
+            tetrominoPlaced = false;
         }
 
         level = Math.floor(linesCompleted / 10) + 1; // Cada 10 líneas, se sube de nivel
@@ -591,6 +624,15 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 }
             }
         }
+    }
+
+    function isBoardCleared() {
+        for (let i = 0; i < board.length; i++) {
+            for (let j = 0; j < board[i].length; j++) {
+                if (board[i][j] !== null) return false;
+            }
+        }
+        return true;
     }
 
     function holdTetromino() {
@@ -840,6 +882,6 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     initEvents();
 });
 
-// TODO: Mejorar el sistema de score para que sea el scoring moderno (https://tetris.wiki/Scoring) y el de la velocidad de caída de las piezas (https://tetris.fandom.com/wiki/Tetris_(NES,_Nintendo)
+// TODO: Mejorar el sistema de la velocidad de caída de las piezas (https://tetris.fandom.com/wiki/Tetris_(NES,_Nintendo)
 // TODO: Implementar controles móviles
 // TODO: Arreglar el delta time para la explosión de partículas y el delay de movimiento horizontal de las piezas
