@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
     const cbEffects = document.querySelector("#cbEffLine");
     const cbExperimental = document.querySelector("#cbExpOpt");
-    const cbLimitFPS = document.querySelector("#cbLimitFPS");
     const konamiCode = new KonamiCode();
     konamiCode.addListener();
 
@@ -136,16 +135,6 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
         cbExperimental.addEventListener("click", function() {
             document.activeElement.blur();
-        });
-
-        cbLimitFPS.addEventListener("click", function() {
-            document.activeElement.blur();
-
-            if (cbLimitFPS.checked) controlFps.fpsCap = Constants.DEFAULT_FPS_CAP;
-            else controlFps.fpsCap = 999;
-
-            controlFps.msPerFrame = 1000 / controlFps.fpsCap;
-            controlFps.framesPerSec = controlFps.fpsCap;
         });
 
         fetch("http://gayofo.com:3000/api/tetris/scoreboard", {
@@ -885,3 +874,5 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 // TODO: Mejorar el sistema de la velocidad de caída de las piezas (https://tetris.fandom.com/wiki/Tetris_(NES,_Nintendo)
 // TODO: Implementar controles móviles
 // TODO: Arreglar el delta time para la explosión de partículas y el delay de movimiento horizontal de las piezas
+// TODO: Skins
+// TODO: LocalStorage de las opciones
