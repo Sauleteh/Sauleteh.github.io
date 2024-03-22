@@ -136,16 +136,19 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
         cbEffects.addEventListener("click", function() {
             document.activeElement.blur();
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_EFFECT, cbEffects.checked);
         });
 
         cbExperimental.addEventListener("click", function() {
             document.activeElement.blur();
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_EXPERIMENTAL, cbExperimental.checked);
         });
 
         selSkin.addEventListener("change", function() {
             document.activeElement.blur();
             const selectedSkin = selSkin.options[selSkin.selectedIndex].value;
             $spriteSquares.src = `./squares_${selectedSkin}.png`;
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_STYLE, selectedSkin);
         });
 
         fetch("http://gayofo.com:3000/api/tetris/scoreboard", {
@@ -725,11 +728,18 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         counterNameArrowOffset += nameArrowDirection * 30;
 
         ctx.font = "14px PressStart2P";
-        ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 6 * 4);
-        ctx.fillText(`Nivel: ${level}`, canvas.width / 2, canvas.height / 6 * 4 + 20);
-        ctx.fillText(`Líneas: ${linesCompleted}`, canvas.width / 2, canvas.height / 6 * 4 + 40);
+        ctx.textAlign = "left";
+        ctx.fillText(`Score:`, lineWidth*paddingEdges, canvas.height / 6 * 4);
+        ctx.fillText(`Nivel:`, lineWidth*paddingEdges, canvas.height / 6 * 4 + 20);
+        ctx.fillText(`Líneas:`, lineWidth*paddingEdges, canvas.height / 6 * 4 + 40);
+
+        ctx.textAlign = "right";
+        ctx.fillText(`${score}`, lineWidth*paddingEdges + lineWidth*numberLetters + lineWidth*paddingBetween*numberLetters - 10, canvas.height / 6 * 4);
+        ctx.fillText(`${level}`, lineWidth*paddingEdges + lineWidth*numberLetters + lineWidth*paddingBetween*numberLetters - 10, canvas.height / 6 * 4 + 20);
+        ctx.fillText(`${linesCompleted}`, lineWidth*paddingEdges + lineWidth*numberLetters + lineWidth*paddingBetween*numberLetters - 10, canvas.height / 6 * 4 + 40);
 
         ctx.font = "12px PressStart2P";
+        ctx.textAlign = "center";
         ctx.fillText("Presiona ENTER", canvas.width / 2, canvas.height / 8 * 7);
         ctx.fillText("para continuar", canvas.width / 2, canvas.height / 8 * 7 + 15);
     }
@@ -830,6 +840,23 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         }
     }
 
+    function restoreLocalStorage() {
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_EFFECT) !== null) {
+            cbEffects.checked = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_EFFECT) === "true";
+        }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_EXPERIMENTAL) !== null) {
+            cbExperimental.checked = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_EXPERIMENTAL) === "true";
+        }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_STYLE) !== null) {
+            selSkin.value = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_STYLE);
+            $spriteSquares.src = `./squares_${selSkin.value}.png`;
+        }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_KONAMICODE) !== null) {
+            const konamiCode = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_KONAMICODE) === "true";
+            if (konamiCode) document.querySelector(".hide").classList.remove("hide");
+        }
+    }
+
     function draw() {
         window.requestAnimationFrame(draw);
 
@@ -880,7 +907,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     
     draw();
     initEvents();
+    restoreLocalStorage();
 });
 
 // TODO: Mejorar la tabla de puntuaciones
-// TODO: LocalStorage de las opciones

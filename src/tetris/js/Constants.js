@@ -7,6 +7,13 @@ export const GROUND_RESET_LIMIT = 10; // Número de veces que la pieza puede res
 export const GROUND_RESET_THRESHOLD = 0.5; // Número de segundos a esperar para dejar una pieza fija después de tocar un suelo
 export const DEFAULT_FPS_CAP = 30;
 
+export const STORAGE_KEYS = { // Claves de almacenamiento local
+    OPTION_EFFECT: "optEffect",
+    OPTION_STYLE: "optStyle",
+    OPTION_EXPERIMENTAL: "optExp",
+    OPTION_KONAMICODE: "optKonami"
+}
+
 export const COLORS = {
     CYAN: 0,
     BLUE: 1,

@@ -1,3 +1,5 @@
+import * as Constants from "./Constants.js";
+
 // Código hecho a partir de: https://gomakethings.com/how-to-create-a-konami-code-easter-egg-with-vanilla-js/
 export class KonamiCode
 {
@@ -35,6 +37,7 @@ export class KonamiCode
         if (this.code.length === this.index) {
             this.index = 0;
             document.querySelector(".hide").classList.remove("hide");
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_KONAMICODE, "true");
             this.removeListener();
         }
     }
