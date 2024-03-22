@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
     const cbEffects = document.querySelector("#cbEffLine");
     const cbExperimental = document.querySelector("#cbExpOpt");
+    const selSkin = document.querySelector("#skinSelect");
     const konamiCode = new KonamiCode();
     konamiCode.addListener();
 
@@ -80,6 +81,10 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     let tetrominoPlaced = false; // Indica si el tetrominó actual ya fue colocado en el tablero (para el combo)
     let backToBack = false; // Indica si se hizo un back-to-back
 
+    ctx.imageSmoothingEnabled = false; // Desactivar suavizado de imágenes
+    ctxHold.imageSmoothingEnabled = false;
+    ctxNext.imageSmoothingEnabled = false;
+
     function resetGroundDelay() {
         let isOnGround = false;
         for (let i = 0; i < tetromino.squares.length; i++) {
@@ -137,6 +142,12 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             document.activeElement.blur();
         });
 
+        selSkin.addEventListener("change", function() {
+            document.activeElement.blur();
+            const selectedSkin = selSkin.options[selSkin.selectedIndex].value;
+            $spriteSquares.src = `./squares_${selectedSkin}.png`;
+        });
+
         fetch("http://gayofo.com:3000/api/tetris/scoreboard", {
             method: "GET",
             headers: { "Content-Type": "application/json" }
@@ -180,7 +191,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                         $spriteSquares,
                         square.color * 16, // Posición X del cuadrado en la imagen
                         0, // Posición Y del cuadrado en la imagen
-                        16, // Ancho del cuadrado en la imagen
+                        16, // An cho del cuadrado en la imagen
                         16, // Alto del cuadrado en la imagen
                         j * Constants.SQUARE_SIZE, // Posición X del cuadrado
                         i * Constants.SQUARE_SIZE, // Posición Y del cuadrado
@@ -526,8 +537,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                     0, // Posición Y del cuadrado en la imagen
                     16, // Ancho del cuadrado en la imagen
                     16, // Alto del cuadrado en la imagen
-                    square.col * Constants.SQUARE_SIZE + ((canvasNext.width - numSquaresHorizontally * Constants.SQUARE_SIZE) / 2), // Posición X del cuadrado
-                    square.row * Constants.SQUARE_SIZE + ((canvasNext.height - numSquaresVertically * Constants.SQUARE_SIZE) / 2), // Posición Y del cuadrado
+                    square.col * Constants.SQUARE_SIZE + Math.round(((canvasNext.width - numSquaresHorizontally * Constants.SQUARE_SIZE) / 2)), // Posición X del cuadrado
+                    square.row * Constants.SQUARE_SIZE + Math.round(((canvasNext.height - numSquaresVertically * Constants.SQUARE_SIZE) / 2)), // Posición Y del cuadrado
                     Constants.SQUARE_SIZE, // Ancho del cuadrado
                     Constants.SQUARE_SIZE // Alto del cuadrado
                 )
@@ -571,8 +582,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 0, // Posición Y del cuadrado en la imagen
                 16, // Ancho del cuadrado en la imagen
                 16, // Alto del cuadrado en la imagen
-                square.col * Constants.SQUARE_SIZE + ((canvasNext.width - numSquaresHorizontally * Constants.SQUARE_SIZE) / 2), // Posición X del cuadrado
-                square.row * Constants.SQUARE_SIZE + ((canvasNext.height - numSquaresVertically * Constants.SQUARE_SIZE) / 2), // Posición Y del cuadrado
+                square.col * Constants.SQUARE_SIZE + Math.round(((canvasNext.width - numSquaresHorizontally * Constants.SQUARE_SIZE) / 2)), // Posición X del cuadrado
+                square.row * Constants.SQUARE_SIZE + Math.round(((canvasNext.height - numSquaresVertically * Constants.SQUARE_SIZE) / 2)), // Posición Y del cuadrado
                 Constants.SQUARE_SIZE, // Ancho del cuadrado
                 Constants.SQUARE_SIZE // Alto del cuadrado
             )
@@ -871,8 +882,5 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     initEvents();
 });
 
-// TODO: Mejorar el sistema de la velocidad de caída de las piezas (https://tetris.fandom.com/wiki/Tetris_(NES,_Nintendo)
-// TODO: Implementar controles móviles
-// TODO: Arreglar el delta time para la explosión de partículas y el delay de movimiento horizontal de las piezas
-// TODO: Skins
+// TODO: Mejorar la tabla de puntuaciones
 // TODO: LocalStorage de las opciones

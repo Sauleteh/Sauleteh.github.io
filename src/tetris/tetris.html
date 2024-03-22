@@ -46,6 +46,14 @@
                     <span class="slider round"></span>
                 </label>
             </li>
+            <li>
+                <span>Estilo de bloques</span>
+                <select name="skin" id="skinSelect">
+                    <option value="0">Simple</option>
+                    <option value="1">Retro</option>
+                    <option value="2">Plano</option>
+                </select>
+            </li>
             <li class="hide">
                 <span>Opción experimental</span>
                 <label class="switch">
@@ -62,21 +70,21 @@
         <label class="status">Estado: <span class="statusCheck">Comprobando...</span></label>
         <hr/>
         <ol>
-            <li><span class="golden" data-pos="1">Sin datos</span></li>
-            <li><span class="silver" data-pos="2">Sin datos</span></li>
-            <li><span class="copper" data-pos="3">Sin datos</span></li>
-            <li><span data-pos="4">Sin datos</span></li>
-            <li><span data-pos="5">Sin datos</span></li>
-            <li><span data-pos="6">Sin datos</span></li>
-            <li><span data-pos="7">Sin datos</span></li>
-            <li><span data-pos="8">Sin datos</span></li>
-            <li><span data-pos="9">Sin datos</span></li>
-            <li><span data-pos="10">Sin datos</span></li>
+            <li class="golden" data-pos="1"><span class="name">Sin datos</span> - <span class="score">0</span></li>
+            <li class="silver" data-pos="2"><span class="name">Sin datos</span> - <span class="score">0</span></li>
+            <li class="copper" data-pos="3"><span class="name">Sin datos</span> - <span class="score">0</span></li>
+            <li data-pos="4"><span class="name">Sin datos</span> - <span class="score">0</span></li>
+            <li data-pos="5"><span class="name">Sin datos</span> - <span class="score">0</span></li>
+            <li data-pos="6"><span class="name">Sin datos</span> - <span class="score">0</span></li>
+            <li data-pos="7"><span class="name">Sin datos</span> - <span class="score">0</span></li>
+            <li data-pos="8"><span class="name">Sin datos</span> - <span class="score">0</span></li>
+            <li data-pos="9"><span class="name">Sin datos</span> - <span class="score">0</span></li>
+            <li data-pos="10"><span class="name">Sin datos</span> - <span class="score">0</span></li>
         </ol>
         <hr/>
         <label class="credits">Gracias a <span class="golden">gayofo.com</span> por proporcionar el hosting para el backend</label>
     </div>
-    <img hidden id="spriteSquares" src="./squares.png" alt="Sprite cuadrados de los tetrominós" />
+    <img hidden id="spriteSquares" src="./squares_0.png" alt="Sprite cuadrados de los tetrominós" />
     <img hidden id="spriteArrow" src="./arrow.png" alt="Flecha que muestra el cursor actual cuando se escribe el nombre" />
     <video hidden id="niceVideo" src="./niceVideo.mp4" alt="Video oculto"></video>
 </body>

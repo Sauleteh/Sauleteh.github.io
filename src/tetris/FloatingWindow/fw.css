@@ -70,8 +70,14 @@
     align-items: center;
 }
 
-#optionsdiv li:has(> label.switch) {
+#optionsdiv li:has( > * ) {
     justify-content: space-between;
+}
+
+#optionsdiv select option, #optionsdiv select {
+    background: rgb(41, 41, 41);
+    color: #fff;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
 }
 
 #controlsdiv li+li, #optionsdiv li+li, #scoreboarddiv li+li {
@@ -104,6 +110,7 @@
 #scoreboarddiv li {
     text-align: left;
     display: list-item;
+    justify-content: space-between;
     list-style-type: decimal;
     list-style-position: outside;
     margin-left: 1em;
@@ -174,7 +181,7 @@ input:checked + .slider:before {
     display: none !important;
 }
 
-.golden {
+.golden > *, .golden {
     color: yellow;
     text-shadow: 0 0 1px rgb(255, 255, 0);
     background: linear-gradient(to right, yellow, white, yellow, white, rgb(255, 145, 0), yellow, white, yellow, white, yellow, white);
@@ -187,7 +194,7 @@ input:checked + .slider:before {
     background-size: 400% auto;
 }
 
-.silver {
+.silver > * {
     color: silver;
     text-shadow: 0 0 1px rgb(192, 192, 192);
     background: linear-gradient(to right, silver, white, silver, white, rgb(192, 192, 192), silver, white, silver, white, silver, white);
@@ -200,7 +207,7 @@ input:checked + .slider:before {
     background-size: 400% auto;
 }
 
-.copper {
+.copper > * {
     color: rgb(184, 115, 51);
     text-shadow: 0 0 1px rgb(184, 115, 51);
     background: linear-gradient(to right, rgb(184, 115, 51), white, rgb(184, 115, 51), white, rgb(184, 115, 51), rgb(184, 115, 51), white, rgb(184, 115, 51), white, rgb(184, 115, 51), white);
