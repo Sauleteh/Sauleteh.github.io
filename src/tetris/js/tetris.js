@@ -17,11 +17,18 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     const $spriteSquares = document.querySelector("#spriteSquares");
     const $niceVideo = document.querySelector("#niceVideo");
     const $spriteArrow = document.querySelector("#spriteArrow");
+    const $music = document.querySelector("#music");
+    const $sfxMove = document.querySelector("#sfxMoving");
+    const $sfxRotate = document.querySelector("#sfxRotating");
+    const $sfxDrop = document.querySelector("#sfxDroping");
     const status = document.querySelector("#scoreboarddiv span.statusCheck");
 
     const cbEffects = document.querySelector("#cbEffLine");
     const cbExperimental = document.querySelector("#cbExpOpt");
     const selSkin = document.querySelector("#skinSelect");
+    const cbMusic = document.querySelector("#cbMusic");
+    const cbSfx = document.querySelector("#cbSfx");
+
     const konamiCode = new KonamiCode();
     konamiCode.addListener();
 
@@ -171,6 +178,27 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             status.textContent = "Offline";
             status.style.color = "red";
         })
+
+        $music.addEventListener("ended", function() {
+            if (level >= 29 && cbExperimental.checked) $music.src = "./assets/sound/tetris_theme_easter.mp3";
+            $music.currentTime = 0;
+            $music.play();
+        });
+
+        cbMusic.addEventListener("click", function() {
+            document.activeElement.blur();
+            if (cbMusic.checked && startGame) $music.play();
+            else {
+                $music.pause();
+                $music.currentTime = 0;
+            }
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_MUSIC, cbMusic.checked);
+        });
+
+        cbSfx.addEventListener("click", function() {
+            document.activeElement.blur();
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_SFX, cbSfx.checked);
+        });
     }
 
     function cleanCanvas() {
@@ -300,6 +328,11 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                     for (let i = 0; i < tetromino.squares.length; i++) {
                         tetromino.squares[i].col--;
                     }
+                    
+                    if (cbSfx.checked) {
+                        $sfxMove.currentTime = 0;
+                        $sfxMove.play();
+                    }
                     controls.keys.left.actionDone = true;
                 }
             }
@@ -321,6 +354,11 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                     for (let i = 0; i < tetromino.squares.length; i++) {
                         tetromino.squares[i].col++;
                     }
+                    
+                    if (cbSfx.checked) {
+                        $sfxMove.currentTime = 0;
+                        $sfxMove.play();
+                    }
                     controls.keys.right.actionDone = true;
                 }
             }
@@ -333,11 +371,21 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         if (controls.keys.rotateClockwise.isPressed && !controls.keys.rotateClockwise.actionDone) {
             tetromino.rotateClockwise();
             resetGroundDelay();
+            
+            if (cbSfx.checked) {
+                $sfxRotate.currentTime = 0;
+                $sfxRotate.play();
+            }
             controls.keys.rotateClockwise.actionDone = true;
         }
         else if (controls.keys.rotateCounterClockwise.isPressed && !controls.keys.rotateCounterClockwise.actionDone) {
             tetromino.rotateCounterClockwise();
             resetGroundDelay();
+            
+            if (cbSfx.checked) {
+                $sfxRotate.currentTime = 0;
+                $sfxRotate.play();
+            }
             controls.keys.rotateCounterClockwise.actionDone = true;
         }
 
@@ -351,6 +399,11 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 numRows++;
             }
             score += numRows * 2; // 2 puntos por cada fila bajada
+            
+            if (cbSfx.checked) {
+                $sfxDrop.currentTime = 0;
+                $sfxDrop.play();
+            }
             controls.keys.dropHard.actionDone = true;
         }
 
@@ -470,6 +523,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             for (let j = 0; j < board[i].length; j++) {
                 if (board[i][j] !== null && i < 4) {
                     gameOver = true;
+                    $music.pause();
                     return;
                 }
             }
@@ -666,6 +720,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     function pauseDetection() {
         if (controls.keys.pause.isPressed && !controls.keys.pause.actionDone) {
             gamePaused = !gamePaused;
+            if (gamePaused) $music.pause();
+            else if (cbMusic.checked) $music.play();
             controls.keys.pause.actionDone = true;
         }
     }
@@ -808,6 +864,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     function manageStartGame() {
         if (controls.keys.enter.isPressed && !controls.keys.enter.actionDone) {
             startGame = true;
+            if (cbMusic.checked) $music.play();
             controls.keys.enter.actionDone = true;
         }
     }
@@ -860,7 +917,12 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             const konamiCode = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_KONAMICODE) === "true";
             if (konamiCode) document.querySelector(".hide").classList.remove("hide");
         }
-        // TODO: Añadir los nuevos 2 botones de opciones
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_MUSIC) !== null) {
+            cbMusic.checked = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_MUSIC) === "true";
+        }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_SFX) !== null) {
+            cbSfx.checked = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_SFX) === "true";
+        }
     }
 
     function draw() {
@@ -915,5 +977,3 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     initEvents();
     restoreLocalStorage();
 });
-
-// TODO: Ver las siguientes 3 piezas a caer en vez de solo la siguiente
