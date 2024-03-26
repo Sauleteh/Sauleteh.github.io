@@ -54,6 +54,20 @@
                     <option value="2">Plano</option>
                 </select>
             </li>
+            <li>
+                <span>Activar m&uacute;sica</span>
+                <label class="switch">
+                    <input id="cbMusic" type="checkbox">
+                    <span class="slider round"></span>
+                </label>
+            </li>
+            <li>
+                <span>Activar SFX</span>
+                <label class="switch">
+                    <input id="cbSfx" type="checkbox">
+                    <span class="slider round"></span>
+                </label>
+            </li>
             <li class="hide">
                 <span>Opción experimental</span>
                 <label class="switch">
@@ -70,22 +84,23 @@
         <label class="status">Estado: <span class="statusCheck">Comprobando...</span></label>
         <hr/>
         <ol>
-            <li class="golden" data-pos="1"><span class="name">Sin datos</span> - <span class="score">0</span></li>
-            <li class="silver" data-pos="2"><span class="name">Sin datos</span> - <span class="score">0</span></li>
-            <li class="copper" data-pos="3"><span class="name">Sin datos</span> - <span class="score">0</span></li>
-            <li data-pos="4"><span class="name">Sin datos</span> - <span class="score">0</span></li>
-            <li data-pos="5"><span class="name">Sin datos</span> - <span class="score">0</span></li>
-            <li data-pos="6"><span class="name">Sin datos</span> - <span class="score">0</span></li>
-            <li data-pos="7"><span class="name">Sin datos</span> - <span class="score">0</span></li>
-            <li data-pos="8"><span class="name">Sin datos</span> - <span class="score">0</span></li>
-            <li data-pos="9"><span class="name">Sin datos</span> - <span class="score">0</span></li>
-            <li data-pos="10"><span class="name">Sin datos</span> - <span class="score">0</span></li>
+            <li><span class="number golden">1</span><span class="name">N/A</span><span class="score">0</span></li>
+            <li><span class="number silver">2</span><span class="name">N/A</span><span class="score">0</span></li>
+            <li><span class="number copper">3</span><span class="name">N/A</span><span class="score">0</span></li>
+            <li><span class="number">4</span><span class="name">N/A</span><span class="score">0</span></li>
+            <li><span class="number">5</span><span class="name">N/A</span><span class="score">0</span></li>
+            <li><span class="number">6</span><span class="name">N/A</span><span class="score">0</span></li>
+            <li><span class="number">7</span><span class="name">N/A</span><span class="score">0</span></li>
+            <li><span class="number">8</span><span class="name">N/A</span><span class="score">0</span></li>
+            <li><span class="number">9</span><span class="name">N/A</span><span class="score">0</span></li>
+            <li><span class="number">10</span><span class="name">N/A</span><span class="score">0</span></li>
         </ol>
         <hr/>
         <label class="credits">Gracias a <span class="golden">gayofo.com</span> por proporcionar el hosting para el backend</label>
     </div>
-    <img hidden id="spriteSquares" src="./squares_0.png" alt="Sprite cuadrados de los tetrominós" />
-    <img hidden id="spriteArrow" src="./arrow.png" alt="Flecha que muestra el cursor actual cuando se escribe el nombre" />
-    <video hidden id="niceVideo" src="./niceVideo.mp4" alt="Video oculto"></video>
+    <img hidden id="spriteSquares" src="./assets/squares_0.png" alt="Sprite cuadrados de los tetrominós" />
+    <img hidden id="spriteArrow" src="./assets/arrow.png" alt="Flecha que muestra el cursor actual cuando se escribe el nombre" />
+    <video hidden id="niceVideo" src="./assets/niceVideo.mp4" alt="Video oculto"></video>
+    <!--Canciones recortadas de "Gabri Alpha" en https://www.youtube.com/watch?v=CU05t7CsYic y Electro Swing de "The Musical Ghost" en https://www.youtube.com/watch?v=A5k1ueMRTNE-->
 </body>
 </html>

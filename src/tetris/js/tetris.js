@@ -147,7 +147,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         selSkin.addEventListener("change", function() {
             document.activeElement.blur();
             const selectedSkin = selSkin.options[selSkin.selectedIndex].value;
-            $spriteSquares.src = `./squares_${selectedSkin}.png`;
+            $spriteSquares.src = `./assets/squares_${selectedSkin}.png`;
             localStorage.setItem(Constants.STORAGE_KEYS.OPTION_STYLE, selectedSkin);
         });
 
@@ -155,10 +155,16 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             method: "GET",
             headers: { "Content-Type": "application/json" }
         }).then(response => {
-            console.log(response); // TODO:
-
             status.textContent = "Online";
             status.style.color = "green";
+            return response.json();
+        }).then(data => {
+            const scoreboardListItems = document.querySelectorAll("#scoreboarddiv ol li");
+            for (let i = 0; i < scoreboardListItems.length; i++) {
+                const actualListItem = scoreboardListItems[i];
+                actualListItem.querySelector("span.name").textContent = data[i].username.toUpperCase();
+                actualListItem.querySelector("span.score").textContent = data[i].score;
+            }
         }).catch(error => {
             console.log("No se pudo conectar con el servidor:", error);
             
@@ -767,9 +773,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 fetch("http://gayofo.com:3000/api/tetris/scoreboard/" + name.join(''), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ score: score, date: new Date() })
-                }).then(response => {
-                    console.log(response); // TODO:
+                    body: JSON.stringify({ "score": score, "date": new Date().toISOString().slice(0, 19).replace('T', ' ') })
+                }).then(() => {
                     window.location.reload();
                 }).catch(error => {
                     console.log("No se pudo conectar con el servidor:", error);    
@@ -849,12 +854,13 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         }
         if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_STYLE) !== null) {
             selSkin.value = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_STYLE);
-            $spriteSquares.src = `./squares_${selSkin.value}.png`;
+            $spriteSquares.src = `./assets/squares_${selSkin.value}.png`;
         }
         if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_KONAMICODE) !== null) {
             const konamiCode = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_KONAMICODE) === "true";
             if (konamiCode) document.querySelector(".hide").classList.remove("hide");
         }
+        // TODO: Añadir los nuevos 2 botones de opciones
     }
 
     function draw() {
@@ -910,4 +916,4 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     restoreLocalStorage();
 });
 
-// TODO: Mejorar la tabla de puntuaciones
+// TODO: Ver las siguientes 3 piezas a caer en vez de solo la siguiente

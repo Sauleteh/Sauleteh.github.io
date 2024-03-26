@@ -1,6 +1,6 @@
 @font-face {
     font-family: 'PressStart2P';
-    src: url('../PressStart2P-Regular.ttf') format('truetype');
+    src: url('../assets/PressStart2P-Regular.ttf') format('truetype');
 }
 
 #controlsdiv, #optionsdiv, #scoreboarddiv {
@@ -91,7 +91,7 @@
     cursor: move;
 }
 
-#controlsdiv span.control, #scoreboarddiv ol li::marker {
+#controlsdiv span.control {
     color: rgb(0, 255, 255);
 }
 
@@ -109,17 +109,63 @@
 
 #scoreboarddiv li {
     text-align: left;
-    display: list-item;
+    height: 10px;
+    border-radius: 4px;
+    padding-left: 10px;
+    padding-right: 10px;
+    display: flex;
     justify-content: space-between;
-    list-style-type: decimal;
-    list-style-position: outside;
-    margin-left: 1em;
+}
+
+#scoreboarddiv li > span.name {
+    text-align: center;
+}
+
+#scoreboarddiv li > span.score, #scoreboarddiv li > span.number {
+    width: 92px;
+}
+
+#scoreboarddiv li > span.score {
+    text-align: right;
+}
+
+#scoreboarddiv li:nth-child(1) {
+    background: linear-gradient(to right, rgba(255, 255, 0, 0.25), rgba(255, 255, 255, 0.25), rgba(255, 255, 0, 0.25), rgba(255, 255, 255, 0.25), rgba(255, 145, 0, 0.25), rgba(255, 255, 0, 0.25), rgba(255, 255, 255, 0.25), rgba(255, 255, 0, 0.25), rgba(255, 255, 255, 0.25), rgba(255, 255, 0, 0.25), rgba(255, 255, 255, 0.25));
+    animation: goldenAnimation 4s linear infinite;
+    background-size: 400% auto;
+    height: 35px;
+    font-size: 15px;
+}
+#scoreboarddiv li:nth-child(1) > span.score {
+    font-size: 9.5px;
+}
+
+#scoreboarddiv li:nth-child(2) {
+    background: linear-gradient(to right, rgba(192, 192, 192, 0.25), rgba(255, 255, 255, 0.25), rgba(192, 192, 192, 0.25), rgba(255, 255, 255, 0.25), rgba(192, 192, 192, 0.25), rgba(192, 192, 192, 0.25), rgba(255, 255, 255, 0.25), rgba(192, 192, 192, 0.25), rgba(255, 255, 255, 0.25), rgba(192, 192, 192, 0.25), rgba(255, 255, 255, 0.25));
+    animation: silverAnimation 7s linear infinite;
+    background-size: 500% auto;
+    height: 29px;
+    font-size: 13px;
+}
+#scoreboarddiv li:nth-child(2) > span.score {
+    font-size: 9px;
+}
+
+#scoreboarddiv li:nth-child(3) {
+    background: linear-gradient(to right, rgba(184, 115, 51, 0.25), rgba(255, 255, 255, 0.25), rgba(184, 115, 51, 0.25), rgba(255, 255, 255, 0.25), rgba(184, 115, 51, 0.25), rgba(184, 115, 51, 0.25), rgba(255, 255, 255, 0.25), rgba(184, 115, 51, 0.25), rgba(255, 255, 255, 0.25), rgba(184, 115, 51, 0.25), rgba(255, 255, 255, 0.25));
+    animation: copperAnimation 10s linear infinite;
+    background-size: 600% auto;
+    height: 23px;
+    font-size: 11px;
+}
+#scoreboarddiv li:nth-child(3) > span.score {
+    font-size: 8.5px;
 }
 
 #scoreboarddiv ol {
     text-align: left;
     width: 100%;
-    padding-left: 80px;
+    justify-content: space-between;
 }
 
 /* Checkbox redondeado: https://www.w3schools.com/howto/howto_css_switch.asp */
@@ -194,7 +240,7 @@ input:checked + .slider:before {
     background-size: 400% auto;
 }
 
-.silver > * {
+.silver > *, .silver {
     color: silver;
     text-shadow: 0 0 1px rgb(192, 192, 192);
     background: linear-gradient(to right, silver, white, silver, white, rgb(192, 192, 192), silver, white, silver, white, silver, white);
@@ -207,7 +253,7 @@ input:checked + .slider:before {
     background-size: 400% auto;
 }
 
-.copper > * {
+.copper > *, .copper {
     color: rgb(184, 115, 51);
     text-shadow: 0 0 1px rgb(184, 115, 51);
     background: linear-gradient(to right, rgb(184, 115, 51), white, rgb(184, 115, 51), white, rgb(184, 115, 51), rgb(184, 115, 51), white, rgb(184, 115, 51), white, rgb(184, 115, 51), white);
