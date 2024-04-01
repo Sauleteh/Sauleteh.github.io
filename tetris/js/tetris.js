@@ -3,6 +3,7 @@ import * as Constants from "./Constants.js";
 import { Tetromino } from "./Tetromino.js";
 import { Controls } from "./Controls.js";
 import { KonamiCode } from "./KonamiCode.js";
+import { Square } from "./Square.js";
 
 export const board = []; // El tetrominó necesita acceder al tablero, por eso se exporta
 
@@ -15,9 +16,19 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     const ctxNext = canvasNext.getContext('2d');
     const $spriteSquares = document.querySelector("#spriteSquares");
     const $niceVideo = document.querySelector("#niceVideo");
+    const $spriteArrow = document.querySelector("#spriteArrow");
+    const $music = document.querySelector("#music");
+    const $sfxMove = document.querySelector("#sfxMoving");
+    const $sfxRotate = document.querySelector("#sfxRotating");
+    const $sfxDrop = document.querySelector("#sfxDroping");
+    const status = document.querySelector("#scoreboarddiv span.statusCheck");
 
     const cbEffects = document.querySelector("#cbEffLine");
     const cbExperimental = document.querySelector("#cbExpOpt");
+    const selSkin = document.querySelector("#skinSelect");
+    const cbMusic = document.querySelector("#cbMusic");
+    const cbSfx = document.querySelector("#cbSfx");
+
     const konamiCode = new KonamiCode();
     konamiCode.addListener();
 
@@ -35,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     let counterGround = 0; // Contador para cuando una pieza toque el suelo
     let groundResetTimes = 0; // Veces que la pieza ha reseteado el temporizador de tocar el suelo
 
-    const controlFps = new FpsController(30);
+    const controlFps = new FpsController(Constants.DEFAULT_FPS_CAP);
     const controls = new Controls();
     let counterMovementDelay = 0; // Contador para el retraso de movimiento horizontal de las piezas
 
@@ -52,10 +63,34 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     let floatingPixels = []; // Píxeles flotantes que aparecen cuando se completa una línea
 
     let gameOver = false;
+    const name = ['', '', ''];
+    let nameIndex = 0;
+    let nameConfirmed = false;
+    let counterNameArrowOffset = 0; // Contador para el desplazamiento del cursor de nombre verticalmente (animación)
+    let nameArrowDirection = 1; // Dirección del cursor de nombre (1: hacia abajo, -1: hacia arriba)
+
+    let startGame = false;
+    const fakeBoard = [];
+
+    // Creación del tablero falso para el fondo de la pantalla de inicio
+    for (let i = 0; i < Constants.BOARD_HEIGHT; i++) {
+        fakeBoard[i] = [];
+        for (let j = 0; j < Constants.BOARD_WIDTH; j++) {
+            fakeBoard[i][j] = new Square(i * Constants.SQUARE_SIZE, j * Constants.SQUARE_SIZE, Math.floor(Math.random() * Object.keys(Constants.COLORS).length));
+        }
+    }
+
     let gamePaused = false;
     let score = 0;
     let level = 1;
     let linesCompleted = 0;
+    let combo = -1;
+    let tetrominoPlaced = false; // Indica si el tetrominó actual ya fue colocado en el tablero (para el combo)
+    let backToBack = false; // Indica si se hizo un back-to-back
+
+    ctx.imageSmoothingEnabled = false; // Desactivar suavizado de imágenes
+    ctxHold.imageSmoothingEnabled = false;
+    ctxNext.imageSmoothingEnabled = false;
 
     function resetGroundDelay() {
         let isOnGround = false;
@@ -108,10 +143,61 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
         cbEffects.addEventListener("click", function() {
             document.activeElement.blur();
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_EFFECT, cbEffects.checked);
         });
 
         cbExperimental.addEventListener("click", function() {
             document.activeElement.blur();
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_EXPERIMENTAL, cbExperimental.checked);
+        });
+
+        selSkin.addEventListener("change", function() {
+            document.activeElement.blur();
+            const selectedSkin = selSkin.options[selSkin.selectedIndex].value;
+            $spriteSquares.src = `./assets/squares_${selectedSkin}.png`;
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_STYLE, selectedSkin);
+        });
+
+        fetch("http://gayofo.com:3000/api/tetris/scoreboard", {
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
+        }).then(response => {
+            status.textContent = "Online";
+            status.style.color = "green";
+            return response.json();
+        }).then(data => {
+            const scoreboardListItems = document.querySelectorAll("#scoreboarddiv ol li");
+            for (let i = 0; i < scoreboardListItems.length; i++) {
+                const actualListItem = scoreboardListItems[i];
+                actualListItem.querySelector("span.name").textContent = data[i].username.toUpperCase();
+                actualListItem.querySelector("span.score").textContent = data[i].score;
+            }
+        }).catch(error => {
+            console.log("No se pudo conectar con el servidor:", error);
+            
+            status.textContent = "Offline";
+            status.style.color = "red";
+        })
+
+        $music.addEventListener("ended", function() {
+            if (level >= 29 && cbExperimental.checked) $music.src = "./assets/sound/tetris_theme_easter.mp3";
+            $music.currentTime = 0;
+            $music.play();
+        });
+
+        cbMusic.addEventListener("click", function() {
+            document.activeElement.blur();
+            if (cbMusic.checked && startGame) $music.play();
+            else {
+                $music.pause();
+                $music.currentTime = 0;
+            }
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_MUSIC, cbMusic.checked);
+        });
+
+        cbSfx.addEventListener("click", function() {
+            document.activeElement.blur();
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_SFX, cbSfx.checked);
         });
     }
 
@@ -142,7 +228,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                         $spriteSquares,
                         square.color * 16, // Posición X del cuadrado en la imagen
                         0, // Posición Y del cuadrado en la imagen
-                        16, // Ancho del cuadrado en la imagen
+                        16, // An cho del cuadrado en la imagen
                         16, // Alto del cuadrado en la imagen
                         j * Constants.SQUARE_SIZE, // Posición X del cuadrado
                         i * Constants.SQUARE_SIZE, // Posición Y del cuadrado
@@ -216,6 +302,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 groundResetTimes = 0;
                 counterGround = 0;
                 canHold = true;
+                tetrominoPlaced = true;
                 return true;
             }
         }
@@ -241,6 +328,11 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                     for (let i = 0; i < tetromino.squares.length; i++) {
                         tetromino.squares[i].col--;
                     }
+                    
+                    if (cbSfx.checked) {
+                        $sfxMove.currentTime = 0;
+                        $sfxMove.play();
+                    }
                     controls.keys.left.actionDone = true;
                 }
             }
@@ -262,6 +354,11 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                     for (let i = 0; i < tetromino.squares.length; i++) {
                         tetromino.squares[i].col++;
                     }
+                    
+                    if (cbSfx.checked) {
+                        $sfxMove.currentTime = 0;
+                        $sfxMove.play();
+                    }
                     controls.keys.right.actionDone = true;
                 }
             }
@@ -274,20 +371,38 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         if (controls.keys.rotateClockwise.isPressed && !controls.keys.rotateClockwise.actionDone) {
             tetromino.rotateClockwise();
             resetGroundDelay();
+            
+            if (cbSfx.checked) {
+                $sfxRotate.currentTime = 0;
+                $sfxRotate.play();
+            }
             controls.keys.rotateClockwise.actionDone = true;
         }
         else if (controls.keys.rotateCounterClockwise.isPressed && !controls.keys.rotateCounterClockwise.actionDone) {
             tetromino.rotateCounterClockwise();
             resetGroundDelay();
+            
+            if (cbSfx.checked) {
+                $sfxRotate.currentTime = 0;
+                $sfxRotate.play();
+            }
             controls.keys.rotateCounterClockwise.actionDone = true;
         }
 
         // Hard drop
         if (controls.keys.dropHard.isPressed && !controls.keys.dropHard.actionDone) {
+            let numRows = 0;
             while (!collisionTetromino(true)) {
                 for (let i = 0; i < tetromino.squares.length; i++) {
                     tetromino.squares[i].row++;
                 }
+                numRows++;
+            }
+            score += numRows * 2; // 2 puntos por cada fila bajada
+            
+            if (cbSfx.checked) {
+                $sfxDrop.currentTime = 0;
+                $sfxDrop.play();
             }
             controls.keys.dropHard.actionDone = true;
         }
@@ -309,6 +424,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             for (let i = 0; i < tetromino.squares.length; i++) {
                 tetromino.squares[i].row++;
             }
+            if (controls.keys.dropSoft.isPressed) score += 1; // 1 punto por cada fila bajada con soft drop
         }
     }
 
@@ -352,17 +468,42 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 }
             }
         }
-
-        // Sistema de puntuación del Tetris 1988 BPS
-        switch (lines) {
-            case 1: { score += 40; break; }
-            case 2: { score += 100; break; }
-            case 3: { score += 300; break; }
+        
+        switch (lines) { // Puntos por líneas completadas
+            case 1: {
+                score += 100 * level;
+                if (isBoardCleared()) score += 800 * level; // Perfect clear single-line
+                break;
+            }
+            case 2: {
+                score += 300 * level;
+                if (isBoardCleared()) score += 1200 * level; // Perfect clear double-line
+                break;
+            }
+            case 3: {
+                score += 500 * level;
+                if (isBoardCleared()) score += 1800 * level; // Perfect clear triple-line
+                break;
+            }
             case 4: {
-                score += 1200;
+                score += 800 * level * (backToBack ? 1.5 : 1); // Back-to-back: 1.5x puntos
+                if (isBoardCleared()) score += (backToBack ? 3200 : 2000) * level; // Perfect clear tetris (con o sin back-to-back)
                 if (cbExperimental.checked) $niceVideo.play();
                 break;
             }
+        }
+
+        if (tetrominoPlaced) {
+            if (lines > 0) {
+                combo++;
+                score += 50 * combo * level; // Puntos por combo
+            }
+            else combo = -1;
+
+            if (lines === 4) backToBack = true;
+            else backToBack = false;
+
+            tetrominoPlaced = false;
         }
 
         level = Math.floor(linesCompleted / 10) + 1; // Cada 10 líneas, se sube de nivel
@@ -381,9 +522,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         for (let i = 0; i < board.length; i++) {
             for (let j = 0; j < board[i].length; j++) {
                 if (board[i][j] !== null && i < 4) {
-                    alert("Game Over\n\nPuntuación: " + score + "\nNivel: " + level + "\nLíneas completadas: " + linesCompleted);
                     gameOver = true;
-                    window.location.reload();
+                    $music.pause();
                     return;
                 }
             }
@@ -460,8 +600,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                     0, // Posición Y del cuadrado en la imagen
                     16, // Ancho del cuadrado en la imagen
                     16, // Alto del cuadrado en la imagen
-                    square.col * Constants.SQUARE_SIZE + ((canvasNext.width - numSquaresHorizontally * Constants.SQUARE_SIZE) / 2), // Posición X del cuadrado
-                    square.row * Constants.SQUARE_SIZE + ((canvasNext.height - numSquaresVertically * Constants.SQUARE_SIZE) / 2), // Posición Y del cuadrado
+                    square.col * Constants.SQUARE_SIZE + Math.round(((canvasNext.width - numSquaresHorizontally * Constants.SQUARE_SIZE) / 2)), // Posición X del cuadrado
+                    square.row * Constants.SQUARE_SIZE + Math.round(((canvasNext.height - numSquaresVertically * Constants.SQUARE_SIZE) / 2)), // Posición Y del cuadrado
                     Constants.SQUARE_SIZE, // Ancho del cuadrado
                     Constants.SQUARE_SIZE // Alto del cuadrado
                 )
@@ -505,8 +645,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 0, // Posición Y del cuadrado en la imagen
                 16, // Ancho del cuadrado en la imagen
                 16, // Alto del cuadrado en la imagen
-                square.col * Constants.SQUARE_SIZE + ((canvasNext.width - numSquaresHorizontally * Constants.SQUARE_SIZE) / 2), // Posición X del cuadrado
-                square.row * Constants.SQUARE_SIZE + ((canvasNext.height - numSquaresVertically * Constants.SQUARE_SIZE) / 2), // Posición Y del cuadrado
+                square.col * Constants.SQUARE_SIZE + Math.round(((canvasNext.width - numSquaresHorizontally * Constants.SQUARE_SIZE) / 2)), // Posición X del cuadrado
+                square.row * Constants.SQUARE_SIZE + Math.round(((canvasNext.height - numSquaresVertically * Constants.SQUARE_SIZE) / 2)), // Posición Y del cuadrado
                 Constants.SQUARE_SIZE, // Ancho del cuadrado
                 Constants.SQUARE_SIZE // Alto del cuadrado
             )
@@ -549,6 +689,15 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         }
     }
 
+    function isBoardCleared() {
+        for (let i = 0; i < board.length; i++) {
+            for (let j = 0; j < board[i].length; j++) {
+                if (board[i][j] !== null) return false;
+            }
+        }
+        return true;
+    }
+
     function holdTetromino() {
         // Guardar el tetrominó actual
         if (controls.keys.hold.isPressed && !controls.keys.hold.actionDone && canHold) {
@@ -571,6 +720,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     function pauseDetection() {
         if (controls.keys.pause.isPressed && !controls.keys.pause.actionDone) {
             gamePaused = !gamePaused;
+            if (gamePaused) $music.pause();
+            else if (cbMusic.checked) $music.play();
             controls.keys.pause.actionDone = true;
         }
     }
@@ -598,6 +749,126 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         }
     }
 
+    function drawGameOverScreen() {
+        ctx.font = "22px PressStart2P";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText(`GAME OVER`, canvas.width / 2, canvas.height / 2 - 200);
+
+        // Dibujar el subrayado de las letras
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "white";
+        const paddingEdges = 1/1.8; // Factor de tamaño con respecto al ancho del subrayado para los extremos
+        const paddingBetween = 1/5; // Factor de tamaño con respecto al ancho del subrayado para los espacios entre letras
+        const numberLetters = 3;
+        const lineWidth = canvas.width / (2*paddingEdges + numberLetters + (numberLetters-1)*paddingBetween);
+        ctx.font = "50px PressStart2P";
+        for (let i = 0; i < numberLetters; i++) {
+            ctx.beginPath(); // Subrayados
+            ctx.moveTo(lineWidth*paddingEdges + lineWidth*i + lineWidth*paddingBetween*i, canvas.height / 2);
+            ctx.lineTo(lineWidth*paddingEdges + lineWidth*(i+1) + lineWidth*paddingBetween*i, canvas.height / 2);
+            ctx.stroke();
+            ctx.closePath();
+
+            ctx.fillText(name[i], lineWidth*paddingEdges + lineWidth*i + lineWidth*paddingBetween*i + lineWidth/2 + 3, canvas.height / 2 - 5); // Letras a escribir
+        }
+
+        ctx.drawImage(
+            $spriteArrow,
+            0, // Posición X en la imagen
+            0, // Posición Y en la imagen
+            16, // Ancho en la imagen
+            16, // Alto en la imagen
+            lineWidth*paddingEdges + lineWidth*nameIndex + lineWidth*paddingBetween*nameIndex + lineWidth/2 - 13, // Posición X
+            canvas.height / 2 - 100 + counterNameArrowOffset / controlFps.framesPerSec, // Posición Y
+            25, // Ancho
+            25 // Alto
+        )
+
+        if (counterNameArrowOffset / controlFps.framesPerSec >= 10) nameArrowDirection = -1;
+        else if (counterNameArrowOffset / controlFps.framesPerSec <= 0) nameArrowDirection = 1;
+        counterNameArrowOffset += nameArrowDirection * 30;
+
+        ctx.font = "14px PressStart2P";
+        ctx.textAlign = "left";
+        ctx.fillText(`Score:`, lineWidth*paddingEdges, canvas.height / 6 * 4);
+        ctx.fillText(`Nivel:`, lineWidth*paddingEdges, canvas.height / 6 * 4 + 20);
+        ctx.fillText(`Líneas:`, lineWidth*paddingEdges, canvas.height / 6 * 4 + 40);
+
+        ctx.textAlign = "right";
+        ctx.fillText(`${score}`, lineWidth*paddingEdges + lineWidth*numberLetters + lineWidth*paddingBetween*numberLetters - 10, canvas.height / 6 * 4);
+        ctx.fillText(`${level}`, lineWidth*paddingEdges + lineWidth*numberLetters + lineWidth*paddingBetween*numberLetters - 10, canvas.height / 6 * 4 + 20);
+        ctx.fillText(`${linesCompleted}`, lineWidth*paddingEdges + lineWidth*numberLetters + lineWidth*paddingBetween*numberLetters - 10, canvas.height / 6 * 4 + 40);
+
+        ctx.font = "12px PressStart2P";
+        ctx.textAlign = "center";
+        ctx.fillText("Presiona ENTER", canvas.width / 2, canvas.height / 8 * 7);
+        ctx.fillText("para continuar", canvas.width / 2, canvas.height / 8 * 7 + 15);
+    }
+
+    function manageNameInput() {
+        if (controls.keys.deleteLetter.isPressed && !controls.keys.deleteLetter.actionDone) {
+            if (nameIndex > 0) {
+                nameIndex--;
+                name[nameIndex] = '';
+            }
+
+            controls.keys.deleteLetter.actionDone = true;
+        }
+        else if (controls.keys.writeLetter.isPressed && !controls.keys.writeLetter.actionDone && controls.lastKeyPressed.length === 1) {
+            if (nameIndex < 3 && name[nameIndex].length < 1) {
+                name[nameIndex] = controls.lastKeyPressed.toUpperCase();
+                nameIndex++;
+            }
+
+            controls.keys.writeLetter.actionDone = true;
+        }
+
+        if (controls.keys.enter.isPressed && !controls.keys.enter.actionDone) {
+            if (name[0] !== '' && name[1] !== '' && name[2] !== '' && !nameConfirmed && gameOver && nameIndex === 3) {
+                fetch("http://gayofo.com:3000/api/tetris/scoreboard/" + name.join(''), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ "score": score, "date": new Date().toISOString().slice(0, 19).replace('T', ' ') })
+                }).then(() => {
+                    window.location.reload();
+                }).catch(error => {
+                    console.log("No se pudo conectar con el servidor:", error);    
+                    window.location.reload();
+                })
+                nameConfirmed = true;
+            }
+            controls.keys.enter.actionDone = true;
+        }
+    }
+
+    function drawSavingScore() {
+        ctx.font = "14px PressStart2P";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText(`Guardando`, canvas.width / 2, canvas.height / 2 - 10);
+        ctx.fillText(`puntuación...`, canvas.width / 2, canvas.height / 2 + 10);
+    }
+
+    function drawStartScreen() {
+        ctx.font = "26px PressStart2P";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText(`TETRIS`, canvas.width / 2, canvas.height / 2 - 80);
+
+        ctx.font = "14px PressStart2P";
+        ctx.fillText(`Presiona ENTER`, canvas.width / 2, canvas.height / 2 + 70);
+        ctx.fillText(`para comenzar`, canvas.width / 2, canvas.height / 2 + 90);
+    }
+
+    function manageStartGame() {
+        if (controls.keys.enter.isPressed && !controls.keys.enter.actionDone) {
+            startGame = true;
+            if (cbMusic.checked) $music.play();
+            controls.keys.enter.actionDone = true;
+        }
+    }
+
     /**
      * Conjunto de funciones para dibujar el tablero y todo lo relacionado con él
      */
@@ -610,31 +881,99 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         drawAnimation();
     }
 
+    function drawRandomFakeBoard() {
+        for (let i = 0; i < Constants.BOARD_HEIGHT; i++) {
+            for (let j = 0; j < Constants.BOARD_WIDTH; j++) {
+                const square = fakeBoard[i][j];
+                //ctx.fillStyle = board[i][j].color;
+                //ctx.fillRect(j * Constants.SQUARE_SIZE, i * Constants.SQUARE_SIZE, Constants.SQUARE_SIZE, Constants.SQUARE_SIZE);
+                ctx.drawImage(
+                    $spriteSquares,
+                    square.color * 16, // Posición X del cuadrado en la imagen
+                    0, // Posición Y del cuadrado en la imagen
+                    16, // Ancho del cuadrado en la imagen
+                    16, // Alto del cuadrado en la imagen
+                    j * Constants.SQUARE_SIZE, // Posición X del cuadrado
+                    i * Constants.SQUARE_SIZE, // Posición Y del cuadrado
+                    Constants.SQUARE_SIZE, // Ancho del cuadrado
+                    Constants.SQUARE_SIZE // Alto del cuadrado
+                )
+            }
+        }
+    }
+
+    function restoreLocalStorage() {
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_EFFECT) !== null) {
+            cbEffects.checked = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_EFFECT) === "true";
+        }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_EXPERIMENTAL) !== null) {
+            cbExperimental.checked = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_EXPERIMENTAL) === "true";
+        }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_STYLE) !== null) {
+            selSkin.value = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_STYLE);
+            $spriteSquares.src = `./assets/squares_${selSkin.value}.png`;
+        }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_KONAMICODE) !== null) {
+            const konamiCode = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_KONAMICODE) === "true";
+            if (konamiCode) document.querySelector(".hide").classList.remove("hide");
+        }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_MUSIC) !== null) {
+            cbMusic.checked = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_MUSIC) === "true";
+        }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_SFX) !== null) {
+            cbSfx.checked = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_SFX) === "true";
+        }
+    }
+
     function draw() {
-        if (!gameOver) window.requestAnimationFrame(draw);
-        else return;
+        window.requestAnimationFrame(draw);
 
         if (!controlFps.shouldDrawFrame()) return;
         
         cleanCanvas();
-
-        pauseDetection();
-        if (gamePaused) {
-            drawPauseUI();   
-            return;
+        
+        if (!startGame) {
+            ctx.globalAlpha = 0.1;
+            drawRandomFakeBoard();
+            ctx.globalAlpha = 1;
+            drawStartScreen();
+            manageStartGame();
         }
+        else if (!gameOver) {
+            pauseDetection();
+            if (gamePaused) {
+                drawPauseUI();   
+                return;
+            }
 
-        drawEntireBoard();
-        drawHold();
-        drawNext();
+            drawEntireBoard();
+            drawHold();
+            drawNext();
 
-        holdTetromino();
-        movementTetromino();
-        collisionTetromino(false);
-        lineCompleteDetection();
-        gameOverDetection();
+            holdTetromino();
+            movementTetromino();
+            collisionTetromino(false);
+            lineCompleteDetection();
+            gameOverDetection();
+        }
+        else {
+            if (!nameConfirmed) {
+                ctx.globalAlpha = 0.1;
+                drawBoard();
+                ctx.globalAlpha = 1;
+                drawGameOverScreen();
+                manageNameInput();
+            }
+            else {
+                ctx.globalAlpha = 0.1;
+                drawBoard();
+                ctx.globalAlpha = 1;
+                drawSavingScore();
+            }
+        }
     }
     
     draw();
     initEvents();
+    restoreLocalStorage();
 });

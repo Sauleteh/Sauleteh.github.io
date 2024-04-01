@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Make the DIV element draggable:
     dragElement(document.getElementById("controlsdiv"));
     dragElement(document.getElementById("optionsdiv"));
+    dragElement(document.getElementById("scoreboarddiv"));
 
     function dragElement(elmnt) {
         var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;

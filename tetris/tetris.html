@@ -19,6 +19,7 @@
         <canvas class="board"></canvas>
         <canvas class="next"></canvas>
     </div>
+
     <div id="controlsdiv">
         <div id="controlsdivheader"><label class="title">Controles</label></div>
         <hr/>
@@ -33,6 +34,7 @@
             <li><span class="control">Escape</span>: Pausar</li>
         </ul>
     </div>
+
     <div id="optionsdiv">
         <div id="optionsdivheader"><label class="title">Opciones</label></div>
         <hr/>
@@ -40,7 +42,29 @@
             <li>
                 <span>Efecto al destruir l&iacute;neas</span>
                 <label class="switch">
-                    <input id="cbEffLine" type="checkbox">
+                    <input id="cbEffLine" type="checkbox" checked>
+                    <span class="slider round"></span>
+                </label>
+            </li>
+            <li>
+                <span>Estilo de bloques</span>
+                <select name="skin" id="skinSelect">
+                    <option selected value="0">Simple</option>
+                    <option value="1">Retro</option>
+                    <option value="2">Plano</option>
+                </select>
+            </li>
+            <li>
+                <span>Activar m&uacute;sica</span>
+                <label class="switch">
+                    <input id="cbMusic" type="checkbox" checked>
+                    <span class="slider round"></span>
+                </label>
+            </li>
+            <li>
+                <span>Activar SFX</span>
+                <label class="switch">
+                    <input id="cbSfx" type="checkbox" checked>
                     <span class="slider round"></span>
                 </label>
             </li>
@@ -53,7 +77,35 @@
             </li>
         </ul>
     </div>
-    <img hidden id="spriteSquares" src="./squares.png" alt="Sprite cuadrados de los tetrominós" />
-    <video hidden id="niceVideo" src="./niceVideo.mp4" alt="Video oculto"></video>
+    
+    <div id="scoreboarddiv">
+        <div id="scoreboarddivheader"><label class="title">Tabla de puntuaciones</label></div>
+        <hr/>
+        <label class="status">Estado: <span class="statusCheck">Comprobando...</span></label>
+        <hr/>
+        <ol>
+            <li><span class="number golden">1</span><span class="name">N/A</span><span class="score">0</span></li>
+            <li><span class="number silver">2</span><span class="name">N/A</span><span class="score">0</span></li>
+            <li><span class="number copper">3</span><span class="name">N/A</span><span class="score">0</span></li>
+            <li><span class="number">4</span><span class="name">N/A</span><span class="score">0</span></li>
+            <li><span class="number">5</span><span class="name">N/A</span><span class="score">0</span></li>
+            <li><span class="number">6</span><span class="name">N/A</span><span class="score">0</span></li>
+            <li><span class="number">7</span><span class="name">N/A</span><span class="score">0</span></li>
+            <li><span class="number">8</span><span class="name">N/A</span><span class="score">0</span></li>
+            <li><span class="number">9</span><span class="name">N/A</span><span class="score">0</span></li>
+            <li><span class="number">10</span><span class="name">N/A</span><span class="score">0</span></li>
+        </ol>
+        <hr/>
+        <label class="credits">Gracias a <span class="golden">gayofo.com</span> por proporcionar el hosting para el backend</label>
+    </div>
+    <img hidden id="spriteSquares" src="./assets/squares_0.png" alt="Sprite cuadrados de los tetrominós" />
+    <img hidden id="spriteArrow" src="./assets/arrow.png" alt="Flecha que muestra el cursor actual cuando se escribe el nombre" />
+    <video hidden id="niceVideo" src="./assets/niceVideo.mp4" alt="Video oculto"></video>
+    <!--Canciones recortadas de "Gabri Alpha" en https://www.youtube.com/watch?v=CU05t7CsYic y versión secreta de "The Musical Ghost" en https://www.youtube.com/watch?v=A5k1ueMRTNE-->
+    <audio hidden id="music" src="./assets/sound/tetris_theme_retro.wav" alt="Música del juego"></audio>
+    <!--Efectos de sonido obtenidos de https://depositphotos.com-->
+    <audio hidden id="sfxMoving" src="./assets/sound/tetris_moving.mp3" alt="Efecto de movimiento"></audio>
+    <audio hidden id="sfxRotating" src="./assets/sound/tetris_rotating.mp3" alt="Efecto de rotación"></audio>
+    <audio hidden id="sfxDroping" src="./assets/sound/tetris_droping.mp3" alt="Efecto de caída rápida"></audio>
 </body>
 </html>
