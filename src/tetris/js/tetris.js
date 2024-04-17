@@ -167,7 +167,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             return response.json();
         }).then(data => {
             const scoreboardListItems = document.querySelectorAll("#scoreboarddiv ol li");
-            for (let i = 0; i < scoreboardListItems.length; i++) {
+            for (let i = 0; i < data.length; i++) {
                 const actualListItem = scoreboardListItems[i];
                 actualListItem.querySelector("span.name").textContent = data[i].username.toUpperCase();
                 actualListItem.querySelector("span.score").textContent = data[i].score;
