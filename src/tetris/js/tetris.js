@@ -369,8 +369,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
         // Rotar la pieza en sentido horario o antihorario
         if (controls.keys.rotateClockwise.isPressed && !controls.keys.rotateClockwise.actionDone) {
-            tetromino.rotateClockwise();
             resetGroundDelay();
+            tetromino.rotateClockwise();
             
             if (cbSfx.checked) {
                 $sfxRotate.currentTime = 0;
@@ -379,8 +379,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             controls.keys.rotateClockwise.actionDone = true;
         }
         else if (controls.keys.rotateCounterClockwise.isPressed && !controls.keys.rotateCounterClockwise.actionDone) {
-            tetromino.rotateCounterClockwise();
             resetGroundDelay();
+            tetromino.rotateCounterClockwise();
             
             if (cbSfx.checked) {
                 $sfxRotate.currentTime = 0;
