@@ -943,7 +943,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         window.requestAnimationFrame(draw);
 
         if (!controlFps.shouldDrawFrame()) return;
-        console.log(practiceWasActive)
+        
         cleanCanvas();
         
         if (!startGame) {
