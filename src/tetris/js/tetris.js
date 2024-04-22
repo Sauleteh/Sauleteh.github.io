@@ -28,6 +28,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     const selSkin = document.querySelector("#skinSelect");
     const cbMusic = document.querySelector("#cbMusic");
     const cbSfx = document.querySelector("#cbSfx");
+    const cbPracticeMode = document.querySelector("#cbPracticeMode");
+    let practiceWasActive = false;
 
     const konamiCode = new KonamiCode();
     konamiCode.addListener();
@@ -198,6 +200,12 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         cbSfx.addEventListener("click", function() {
             document.activeElement.blur();
             localStorage.setItem(Constants.STORAGE_KEYS.OPTION_SFX, cbSfx.checked);
+        });
+
+        cbPracticeMode.addEventListener("click", function() {
+            document.activeElement.blur();
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_PRACTICE, cbPracticeMode.checked);
+            if (cbPracticeMode.checked) practiceWasActive = true; // Siempre que se active el modo práctica, ya no se podrá puntuar para el scoreboard
         });
     }
 
@@ -516,6 +524,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         else if (level >= 16 && level <= 18) pieceFallingSpeed = Constants.INITIAL_FALLING_SPEED / (16 * 0.8); // Nivel 16
         else if (level >= 19 && level <= 28) pieceFallingSpeed = Constants.INITIAL_FALLING_SPEED / (19 * 0.9); // Nivel 19
         else if (level >= 29) pieceFallingSpeed = 0; // Nivel 29: velocidad máxima, a este punto se le llama "Kill Screen"
+
+        if (cbPracticeMode.checked) pieceFallingSpeed = 0; // Modo práctica: velocidad de caída máxima
     }
 
     function gameOverDetection() {
@@ -866,6 +876,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             startGame = true;
             if (cbMusic.checked) $music.play();
             controls.keys.enter.actionDone = true;
+            practiceWasActive = cbPracticeMode.checked;
         }
     }
 
@@ -923,13 +934,16 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_SFX) !== null) {
             cbSfx.checked = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_SFX) === "true";
         }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_PRACTICE) !== null) {
+            cbPracticeMode.checked = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_PRACTICE) === "true";
+        }
     }
 
     function draw() {
         window.requestAnimationFrame(draw);
 
         if (!controlFps.shouldDrawFrame()) return;
-        
+        console.log(practiceWasActive)
         cleanCanvas();
         
         if (!startGame) {
@@ -957,6 +971,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             gameOverDetection();
         }
         else {
+            if (practiceWasActive) window.location.reload(); // Si perdemos en modo práctica, recargamos la página (no se puntúa para el scoreboard)
+            
             if (!nameConfirmed) {
                 ctx.globalAlpha = 0.1;
                 drawBoard();
