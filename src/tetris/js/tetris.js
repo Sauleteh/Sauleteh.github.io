@@ -221,7 +221,9 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         ctx.textAlign = "left";
         ctx.fillText(`FPS: ${controlFps.framesPerSec}`, 10, 13);
         ctx.textAlign = "right";
+        if (practiceWasActive) ctx.fillStyle = "red";
         ctx.fillText(`Score: ${score}`, canvas.width - 10, 13);
+        ctx.fillStyle = "white";
         ctx.fillText(`Nivel: ${level}`, canvas.width - 10, 26);
     }
 
