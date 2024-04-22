@@ -971,20 +971,24 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             gameOverDetection();
         }
         else {
-            if (practiceWasActive) window.location.reload(); // Si perdemos en modo práctica, recargamos la página (no se puntúa para el scoreboard)
-            
-            if (!nameConfirmed) {
-                ctx.globalAlpha = 0.1;
-                drawBoard();
-                ctx.globalAlpha = 1;
-                drawGameOverScreen();
-                manageNameInput();
+            if (practiceWasActive) {
+                window.location.reload(); // Si perdemos en modo práctica, recargamos la página (no se puntúa para el scoreboard)
+                return; // Mientras carga la página de nuevo, dejamos de dibujar para evitar errores
             }
             else {
-                ctx.globalAlpha = 0.1;
-                drawBoard();
-                ctx.globalAlpha = 1;
-                drawSavingScore();
+                if (!nameConfirmed) {
+                    ctx.globalAlpha = 0.1;
+                    drawBoard();
+                    ctx.globalAlpha = 1;
+                    drawGameOverScreen();
+                    manageNameInput();
+                }
+                else {
+                    ctx.globalAlpha = 0.1;
+                    drawBoard();
+                    ctx.globalAlpha = 1;
+                    drawSavingScore();
+                }
             }
         }
     }
