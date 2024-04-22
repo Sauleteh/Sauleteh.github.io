@@ -860,6 +860,14 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         ctx.fillText(`puntuación...`, canvas.width / 2, canvas.height / 2 + 10);
     }
 
+    function drawReloadingScreen() {
+        ctx.font = "14px PressStart2P";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText(`GAME OVER`, canvas.width / 2, canvas.height / 2 - 10);
+        ctx.fillText(`Recargando...`, canvas.width / 2, canvas.height / 2 + 10);
+    }
+
     function drawStartScreen() {
         ctx.font = "26px PressStart2P";
         ctx.fillStyle = "white";
@@ -973,6 +981,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         else {
             if (practiceWasActive) {
                 window.location.reload(); // Si perdemos en modo práctica, recargamos la página (no se puntúa para el scoreboard)
+                drawReloadingScreen();
                 return; // Mientras carga la página de nuevo, dejamos de dibujar para evitar errores
             }
             else {
