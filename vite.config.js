@@ -22,6 +22,10 @@ export default defineConfig({
       {
         src: 'src/tetris/*',
         dest: 'tetris'
+      },
+      {
+        src: 'src/minesweeper/*',
+        dest: 'minesweeper'
       }
     ]
   })],

@@ -37,7 +37,8 @@ export function App() {
                     descripcion="El clásico juego del Tetris hecho para jugar en el navegador. A diferencia de otros
                                 proyectos que tengo hechos en JavaScript, este es el primero en el que uso canvas y objetos
                                 con tal de practicar con estas herramientas. He intentado hacerlo lo más parecido posible
-                                al Tetris original."
+                                al Tetris original. Además, he añadido un scoreboard online para que puedas competir con
+                                tus amigos."
                     thumbnail={tetrisJS}
                     link="./tetris/tetris.html"
                 >nuevo</Proyecto>
@@ -318,6 +319,17 @@ export function App() {
                                 client-side por lo que es usable hasta en servidores vanilla."
                     thumbnail={minecraftBotMod}
                     link="https://github.com/Sauleteh/Minecraft-Bot-Mod"
+                ></Proyecto>
+
+                <Proyecto
+                    titulo="Buscaminas"
+                    plataforma="Web | HTML, CSS y JS"
+                    descripcion="El buscaminas clásico. Debido al éxito que tuvo el Tetris de esta página, he decidido continuar
+                                con el desarrollo de videojuegos clásicos. Al igual que mi anterior título, este juego también cuenta
+                                con un scoreboard online separado en tres niveles de dificultad. También puedes jugar en modo offline
+                                con dimensiones personalizadas."
+                    thumbnail={null}
+                    link="./minesweeper/minesweeper.html"
                 ></Proyecto>
             </div>
         </div>

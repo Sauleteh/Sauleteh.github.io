@@ -1,0 +1,48 @@
+@font-face {
+    font-family: 'MineSweeper';
+    src: url('./assets/fonts/mine-sweeper.ttf') format('truetype');
+}
+
+body {
+    display: grid;
+    place-items: center;
+    grid-template-rows: auto 1fr;
+}
+
+div.game {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+canvas {
+    border: 2px solid white;
+    background-color: #808080;
+    margin: 0 auto;
+    image-rendering: pixelated;
+}
+
+h1 {
+    font-family: 'MineSweeper', sans-serif;
+    font-size: 32px;
+    color: white;
+}
+
+footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 10px;
+    color: white;
+    font-family: 'Arial', sans-serif;
+    font-size: 10px;
+    clear: both;
+    position: absolute;
+    bottom: 0;
+}
