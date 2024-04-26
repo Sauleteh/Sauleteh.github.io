@@ -46,3 +46,9 @@ footer {
     position: absolute;
     bottom: 0;
 }
+
+label {
+    font-family: 'Arial', sans-serif;
+    font-size: 14px;
+    color: white;
+}

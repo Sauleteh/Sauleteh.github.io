@@ -5,11 +5,13 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     const canvas = document.querySelector("canvas.board");
     const ctx = canvas.getContext("2d");
     const $spriteSquares = document.querySelector("#spriteSquares");
+    const chrono = document.querySelector("#chronometer");
 
     let boardWidth = 20;
     let boardHeight = 20;
     let numOfMines = 100;
     let boardGenerated = false;
+    let isRightPressed = false; // ¿Click derecho presionado?
 
     canvas.width = Constants.SQUARE_SIZE * boardWidth;
     canvas.height = Constants.SQUARE_SIZE * boardHeight;
@@ -19,12 +21,12 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     for (let i = 0; i < boardHeight; i++) {
         board[i] = [];
         for (let j = 0; j < boardWidth; j++) {
-            board[i][j] = new Square(i, j, 0, true, false);
+            board[i][j] = new Square(i, j, 0, false, false);
         }
     }
-    board[8][3].revealed = false;
 
     function drawBoard() {
+        console.log("Drawing board...");
         for (let i = 0; i < boardHeight; i++) {
             for (let j = 0; j < boardWidth; j++) {
                 const square = board[i][j];
@@ -98,8 +100,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             if (initialSquare.col <= boardWidth - 2) brCol++;
 
             if (board[randomRow][randomCol].content !== Constants.MINE_ID &&
-                (randomRow < tlRow || randomRow > brRow) &&
-                (randomCol < tlCol || randomCol > brCol))
+                (randomRow < tlRow || randomRow > brRow || randomCol < tlCol || randomCol > brCol))
             {
                 board[randomRow][randomCol].content = Constants.MINE_ID;
                 totalMines--;
@@ -143,16 +144,55 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         }
     }
 
+    function revealAdjacentSquares(square) {
+        let tlRow = square.row; // Superior izquierda
+        let tlCol = square.col;
+        let brRow = square.row; // Inferior derecha
+        let brCol = square.col;
+        if (square.row >= 1) tlRow--;
+        if (square.col >= 1) tlCol--;
+        if (square.row <= boardHeight - 2) brRow++;
+        if (square.col <= boardWidth - 2) brCol++;
+
+        for (let row = tlRow; row <= brRow; row++) {
+            for (let col = tlCol; col <= brCol; col++) {
+                // console.log("Revealing", row, col);
+                if (row === square.row && col === square.col) continue; // No comprobar el cuadrado actual
+                if (board[row][col].revealed) continue; // Si ya está revelado, seguir con el siguiente
+                if (board[row][col].flagged) continue; // Si está con bandera, no revelar
+
+                board[row][col].revealed = true;
+                if (board[row][col].content === 0) revealAdjacentSquares(board[row][col]); // Si es otro 0, revelar también sus adyacentes
+                if (board[row][col].content === Constants.MINE_ID) {
+                    // Si se revela una mina, se pierde la partida
+                    onGameOver();
+                }
+            }
+        }
+    }
+
     function initEvents() {
         canvas.addEventListener("click", onClickListener);
         canvas.addEventListener("contextmenu", onRightClickListener, false);
+        canvas.addEventListener("mousedown", onMouseDown);
+        canvas.addEventListener("mouseup", onMouseUp);
+    }
+
+    function stopEvents() {
+        canvas.removeEventListener("click", onClickListener);
+        canvas.removeEventListener("contextmenu", onRightClickListener, false);
+        canvas.removeEventListener("mousedown", onMouseDown);
+        canvas.removeEventListener("mouseup", onMouseUp);
     }
 
     function onClickListener(event) {
         let clickedRow = Math.floor(event.offsetY / Constants.SQUARE_SIZE);
         let clickedCol = Math.floor(event.offsetX / Constants.SQUARE_SIZE);
         if (clickedRow >= boardHeight || clickedRow < 0 || clickedCol >= boardWidth || clickedCol < 0) return; // Comprobar dimensiones
-        else if (board[clickedRow][clickedCol].revealed) return; // Si ya está revelado, no hacemos nada
+        else if (board[clickedRow][clickedCol].revealed) { // Si ya está revelado, no hacemos nada
+            if (isRightPressed) onLeftAndRightClickListener(event); // Si se hace click izquierdo y derecho, revelar adyacentes
+            return;
+        }
         else if (board[clickedRow][clickedCol].flagged) return; // Si está con bandera, no hacemos nada
 
         if (!boardGenerated) {
@@ -162,6 +202,15 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
         board[clickedRow][clickedCol].revealed = true;
         
+        if (board[clickedRow][clickedCol].content === 0) {
+            // Si el cuadrado es 0, revelar todos los cuadrados adyacentes
+            revealAdjacentSquares(board[clickedRow][clickedCol])
+        }
+        else if (board[clickedRow][clickedCol].content === Constants.MINE_ID) {
+            // Si se hace click en una mina, se pierde la partida
+            onGameOver();
+        }
+        
         console.log(clickedRow, clickedCol);
         drawBoard();
     }
@@ -170,15 +219,40 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         let clickedRow = Math.floor(event.offsetY / Constants.SQUARE_SIZE);
         let clickedCol = Math.floor(event.offsetX / Constants.SQUARE_SIZE);
         if (clickedRow >= boardHeight || clickedRow < 0 || clickedCol >= boardWidth || clickedCol < 0) return;
-
         event.preventDefault(); // Evitar que aparezca el menú contextual
+        if (board[clickedRow][clickedCol].revealed) return; // Si está revelado, no se puede poner bandera
 
-        // Si el cuadrado no está revelado, se puede poner bandera
-        if (!board[clickedRow][clickedCol].revealed) board[clickedRow][clickedCol].flagged = !board[clickedRow][clickedCol].flagged;
+
+        // Se cambia el estado de la bandera
+        board[clickedRow][clickedCol].flagged = !board[clickedRow][clickedCol].flagged;
 
         console.log(clickedRow, clickedCol);
         drawBoard();
         return false;
+    }
+
+    function onLeftAndRightClickListener(event) {
+        let clickedRow = Math.floor(event.offsetY / Constants.SQUARE_SIZE);
+        let clickedCol = Math.floor(event.offsetX / Constants.SQUARE_SIZE);
+        if (clickedRow >= boardHeight || clickedRow < 0 || clickedCol >= boardWidth || clickedCol < 0) return; // Comprobar dimensiones
+        revealAdjacentSquares(board[clickedRow][clickedCol]);
+
+        drawBoard();
+    }
+
+    function onMouseDown(event) {
+        if (event.button === 2) isRightPressed = true;
+        // console.log("Mouse down", event.button)
+    }
+
+    function onMouseUp(event) {
+        if (event.button === 2) isRightPressed = false;
+        // console.log("Mouse up", event.button)
+    }
+
+    function onGameOver() {
+        console.log("Game over");
+        stopEvents();
     }
 
     // Inicializar el juego
@@ -187,8 +261,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 });
 
 /** TODO: list
- * - Bug: Pasa algo con la generación de minas, nunca se generan las minas en las posiciones ortogonales del primer click
  * - Si se hace click en un cuadrado con mina, se pierde la partida
  * - Si todos los cuadrados que no son minas han sido revelados, se gana la partida
- * - Si se revela un cuadrado 0, se revelan todos los cuadrados... ¿adyacentes, ortogonales? ¿Solo los 0, o también los números?
+ * - Cronómetro
  */
