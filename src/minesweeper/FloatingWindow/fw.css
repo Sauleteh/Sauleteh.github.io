@@ -88,6 +88,12 @@
     margin-left: 10px;
 }
 
+#optionsdiv input:disabled {
+    background: rgb(41, 41, 41);
+    color: #808182;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+}
+
 .fwdiv li+li {
     margin-top: 8px;
 }
@@ -245,6 +251,13 @@ input:checked + .slider:before {
 .slider.round:before {
     border-radius: 50%;
 }
+input:disabled + .slider {
+    background-color: #252627;
+}
+input:disabled + .slider:before {
+    background-color: #3d3d47;
+}
+/* Fin checkbox redondeado */
 
 .hide {
     display: none !important;

@@ -1,11 +1,13 @@
 export const SQUARE_SIZE = 32;
 export const IMG_SQUARE_SIZE = 16;
 export const MINE_ID = -1; // Identificador de la mina (0-8 para números, -1 para la mina)
+export const CONTINUE_SIZE = 50; // Tamaño del botón de continuar
 
 export const STORAGE_KEYS = { // Claves de almacenamiento local
     OPTION_DIFFICULTY: "optDifficultyMS",
     OPTION_EXPERIMENTAL: "optExpMS",
-    OPTION_KONAMICODE: "optKonamiMS"
+    OPTION_KONAMICODE: "optKonamiMS",
+    OPTION_NAME: "optNameMS"
 };
 
 // Posición de las imágenes en el sprite
@@ -21,7 +23,9 @@ export const SQUARE_TYPES = {
     FIVE: 8,
     SIX: 9,
     SEVEN: 10,
-    EIGHT: 11
+    EIGHT: 11,
+    REVEALED_MINE: 12,
+    FLAG_RIGHT: 13
 };
 
 export const NUMBER_TO_TYPE = {

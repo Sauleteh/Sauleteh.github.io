@@ -23,9 +23,13 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     let boardGenerated = false;
     let isRightPressed = false; // ¿Click derecho presionado?
     let board = [];
+    let nameSelected = ""; // Se guarda el nombre del jugador al empezar la partida para evitar cambios en mitad de la partida
+    let isGameOver = false;
+    let isSubmittingScore = false;
 
     function initializeBoard() {
         console.log("Initializing board...");
+        initEvents();
         canvas.width = Constants.SQUARE_SIZE * boardWidth;
         canvas.height = Constants.SQUARE_SIZE * boardHeight;
         ctx.imageSmoothingEnabled = false; // Desactivar suavizado de imágenes
@@ -49,7 +53,12 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 // 1. Dibujamos el revelado
                 ctx.drawImage(
                     $spriteSquares,
-                    (square.revealed ? Constants.SQUARE_TYPES.REVEALED : Constants.SQUARE_TYPES.UNREVEALED) * Constants.IMG_SQUARE_SIZE, // Posición X del cuadrado en la imagen
+                    (square.revealed && square.content === Constants.MINE_ID ?
+                        Constants.SQUARE_TYPES.REVEALED_MINE :
+                        square.revealed ?
+                            Constants.SQUARE_TYPES.REVEALED :
+                            Constants.SQUARE_TYPES.UNREVEALED
+                    ) * Constants.IMG_SQUARE_SIZE, // Posición X del cuadrado en la imagen
                     0, // Posición Y del cuadrado en la imagen
                     Constants.IMG_SQUARE_SIZE, // An cho del cuadrado en la imagen
                     Constants.IMG_SQUARE_SIZE, // Alto del cuadrado en la imagen
@@ -79,7 +88,10 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 else if (!square.revealed && square.flagged) {
                     ctx.drawImage(
                         $spriteSquares,
-                        Constants.SQUARE_TYPES.FLAG * Constants.IMG_SQUARE_SIZE, // Posición X del cuadrado en la imagen
+                        (isGameOver && square.content === Constants.MINE_ID ?
+                            Constants.SQUARE_TYPES.FLAG_RIGHT : // La bandera aparece de otro color si está bien colocada y se ha perdido la partida
+                            Constants.SQUARE_TYPES.FLAG
+                        ) * Constants.IMG_SQUARE_SIZE, // Posición X del cuadrado en la imagen
                         0, // Posición Y del cuadrado en la imagen
                         Constants.IMG_SQUARE_SIZE, // An cho del cuadrado en la imagen
                         Constants.IMG_SQUARE_SIZE, // Alto del cuadrado en la imagen
@@ -89,6 +101,16 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                         Constants.SQUARE_SIZE // Alto del cuadrado
                     );
                 }
+            }
+        }
+
+        if (isGameOver) { // Si se ha perdido la partida, mostrar el botón de continuar
+            // TODO
+            if (isSubmittingScore) { // Mostrar cargando
+
+            }
+            else { // Mostrar botón de continuar
+
             }
         }
     }
@@ -181,12 +203,15 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 if (board[row][col].content === Constants.MINE_ID) {
                     // Si se revela una mina, se pierde la partida
                     onGameOver();
+                    return;
                 }
             }
         }
     }
 
     function initEvents() {
+        stopEvents(); // Detener eventos anteriores
+        console.log("Initializing events...");
         canvas.addEventListener("click", onClickListener);
         canvas.addEventListener("contextmenu", onRightClickListener, false);
         canvas.addEventListener("mousedown", onMouseDown);
@@ -194,6 +219,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
         selDifficulty.addEventListener("change", function() {
             document.activeElement.blur();
+            if (boardGenerated) return; // Es imposible cambiar la dificultad si se está jugando
             const selectedDifficulty = selDifficulty.options[selDifficulty.selectedIndex].value;
             onDifficultySelected(selectedDifficulty);
             localStorage.setItem(Constants.STORAGE_KEYS.OPTION_DIFFICULTY, selectedDifficulty);
@@ -201,11 +227,19 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
         cbExperimental.addEventListener("click", function() {
             document.activeElement.blur();
+            if (boardGenerated) return; // No se puede cambiar la opción si se está jugando
             localStorage.setItem(Constants.STORAGE_KEYS.OPTION_EXPERIMENTAL, cbExperimental.checked);
+        });
+
+        inputName.addEventListener("input", function() {
+            inputName.value = inputName.value.replace(/\W/g, ""); // \W = [^a-zA-Z0-9_]
+            if (boardGenerated) return; // No se puede cambiar el nombre si se está jugando
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_NAME, inputName.value);
         });
     }
 
     function stopEvents() {
+        console.log("Stopping events...");
         canvas.removeEventListener("click", onClickListener);
         canvas.removeEventListener("contextmenu", onRightClickListener, false);
         canvas.removeEventListener("mousedown", onMouseDown);
@@ -223,6 +257,9 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_KONAMICODE) !== null) {
             const konamiCode = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_KONAMICODE) === "true";
             if (konamiCode) document.querySelector(".hide").classList.remove("hide");
+        }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_NAME) !== null) {
+            inputName.value = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_NAME);
         }
     }
 
@@ -253,9 +290,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         else if (board[clickedRow][clickedCol].flagged) return; // Si está con bandera, no hacemos nada
 
         if (!boardGenerated) {
-            generateBoard(board[clickedRow][clickedCol]); // Si es el primer click, generamos el tablero (nunca se debe generar una mina en el primer click, por eso se crea a partir de este click)
-            chronoObj.start(setInterval(everySecond, 1000)); // Actualizar el cronómetro cada segundo (1000ms));
-            boardGenerated = true;
+            onGameStart(board[clickedRow][clickedCol]);
         }
 
         board[clickedRow][clickedCol].revealed = true;
@@ -280,7 +315,6 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         event.preventDefault(); // Evitar que aparezca el menú contextual
         if (board[clickedRow][clickedCol].revealed) return; // Si está revelado, no se puede poner bandera
 
-
         // Se cambia el estado de la bandera
         board[clickedRow][clickedCol].flagged = !board[clickedRow][clickedCol].flagged;
 
@@ -301,10 +335,61 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     function onMouseDown(event) { if (event.button === 2) isRightPressed = true; }
     function onMouseUp(event) { if (event.button === 2) isRightPressed = false; }
 
-    function onGameOver() {
+    // El square es donde se ha hecho el primer click
+    function onGameStart(square) {
+        console.log("Game start");
+        generateBoard(square); // Si es el primer click, generamos el tablero (nunca se debe generar una mina en el primer click, por eso se crea a partir de este click)
+        chronoObj.start(setInterval(everySecond, 1000)); // Actualizar el cronómetro cada segundo (1000ms));
+        boardGenerated = true;
+        nameSelected = inputName.value;
+        enableOptions(false);
+    }
+
+    async function onGameOver() {
         console.log("Game over");
         stopEvents();
         chronoObj.stop();
+        isGameOver = true;
+
+        // Al perder, el tiempo se mostrará en milisegundos
+        const msTime = chronoObj.getElapsedTime();
+        const miliseconds = chronoObj.zeroPad(Math.floor(msTime) % 1000, 3);
+        const seconds = chronoObj.zeroPad(Math.floor(msTime / 1000) % 60, 2);
+        const minutes = chronoObj.zeroPad(Math.floor(msTime / 1000 / 60), 2);
+        chronoText.textContent = `${minutes}:${seconds}.${miliseconds}`;
+
+        isSubmittingScore = true;
+        await submitScore(msTime); // Subir la puntuación al servidor
+        canvas.addEventListener("click", onContinueClickListener);// Habilitar un listener de click para el botón central cuando se haya subido la puntuación
+    }
+
+    function submitScore(msTime) {
+        // TODO
+        console.log(msTime, nameSelected);
+        if (nameSelected === "") {
+            console.log("No se ha introducido un nombre");
+            isSubmittingScore = false;
+            return;
+        }
+        // Al recibir la respuesta, mostrar el botón de continuar en vez de cargando (isSubmittingScore = false)
+    }
+
+    function onContinueClickListener(event) {
+        console.log("Continuing...");
+        if (event.offsetX >= canvas.width / 2 - Constants.CONTINUE_SIZE && event.offsetX <= canvas.width / 2 + Constants.CONTINUE_SIZE && event.offsetY >= canvas.height / 2 - Constants.CONTINUE_SIZE && event.offsetY <= canvas.height / 2 + Constants.CONTINUE_SIZE) {
+            initializeBoard();
+            drawBoard();
+            enableOptions(true);
+            canvas.removeEventListener("click", onContinueClickListener);
+            chronoText.textContent = "00:00";
+            isGameOver = false;
+        }
+    }
+
+    function enableOptions(enable) {
+        selDifficulty.disabled = !enable;
+        cbExperimental.disabled = !enable;
+        inputName.disabled = !enable;
     }
 
     function everySecond() {
@@ -315,17 +400,16 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     }
 
     // Inicializar el juego
-    //initializeBoard();
-    //drawBoard();
-    initEvents();
-    restoreLocalStorage(); // No es necesario inicializar y dibujar el tablero si aquí ya se hace
+    restoreLocalStorage(); // Al restaurar el local storage, ya se hace la inicialización y dibujado del tablero, además de la carga de eventos
 });
 
 /** TODO: list
  * - Si se hace click en un cuadrado con mina, se pierde la partida
  * - Si todos los cuadrados que no son minas han sido revelados, se gana la partida
- * - Si se pierde la partida, mostrar los cuadrados sin revelar y qué había en las casillas con banderas
+ * - Si se pierde la partida, mostrar las minas sin revelar y qué había en las casillas con banderas
+ * - Al perder, habrá un botón en el centro de la pantalla para continuar una vez se haya subido la puntuación al servidor
  * - El easter egg es esquizofrénico
  * - En el backend implementar la fecha allí, ya no se hará desde el cliente
  * - El input de nombre también se comprobará el regex en el backend
+ * - Un padding de 1px entre los cuadrados
  */
