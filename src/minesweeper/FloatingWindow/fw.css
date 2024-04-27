@@ -3,7 +3,7 @@
     src: url('../assets/fonts/mine-sweeper.ttf') format('truetype');
 }
 
-#controlsdiv, #optionsdiv, #scoreboarddiv {
+.fwdiv {
     position: absolute;
     display: flex;
     flex-direction: column;
@@ -38,7 +38,14 @@
     padding: 5px;
 }
 
-#controlsdivheader, #optionsdivheader, #scoreboarddivheader {
+#timediv {
+    z-index: 12;
+    left: 76%;
+    top: 20%;
+    padding: 5px;
+}
+
+.fwdivheader {
     padding-top: 10px;
     padding-bottom: 10px;
     width: 100%;
@@ -46,7 +53,7 @@
     z-index: 99;
 }
 
-#controlsdiv hr, #optionsdiv hr, #scoreboarddiv hr {
+.fwdiv hr {
     width: 100%;
     border: 0;
     height: 1px;
@@ -54,12 +61,12 @@
     background-image: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0));
 }
 
-#controlsdiv ul, #optionsdiv ul, #scoreboarddiv ol {
+.fwdiv ul, .fwdiv ol {
     padding-left: 8px;
     padding-right: 8px;
 }
 
-#controlsdiv li, #optionsdiv li, #scoreboarddiv li {
+.fwdiv li {
     font-family: 'MineSweeper', sans-serif;
     color: white;
     list-style-type: none;
@@ -81,11 +88,11 @@
     margin-left: 10px;
 }
 
-#controlsdiv li+li, #optionsdiv li+li, #scoreboarddiv li+li {
+.fwdiv li+li {
     margin-top: 8px;
 }
 
-#controlsdiv label.title, #optionsdiv label.title, #scoreboarddiv label.title{
+.fwtitle {
     font-family: 'MineSweeper', sans-serif;
     color: white;
     font-size: 13px;
@@ -173,6 +180,15 @@
     text-align: left;
     width: 100%;
     justify-content: space-between;
+}
+
+#timediv label.chronometer {
+    font-family: 'MineSweeper', sans-serif;
+    font-size: 14px;
+    color: cyan;
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 7px;
 }
 
 /* Checkbox redondeado: https://www.w3schools.com/howto/howto_css_switch.asp */

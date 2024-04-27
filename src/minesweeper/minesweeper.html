@@ -16,11 +16,10 @@
     <h1>Buscaminas</h1>
     <div class="game">
         <canvas class="board"></canvas>
-        <label id="chronometer">00:00</label>
     </div>
 
-    <div id="controlsdiv">
-        <div id="controlsdivheader"><label class="title">Controles</label></div>
+    <div id="controlsdiv" class="fwdiv">
+        <div id="controlsdivheader" class="fwdivheader"><label class="fwtitle">Controles</label></div>
         <hr/>
         <ul>
             <li><img src="assets/imgs/mouse-left-click-icon.svg" class="control"></img>: Revelar casilla</li>
@@ -29,8 +28,8 @@
         </ul>
     </div>
 
-    <div id="optionsdiv">
-        <div id="optionsdivheader"><label class="title">Opciones</label></div>
+    <div id="optionsdiv" class="fwdiv">
+        <div id="optionsdivheader" class="fwdivheader"><label class="fwtitle">Opciones</label></div>
         <hr/>
         <ul>
             <li>
@@ -44,11 +43,11 @@
             </li>
             <li>
                 <span>Nombre</span>
-                <input type="text" id="nameInput" size="10" maxlength="12" onkeydown="return /\w/i.test(event.key)"/>
+                <input type="text" id="inputName" size="10" maxlength="12" onkeydown="return /\w/i.test(event.key)"/>
             </li>
             
             <li class="hide">
-                <span>Opción experimental</span>
+                <span>???</span>
                 <label class="switch">
                     <input id="cbExpOpt" type="checkbox">
                     <span class="slider round"></span>
@@ -57,8 +56,8 @@
         </ul>
     </div>
     
-    <div id="scoreboarddiv">
-        <div id="scoreboarddivheader"><label class="title">Tabla de puntuaciones</label></div>
+    <div id="scoreboarddiv" class="fwdiv">
+        <div id="scoreboarddivheader" class="fwdivheader"><label class="fwtitle">Tabla de puntuaciones</label></div>
         <hr/>
         <label class="status">Estado: <span class="statusCheck">Comprobando...</span></label>
         <hr/>
@@ -76,6 +75,12 @@
         </ol>
         <hr/>
         <label class="credits">Gracias a <span class="golden" style="cursor: pointer;" onclick="window.open('https://www.gayofo.com', '_blank')">gayofo.com</span> por proporcionar el hosting para el backend</label>
+    </div>
+
+    <div id="timediv" class="fwdiv">
+        <div id="timedivheader" class="fwdivheader"><label class="fwtitle">Cronometro</label></div>
+        <hr/>
+        <label class="chronometer">00:00</label>
     </div>
 
     <footer>

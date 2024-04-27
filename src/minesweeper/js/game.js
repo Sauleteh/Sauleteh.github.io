@@ -1,29 +1,42 @@
 import { Square } from "./Square.js";
 import * as Constants from "./Constants.js";
 import { Chronometer } from "./Chronometer.js";
+import { KonamiCode } from "./KonamiCode.js";
 
 document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando el DOM esté listo
     const canvas = document.querySelector("canvas.board");
     const ctx = canvas.getContext("2d");
     const $spriteSquares = document.querySelector("#spriteSquares");
-    const chronoText = document.querySelector("#chronometer");
-    const chronoObj = new Chronometer();
 
-    let boardWidth = 20;
-    let boardHeight = 20;
-    let numOfMines = 100;
+    const chronoText = document.querySelector(".chronometer");
+    const chronoObj = new Chronometer();
+    const selDifficulty = document.querySelector("#difficultySelect");
+    const cbExperimental = document.querySelector("#cbExpOpt");
+    const inputName = document.querySelector("#inputName");
+
+    const konamiCode = new KonamiCode();
+    konamiCode.addListener();
+
+    let boardWidth = 9;
+    let boardHeight = 9;
+    let numOfMines = 10;
     let boardGenerated = false;
     let isRightPressed = false; // ¿Click derecho presionado?
+    let board = [];
 
-    canvas.width = Constants.SQUARE_SIZE * boardWidth;
-    canvas.height = Constants.SQUARE_SIZE * boardHeight;
-    ctx.imageSmoothingEnabled = false; // Desactivar suavizado de imágenes
-
-    const board = [];
-    for (let i = 0; i < boardHeight; i++) {
-        board[i] = [];
-        for (let j = 0; j < boardWidth; j++) {
-            board[i][j] = new Square(i, j, 0, false, false);
+    function initializeBoard() {
+        console.log("Initializing board...");
+        canvas.width = Constants.SQUARE_SIZE * boardWidth;
+        canvas.height = Constants.SQUARE_SIZE * boardHeight;
+        ctx.imageSmoothingEnabled = false; // Desactivar suavizado de imágenes
+        
+        boardGenerated = false;
+        board = []; // Limpiar el tablero
+        for (let i = 0; i < boardHeight; i++) {
+            board[i] = [];
+            for (let j = 0; j < boardWidth; j++) {
+                board[i][j] = new Square(i, j, 0, false, false);
+            }
         }
     }
 
@@ -178,6 +191,18 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         canvas.addEventListener("contextmenu", onRightClickListener, false);
         canvas.addEventListener("mousedown", onMouseDown);
         canvas.addEventListener("mouseup", onMouseUp);
+
+        selDifficulty.addEventListener("change", function() {
+            document.activeElement.blur();
+            const selectedDifficulty = selDifficulty.options[selDifficulty.selectedIndex].value;
+            onDifficultySelected(selectedDifficulty);
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_DIFFICULTY, selectedDifficulty);
+        });
+
+        cbExperimental.addEventListener("click", function() {
+            document.activeElement.blur();
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_EXPERIMENTAL, cbExperimental.checked);
+        });
     }
 
     function stopEvents() {
@@ -185,6 +210,36 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         canvas.removeEventListener("contextmenu", onRightClickListener, false);
         canvas.removeEventListener("mousedown", onMouseDown);
         canvas.removeEventListener("mouseup", onMouseUp);
+    }
+
+    function restoreLocalStorage() {
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_EXPERIMENTAL) !== null) {
+            cbExperimental.checked = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_EXPERIMENTAL) === "true";
+        }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_DIFFICULTY) !== null) {
+            selDifficulty.value = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_DIFFICULTY);
+            onDifficultySelected(selDifficulty.value);
+        }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_KONAMICODE) !== null) {
+            const konamiCode = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_KONAMICODE) === "true";
+            if (konamiCode) document.querySelector(".hide").classList.remove("hide");
+        }
+    }
+
+    function onDifficultySelected(difficulty) {
+        if (parseInt(difficulty) === Constants.DIFFICULTY_LABELS.CUSTOM) {
+            boardWidth = 30;
+            boardHeight = 24;
+            numOfMines = (boardWidth - 1) * (boardHeight - 1); // Mínimo 10
+        }
+        else {
+            boardWidth = Constants.DIFFICULTY_DATA[difficulty].cols;
+            boardHeight = Constants.DIFFICULTY_DATA[difficulty].rows;
+            numOfMines = Constants.DIFFICULTY_DATA[difficulty].mines;
+        }
+
+        initializeBoard();
+        drawBoard();
     }
 
     function onClickListener(event) {
@@ -243,15 +298,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         drawBoard();
     }
 
-    function onMouseDown(event) {
-        if (event.button === 2) isRightPressed = true;
-        // console.log("Mouse down", event.button)
-    }
-
-    function onMouseUp(event) {
-        if (event.button === 2) isRightPressed = false;
-        // console.log("Mouse up", event.button)
-    }
+    function onMouseDown(event) { if (event.button === 2) isRightPressed = true; }
+    function onMouseUp(event) { if (event.button === 2) isRightPressed = false; }
 
     function onGameOver() {
         console.log("Game over");
@@ -267,8 +315,10 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     }
 
     // Inicializar el juego
-    drawBoard();
+    //initializeBoard();
+    //drawBoard();
     initEvents();
+    restoreLocalStorage(); // No es necesario inicializar y dibujar el tablero si aquí ya se hace
 });
 
 /** TODO: list

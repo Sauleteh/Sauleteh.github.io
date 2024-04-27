@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", function() {
     dragElement(document.getElementById("controlsdiv"));
     dragElement(document.getElementById("optionsdiv"));
     dragElement(document.getElementById("scoreboarddiv"));
+    dragElement(document.getElementById("timediv"));
 
     function dragElement(elmnt) {
         var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
