@@ -246,14 +246,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         }
     }
 
-    function initEvents() {
-        stopEvents(); // Detener eventos anteriores
-        console.log("Initializing events...");
-        canvas.addEventListener("click", onClickListener);
-        canvas.addEventListener("contextmenu", onRightClickListener, false);
-        canvas.addEventListener("mousedown", onMouseDown);
-        canvas.addEventListener("mouseup", onMouseUp);
-
+    function initOptionsEvents() {
         selDifficulty.addEventListener("change", function() {
             document.activeElement.blur();
             if (boardGenerated) return; // Es imposible cambiar la dificultad si se está jugando
@@ -273,6 +266,15 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             if (boardGenerated) return; // No se puede cambiar el nombre si se está jugando
             localStorage.setItem(Constants.STORAGE_KEYS.OPTION_NAME, inputName.value);
         });
+    }
+
+    function initEvents() {
+        stopEvents(); // Detener eventos anteriores
+        console.log("Initializing events...");
+        canvas.addEventListener("click", onClickListener);
+        canvas.addEventListener("contextmenu", onRightClickListener, false);
+        canvas.addEventListener("mousedown", onMouseDown);
+        canvas.addEventListener("mouseup", onMouseUp);
     }
 
     function stopEvents() {
@@ -302,9 +304,9 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
     function onDifficultySelected(difficulty) {
         if (parseInt(difficulty) === Constants.DIFFICULTY_LABELS.CUSTOM) {
-            boardWidth = 30;
-            boardHeight = 24;
-            numOfMines = (boardWidth - 1) * (boardHeight - 1); // Mínimo 10
+            boardWidth = 30; // Máximo 30
+            boardHeight = 24; // Máximo 24
+            numOfMines = (boardWidth - 1) * (boardHeight - 1); // Mínimo 10? y máximo (boardWidth - 1) * (boardHeight - 1)
         }
         else {
             boardWidth = Constants.DIFFICULTY_DATA[difficulty].cols;
@@ -468,6 +470,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     }
 
     // Inicializar el juego
+    initOptionsEvents();
     restoreLocalStorage(); // Al restaurar el local storage, ya se hace la inicialización y dibujado del tablero, además de la carga de eventos
 });
 
