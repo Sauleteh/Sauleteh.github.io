@@ -7,12 +7,17 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     const canvas = document.querySelector("canvas.board");
     const ctx = canvas.getContext("2d");
     const $spriteSquares = document.querySelector("#spriteSquares");
+    canvas.onselectstart = function() { return false; } // Evitar que se seleccione texto al hacer click y arrastrar
 
     const chronoText = document.querySelector(".chronometer");
     const chronoObj = new Chronometer();
     const selDifficulty = document.querySelector("#difficultySelect");
     const cbExperimental = document.querySelector("#cbExpOpt");
     const inputName = document.querySelector("#inputName");
+    const inputCols = document.querySelector("#inputCols");
+    const inputRows = document.querySelector("#inputRows");
+    const inputMines = document.querySelector("#inputMines");
+    const customData = document.querySelectorAll(".customDifficulty"); // Son los <li> de las opciones personalizadas
 
     const konamiCode = new KonamiCode();
     konamiCode.addListener();
@@ -25,6 +30,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     let isRightPressed = false; // ¿Click derecho presionado?
     let board = [];
     let nameSelected = ""; // Se guarda el nombre del jugador al empezar la partida para evitar cambios en mitad de la partida
+    let difficultySelected = 0; // Se guarda la dificultad seleccionada al empezar la partida para evitar cambios en mitad de la partida
     let isGameOver = false; // ¿Se ha terminado la partida? (ganado o perdido)
     let isSubmittingScore = false; // ¿Se está subiendo la puntuación al servidor?
     let isGameWon = false; // ¿Se ha ganado la partida?
@@ -251,6 +257,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             document.activeElement.blur();
             if (boardGenerated) return; // Es imposible cambiar la dificultad si se está jugando
             const selectedDifficulty = selDifficulty.options[selDifficulty.selectedIndex].value;
+            customData.forEach(element => element.style.display = parseInt(selectedDifficulty) === Constants.DIFFICULTY_LABELS.CUSTOM ? "flex" : "none");
             onDifficultySelected(selectedDifficulty);
             localStorage.setItem(Constants.STORAGE_KEYS.OPTION_DIFFICULTY, selectedDifficulty);
         });
@@ -265,6 +272,28 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             inputName.value = inputName.value.replace(/\W/g, ""); // \W = [^a-zA-Z0-9_]
             if (boardGenerated) return; // No se puede cambiar el nombre si se está jugando
             localStorage.setItem(Constants.STORAGE_KEYS.OPTION_NAME, inputName.value);
+        });
+
+        inputCols.addEventListener("input", function() {
+            if (boardGenerated) return; // No se puede cambiar las dimensiones si se está jugando
+            inputMines.max = (inputCols.value - 1) * (inputRows.value - 1); // Máximo de minas
+            if ((inputCols.value - 1) * (inputRows.value - 1) < inputMines.value) inputMines.value = (inputCols.value - 1) * (inputRows.value - 1);
+            if (parseInt(selDifficulty.options[selDifficulty.selectedIndex].value) === Constants.DIFFICULTY_LABELS.CUSTOM) onDifficultySelected(Constants.DIFFICULTY_LABELS.CUSTOM); // Si está en personalizado, cambiar las dimensiones
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_COLS, inputCols.value);
+        });
+
+        inputRows.addEventListener("input", function() {
+            if (boardGenerated) return; // No se puede cambiar las dimensiones si se está jugando
+            inputMines.max = (inputCols.value - 1) * (inputRows.value - 1); // Máximo de minas
+            if ((inputCols.value - 1) * (inputRows.value - 1) < inputMines.value) inputMines.value = (inputCols.value - 1) * (inputRows.value - 1);
+            if (parseInt(selDifficulty.options[selDifficulty.selectedIndex].value) === Constants.DIFFICULTY_LABELS.CUSTOM) onDifficultySelected(Constants.DIFFICULTY_LABELS.CUSTOM); // Si está en personalizado, cambiar las dimensiones
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_ROWS, inputRows.value);
+        });
+
+        inputMines.addEventListener("input", function() {
+            if (boardGenerated) return; // No se puede cambiar las dimensiones si se está jugando
+            if (parseInt(selDifficulty.options[selDifficulty.selectedIndex].value) === Constants.DIFFICULTY_LABELS.CUSTOM) onDifficultySelected(Constants.DIFFICULTY_LABELS.CUSTOM); // Si está en personalizado, cambiar las minas
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_MINES, inputMines.value);
         });
     }
 
@@ -291,7 +320,6 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         }
         if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_DIFFICULTY) !== null) {
             selDifficulty.value = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_DIFFICULTY);
-            onDifficultySelected(selDifficulty.value);
         }
         if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_KONAMICODE) !== null) {
             const konamiCode = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_KONAMICODE) === "true";
@@ -300,13 +328,25 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_NAME) !== null) {
             inputName.value = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_NAME);
         }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_COLS) !== null) {
+            inputCols.value = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_COLS);
+        }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_ROWS) !== null) {
+            inputRows.value = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_ROWS);
+            inputMines.max = (inputCols.value - 1) * (inputRows.value - 1); // Máximo de minas
+        }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_MINES) !== null) {
+            inputMines.value = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_MINES);
+        }
+        if ((inputCols.value - 1) * (inputRows.value - 1) < inputMines.value) inputMines.value = (inputCols.value - 1) * (inputRows.value - 1); // Si se ha puesto más minas de las que se pueden, se pone el máximo
+        customData.forEach(element => element.style.display = parseInt(selDifficulty.value) === Constants.DIFFICULTY_LABELS.CUSTOM ? "flex" : "none");
     }
 
     function onDifficultySelected(difficulty) {
         if (parseInt(difficulty) === Constants.DIFFICULTY_LABELS.CUSTOM) {
-            boardWidth = 30; // Máximo 30
-            boardHeight = 24; // Máximo 24
-            numOfMines = (boardWidth - 1) * (boardHeight - 1); // Mínimo 10? y máximo (boardWidth - 1) * (boardHeight - 1)
+            boardWidth = inputCols.value;
+            boardHeight = inputRows.value;
+            numOfMines = inputMines.value;
         }
         else {
             boardWidth = Constants.DIFFICULTY_DATA[difficulty].cols;
@@ -392,6 +432,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         chronoObj.start(setInterval(everySecond, 1000)); // Actualizar el cronómetro cada segundo (1000ms));
         boardGenerated = true;
         nameSelected = inputName.value;
+        difficultySelected = selDifficulty.value;
         enableOptions(false);
     }
 
@@ -422,9 +463,9 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
     function submitScore(msTime) {
         console.log(msTime, nameSelected);
-        if (nameSelected === "") {
+        if (nameSelected === "" || parseInt(difficultySelected) === Constants.DIFFICULTY_LABELS.CUSTOM) {
             isSubmittingScore = false;
-            return new Promise((resolve, reject) => reject("No se ha introducido un nombre"));
+            return new Promise((resolve, reject) => reject("No se ha introducido un nombre o la dificultad es personalizada"));
         }
         else {
             // Al recibir la respuesta, mostrar el botón de continuar en vez de cargando
@@ -432,7 +473,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             return fetch("https://gayofo.com/api/minesweeper/scoreboard/" + nameSelected, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ "time": msTime })
+                body: JSON.stringify({ "time": msTime, "difficulty": difficultySelected })
             }).then(() => {
                 console.log("Puntuación enviada correctamente");
                 isSubmittingScore = false;
@@ -460,6 +501,9 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         selDifficulty.disabled = !enable;
         cbExperimental.disabled = !enable;
         inputName.disabled = !enable;
+        inputCols.disabled = !enable;
+        inputRows.disabled = !enable;
+        inputMines.disabled = !enable;
     }
 
     function everySecond() {
@@ -471,7 +515,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
     // Inicializar el juego
     initOptionsEvents();
-    restoreLocalStorage(); // Al restaurar el local storage, ya se hace la inicialización y dibujado del tablero, además de la carga de eventos
+    restoreLocalStorage();
+    onDifficultySelected(selDifficulty.value); // Aquí se inicializa y dibuja el tablero, además de la carga de eventos
 });
 
 /** TODO: list
@@ -481,5 +526,4 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
  * - Un padding de 1px entre los cuadrados
  * - Conseguir la tabla de puntuaciones
  * - Cuando se termine la partida, al reiniciar el tablero, se reincia también la tabla de puntuaciones online
- * - Implementar modo personalizado
  */

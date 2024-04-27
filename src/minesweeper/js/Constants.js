@@ -8,7 +8,10 @@ export const STORAGE_KEYS = { // Claves de almacenamiento local
     OPTION_DIFFICULTY: "optDifficultyMS",
     OPTION_EXPERIMENTAL: "optExpMS",
     OPTION_KONAMICODE: "optKonamiMS",
-    OPTION_NAME: "optNameMS"
+    OPTION_NAME: "optNameMS",
+    OPTION_COLS: "optColsMS",
+    OPTION_ROWS: "optRowsMS",
+    OPTION_MINES: "optMinesMS"
 };
 
 // Posición de las imágenes en el sprite
