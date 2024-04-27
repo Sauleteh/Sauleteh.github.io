@@ -7,13 +7,77 @@
     <link rel="stylesheet" href="minesweeper.css">
     <link rel="stylesheet" href="/background.css">
     <script type="module" src="./js/game.js"></script>
+
+    <!-- Ventanas flotantes: https://www.w3schools.com/howto/howto_js_draggable.asp -->
+    <link rel="stylesheet" href="FloatingWindow/fw.css">
+    <script src="FloatingWindow/fw.js"></script>
 </head>
 <body>
     <h1>Buscaminas</h1>
     <div class="game">
         <canvas class="board"></canvas>
-        <label id="chronometer">00:00:00</label>
+        <label id="chronometer">00:00</label>
     </div>
+
+    <div id="controlsdiv">
+        <div id="controlsdivheader"><label class="title">Controles</label></div>
+        <hr/>
+        <ul>
+            <li><img src="assets/imgs/mouse-left-click-icon.svg" class="control"></img>: Revelar casilla</li>
+            <li><img src="assets/imgs/mouse-right-click-icon.svg" class="control"></img>: Marcar mina</li>
+            <li><img src="assets/imgs/mouse-left-click-icon.svg" class="control"></img> <span class="control">+</span> <img src="assets/imgs/mouse-right-click-icon.svg" class="control"></img>: Revelar adyacentes</li>
+        </ul>
+    </div>
+
+    <div id="optionsdiv">
+        <div id="optionsdivheader"><label class="title">Opciones</label></div>
+        <hr/>
+        <ul>
+            <li>
+                <span>Dificultad</span>
+                <select name="difficulty" id="difficultySelect">
+                    <option selected value="0">Principiante</option>
+                    <option value="1">Intermedio</option>
+                    <option value="2">Experto</option>
+                    <option value="3">Personalizado</option>
+                </select>
+            </li>
+            <li>
+                <span>Nombre</span>
+                <input type="text" id="nameInput" size="10" maxlength="12" onkeydown="return /\w/i.test(event.key)"/>
+            </li>
+            
+            <li class="hide">
+                <span>Opción experimental</span>
+                <label class="switch">
+                    <input id="cbExpOpt" type="checkbox">
+                    <span class="slider round"></span>
+                </label>
+            </li>
+        </ul>
+    </div>
+    
+    <div id="scoreboarddiv">
+        <div id="scoreboarddivheader"><label class="title">Tabla de puntuaciones</label></div>
+        <hr/>
+        <label class="status">Estado: <span class="statusCheck">Comprobando...</span></label>
+        <hr/>
+        <ol>
+            <li><span class="number golden">1</span><span class="name">N/A</span><span class="score">00:00.000</span></li>
+            <li><span class="number silver">2</span><span class="name">N/A</span><span class="score">00:00.000</span></li>
+            <li><span class="number copper">3</span><span class="name">N/A</span><span class="score">00:00.000</span></li>
+            <li><span class="number">4</span><span class="name">N/A</span><span class="score">00:00.000</span></li>
+            <li><span class="number">5</span><span class="name">N/A</span><span class="score">00:00.000</span></li>
+            <li><span class="number">6</span><span class="name">N/A</span><span class="score">00:00.000</span></li>
+            <li><span class="number">7</span><span class="name">N/A</span><span class="score">00:00.000</span></li>
+            <li><span class="number">8</span><span class="name">N/A</span><span class="score">00:00.000</span></li>
+            <li><span class="number">9</span><span class="name">N/A</span><span class="score">00:00.000</span></li>
+            <li><span class="number">10</span><span class="name">N/A</span><span class="score">00:00.000</span></li>
+        </ol>
+        <hr/>
+        <label class="credits">Gracias a <span class="golden" style="cursor: pointer;" onclick="window.open('https://www.gayofo.com', '_blank')">gayofo.com</span> por proporcionar el hosting para el backend</label>
+    </div>
+
     <footer>
         <p>The FontStruction “MINE-SWEEPER” (https://fontstruct.com/fontstructions/show/1501665) by Gangetsha Lyx is licensed under a Creative Commons Attribution Share Alike license (http://creativecommons.org/licenses/by-sa/3.0/).</p>
     </footer>

@@ -1,11 +1,13 @@
 import { Square } from "./Square.js";
 import * as Constants from "./Constants.js";
+import { Chronometer } from "./Chronometer.js";
 
 document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando el DOM esté listo
     const canvas = document.querySelector("canvas.board");
     const ctx = canvas.getContext("2d");
     const $spriteSquares = document.querySelector("#spriteSquares");
-    const chrono = document.querySelector("#chronometer");
+    const chronoText = document.querySelector("#chronometer");
+    const chronoObj = new Chronometer();
 
     let boardWidth = 20;
     let boardHeight = 20;
@@ -197,6 +199,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
         if (!boardGenerated) {
             generateBoard(board[clickedRow][clickedCol]); // Si es el primer click, generamos el tablero (nunca se debe generar una mina en el primer click, por eso se crea a partir de este click)
+            chronoObj.start(setInterval(everySecond, 1000)); // Actualizar el cronómetro cada segundo (1000ms));
             boardGenerated = true;
         }
 
@@ -253,6 +256,14 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     function onGameOver() {
         console.log("Game over");
         stopEvents();
+        chronoObj.stop();
+    }
+
+    function everySecond() {
+        const msTime = chronoObj.getElapsedTime();
+        const seconds = chronoObj.zeroPad(Math.floor(msTime / 1000) % 60, 2);
+        const minutes = chronoObj.zeroPad(Math.floor(msTime / 1000 / 60), 2);
+        chronoText.textContent = `${minutes}:${seconds}`;
     }
 
     // Inicializar el juego
@@ -263,5 +274,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 /** TODO: list
  * - Si se hace click en un cuadrado con mina, se pierde la partida
  * - Si todos los cuadrados que no son minas han sido revelados, se gana la partida
- * - Cronómetro
+ * - Si se pierde la partida, mostrar los cuadrados sin revelar y qué había en las casillas con banderas
+ * - El easter egg es esquizofrénico
+ * - En el backend implementar la fecha allí, ya no se hará desde el cliente
+ * - El input de nombre también se comprobará el regex en el backend
  */
