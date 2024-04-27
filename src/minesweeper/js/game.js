@@ -21,11 +21,13 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     let boardHeight = 9;
     let numOfMines = 10;
     let boardGenerated = false;
+    let isLeftPressed = false; // ¿Click izquierdo presionado?
     let isRightPressed = false; // ¿Click derecho presionado?
     let board = [];
     let nameSelected = ""; // Se guarda el nombre del jugador al empezar la partida para evitar cambios en mitad de la partida
-    let isGameOver = false;
-    let isSubmittingScore = false;
+    let isGameOver = false; // ¿Se ha terminado la partida? (ganado o perdido)
+    let isSubmittingScore = false; // ¿Se está subiendo la puntuación al servidor?
+    let isGameWon = false; // ¿Se ha ganado la partida?
 
     function initializeBoard() {
         console.log("Initializing board...");
@@ -104,13 +106,46 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             }
         }
 
-        if (isGameOver) { // Si se ha perdido la partida, mostrar el botón de continuar
-            // TODO
-            if (isSubmittingScore) { // Mostrar cargando
-
+        if (isGameOver) // Si se ha perdido la partida, mostrar el botón de continuar
+        {
+            // Fondo semitransparente para las letras
+            ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+            ctx.beginPath();
+            ctx.roundRect(
+                canvas.width / 2 - Constants.CONTINUE_SIZE / 2,
+                canvas.height / 2 - Constants.CONTINUE_SIZE / 2,
+                Constants.CONTINUE_SIZE,
+                Constants.CONTINUE_SIZE,
+                10
+            );
+            ctx.fill();
+            ctx.closePath();
+            
+            if (isSubmittingScore) // Mostrar indicativo de carga mediante puntos suspensivos
+            {
+                ctx.fillStyle = "white";
+                ctx.beginPath();
+                for (let i = 0; i < 3; i++) {
+                    ctx.arc(
+                        canvas.width / 2 - Constants.CONTINUE_SIZE / 2 + (Constants.CONTINUE_SIZE / 2) * i + Constants.CONTINUE_BACKGROUND_PADDING * (1 - i),
+                        canvas.height / 2,
+                        3, 0, 2 * Math.PI
+                    );
+                    ctx.fill();
+                }
+                ctx.closePath();
             }
-            else { // Mostrar botón de continuar
+            else // Mostrar botón de continuar con un color dependiendo de si se ganó o perdió
+            {
+                if (isGameWon) ctx.fillStyle = "lime";
+                else ctx.fillStyle = "red";
 
+                ctx.beginPath();
+                ctx.moveTo(canvas.width / 2 + Constants.CONTINUE_SIZE / 2 - Constants.CONTINUE_BACKGROUND_PADDING, canvas.height / 2);
+                ctx.lineTo(canvas.width / 2 - Constants.CONTINUE_SIZE / 2 + Constants.CONTINUE_BACKGROUND_PADDING, canvas.height / 2 + Constants.CONTINUE_SIZE / 2 - Constants.CONTINUE_BACKGROUND_PADDING);
+                ctx.lineTo(canvas.width / 2 - Constants.CONTINUE_SIZE / 2 + Constants.CONTINUE_BACKGROUND_PADDING, canvas.height / 2 - Constants.CONTINUE_SIZE / 2 + Constants.CONTINUE_BACKGROUND_PADDING);
+                ctx.fill();
+                ctx.closePath();
             }
         }
     }
@@ -199,12 +234,14 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 if (board[row][col].flagged) continue; // Si está con bandera, no revelar
 
                 board[row][col].revealed = true;
-                if (board[row][col].content === 0) revealAdjacentSquares(board[row][col]); // Si es otro 0, revelar también sus adyacentes
-                if (board[row][col].content === Constants.MINE_ID) {
-                    // Si se revela una mina, se pierde la partida
+
+                isGameWon = board.every(row => row.every(square => square.revealed || square.content === Constants.MINE_ID));
+                if (board[row][col].content === Constants.MINE_ID || isGameWon) {
+                    // Si se revela una mina o ya se han revelado todos los cuadrados que no son minas, terminar la partida
                     onGameOver();
                     return;
                 }
+                else if (board[row][col].content === 0) revealAdjacentSquares(board[row][col]); // Si es otro 0, revelar también sus adyacentes
             }
         }
     }
@@ -294,13 +331,14 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         }
 
         board[clickedRow][clickedCol].revealed = true;
-        
+        isGameWon = board.every(row => row.every(square => square.revealed || square.content === Constants.MINE_ID));
+
         if (board[clickedRow][clickedCol].content === 0) {
             // Si el cuadrado es 0, revelar todos los cuadrados adyacentes
             revealAdjacentSquares(board[clickedRow][clickedCol])
         }
-        else if (board[clickedRow][clickedCol].content === Constants.MINE_ID) {
-            // Si se hace click en una mina, se pierde la partida
+        else if (board[clickedRow][clickedCol].content === Constants.MINE_ID || isGameWon) {
+            // Si se hace click en una mina o se han revelado todos los cuadrados que no son minas, se termina la partida
             onGameOver();
         }
         
@@ -313,7 +351,10 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         let clickedCol = Math.floor(event.offsetX / Constants.SQUARE_SIZE);
         if (clickedRow >= boardHeight || clickedRow < 0 || clickedCol >= boardWidth || clickedCol < 0) return;
         event.preventDefault(); // Evitar que aparezca el menú contextual
-        if (board[clickedRow][clickedCol].revealed) return; // Si está revelado, no se puede poner bandera
+        if (board[clickedRow][clickedCol].revealed) { // Si está revelado, no se puede poner bandera
+            if (isLeftPressed) onLeftAndRightClickListener(event); // Si se hace click izquierdo y derecho, revelar adyacentes
+            return;
+        }
 
         // Se cambia el estado de la bandera
         board[clickedRow][clickedCol].flagged = !board[clickedRow][clickedCol].flagged;
@@ -332,8 +373,15 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         drawBoard();
     }
 
-    function onMouseDown(event) { if (event.button === 2) isRightPressed = true; }
-    function onMouseUp(event) { if (event.button === 2) isRightPressed = false; }
+    function onMouseDown(event) {
+        if (event.button === 0) isLeftPressed = true;
+        else if (event.button === 2) isRightPressed = true;
+    }
+
+    function onMouseUp(event) {
+        if (event.button === 0) isLeftPressed = false;
+        else if (event.button === 2) isRightPressed = false;
+    }
 
     // El square es donde se ha hecho el primer click
     function onGameStart(square) {
@@ -351,38 +399,58 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         chronoObj.stop();
         isGameOver = true;
 
-        // Al perder, el tiempo se mostrará en milisegundos
+        // Al terminar, el tiempo se mostrará en milisegundos
         const msTime = chronoObj.getElapsedTime();
         const miliseconds = chronoObj.zeroPad(Math.floor(msTime) % 1000, 3);
         const seconds = chronoObj.zeroPad(Math.floor(msTime / 1000) % 60, 2);
         const minutes = chronoObj.zeroPad(Math.floor(msTime / 1000 / 60), 2);
         chronoText.textContent = `${minutes}:${seconds}.${miliseconds}`;
 
-        isSubmittingScore = true;
-        await submitScore(msTime); // Subir la puntuación al servidor
-        canvas.addEventListener("click", onContinueClickListener);// Habilitar un listener de click para el botón central cuando se haya subido la puntuación
+        if (isGameWon) {
+            console.log("Game won");
+            isSubmittingScore = true;
+            try { await submitScore(msTime); } // Subir la puntuación al servidor
+            catch (error) { console.log(error); }
+            drawBoard(); // Cuando se termine de procesar la puntuación, se vuelve a dibujar 
+        }
+        else console.log("Game lost");
+        
+        canvas.addEventListener("click", onContinueClickListener); // Habilitar un listener de click para el botón central (en el caso de ganar, esperar a subir la puntuación al servidor)
     }
 
     function submitScore(msTime) {
-        // TODO
         console.log(msTime, nameSelected);
         if (nameSelected === "") {
-            console.log("No se ha introducido un nombre");
             isSubmittingScore = false;
-            return;
+            return new Promise((resolve, reject) => reject("No se ha introducido un nombre"));
         }
-        // Al recibir la respuesta, mostrar el botón de continuar en vez de cargando (isSubmittingScore = false)
+        else {
+            // Al recibir la respuesta, mostrar el botón de continuar en vez de cargando
+            console.log("Enviando puntuación al servidor...")
+            return fetch("https://gayofo.com/api/minesweeper/scoreboard/" + nameSelected, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ "time": msTime })
+            }).then(() => {
+                console.log("Puntuación enviada correctamente");
+                isSubmittingScore = false;
+            }).catch(error => {
+                console.log("No se pudo conectar con el servidor:", error);
+                isSubmittingScore = false;
+            })
+        }
     }
 
     function onContinueClickListener(event) {
         console.log("Continuing...");
-        if (event.offsetX >= canvas.width / 2 - Constants.CONTINUE_SIZE && event.offsetX <= canvas.width / 2 + Constants.CONTINUE_SIZE && event.offsetY >= canvas.height / 2 - Constants.CONTINUE_SIZE && event.offsetY <= canvas.height / 2 + Constants.CONTINUE_SIZE) {
+        if (event.offsetX >= canvas.width / 2 - Constants.CONTINUE_SIZE / 2 && event.offsetX <= canvas.width / 2 + Constants.CONTINUE_SIZE / 2 && event.offsetY >= canvas.height / 2 - Constants.CONTINUE_SIZE / 2 && event.offsetY <= canvas.height / 2 + Constants.CONTINUE_SIZE / 2) {
             initializeBoard();
-            drawBoard();
             enableOptions(true);
             canvas.removeEventListener("click", onContinueClickListener);
             chronoText.textContent = "00:00";
             isGameOver = false;
+            isGameWon = false;
+            drawBoard();
         }
     }
 
@@ -404,12 +472,11 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 });
 
 /** TODO: list
- * - Si se hace click en un cuadrado con mina, se pierde la partida
- * - Si todos los cuadrados que no son minas han sido revelados, se gana la partida
- * - Si se pierde la partida, mostrar las minas sin revelar y qué había en las casillas con banderas
- * - Al perder, habrá un botón en el centro de la pantalla para continuar una vez se haya subido la puntuación al servidor
  * - El easter egg es esquizofrénico
  * - En el backend implementar la fecha allí, ya no se hará desde el cliente
  * - El input de nombre también se comprobará el regex en el backend
  * - Un padding de 1px entre los cuadrados
+ * - Conseguir la tabla de puntuaciones
+ * - Cuando se termine la partida, al reiniciar el tablero, se reincia también la tabla de puntuaciones online
+ * - Implementar modo personalizado
  */

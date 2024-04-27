@@ -2,6 +2,7 @@ export const SQUARE_SIZE = 32;
 export const IMG_SQUARE_SIZE = 16;
 export const MINE_ID = -1; // Identificador de la mina (0-8 para números, -1 para la mina)
 export const CONTINUE_SIZE = 50; // Tamaño del botón de continuar
+export const CONTINUE_BACKGROUND_PADDING = 10; // Padding del fondo del botón de continuar
 
 export const STORAGE_KEYS = { // Claves de almacenamiento local
     OPTION_DIFFICULTY: "optDifficultyMS",
