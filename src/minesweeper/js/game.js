@@ -521,9 +521,10 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
 /** TODO: list
  * - El easter egg es esquizofrénico
- * - En el backend implementar la fecha allí, ya no se hará desde el cliente
- * - El input de nombre también se comprobará el regex en el backend
+ * - Backend
+ *      - En el backend implementar la fecha allí, ya no se hará desde el cliente
+ *      - El input de nombre también se comprobará el regex en el backend
+ *      - Conseguir la tabla de puntuaciones
+ *      - Cuando se termine la partida, al reiniciar el tablero, se reincia también la tabla de puntuaciones online
  * - Un padding de 1px entre los cuadrados
- * - Conseguir la tabla de puntuaciones
- * - Cuando se termine la partida, al reiniciar el tablero, se reincia también la tabla de puntuaciones online
  */
