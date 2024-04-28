@@ -2,11 +2,15 @@ import { Square } from "./Square.js";
 import * as Constants from "./Constants.js";
 import { Chronometer } from "./Chronometer.js";
 import { KonamiCode } from "./KonamiCode.js";
+import { Easter } from "./Easter.js";
+
+export const canvas = document.querySelector("canvas.board");
+export const ctx = canvas.getContext("2d");
+export const $spriteSquares = document.querySelector("#spriteSquares");
+export let boardGenerated;
+export let isGameOver; // ¿Se ha terminado la partida? (ganado o perdido)
 
 document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando el DOM esté listo
-    const canvas = document.querySelector("canvas.board");
-    const ctx = canvas.getContext("2d");
-    const $spriteSquares = document.querySelector("#spriteSquares");
     canvas.onselectstart = function() { return false; } // Evitar que se seleccione texto al hacer click y arrastrar
 
     const chronoText = document.querySelector(".chronometer");
@@ -22,17 +26,18 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
     const konamiCode = new KonamiCode();
     konamiCode.addListener();
+    const easter = new Easter(false);
 
     let boardWidth = 9;
     let boardHeight = 9;
     let numOfMines = 10;
-    let boardGenerated = false;
+    boardGenerated = false;
     let isLeftPressed = false; // ¿Click izquierdo presionado?
     let isRightPressed = false; // ¿Click derecho presionado?
     let board = [];
     let nameSelected = ""; // Se guarda el nombre del jugador al empezar la partida para evitar cambios en mitad de la partida
     let difficultySelected = 0; // Se guarda la dificultad seleccionada al empezar la partida para evitar cambios en mitad de la partida
-    let isGameOver = false; // ¿Se ha terminado la partida? (ganado o perdido)
+    isGameOver = false; 
     let isSubmittingScore = false; // ¿Se está subiendo la puntuación al servidor?
     let isGameWon = false; // ¿Se ha ganado la partida?
 
@@ -55,7 +60,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     }
 
     function drawBoard() {
-        console.log("Drawing board...");
+        // console.log("Drawing board...");
+        if (!easter.activated) ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpiar el tablero si no está activado el Easter egg (ya que el easter egg necesita limpiarlo en otro momento)
         for (let i = 0; i < boardHeight; i++) {
             for (let j = 0; j < boardWidth; j++) {
                 const square = board[i][j];
@@ -157,6 +163,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             }
         }
     }
+    window.drawBoard = drawBoard; // Hacer la función global para que Easter.js pueda acceder a ella
 
     function getScoreboard() {
         fetch("https://gayofo.com/api/minesweeper/scoreboard", { // TODO: Obtener la tabla de puntuaciones de las 3 dificultades
@@ -293,9 +300,10 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             localStorage.setItem(Constants.STORAGE_KEYS.OPTION_DIFFICULTY, selectedDifficulty);
         });
 
-        cbExperimental.addEventListener("click", function() {
+        cbExperimental.addEventListener("change", function() {
             document.activeElement.blur();
             if (boardGenerated) return; // No se puede cambiar la opción si se está jugando
+            easter.setActivated(cbExperimental.checked); // (Aquí se dibuja también el tablero)
             localStorage.setItem(Constants.STORAGE_KEYS.OPTION_EXPERIMENTAL, cbExperimental.checked);
         });
 
@@ -346,9 +354,11 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     }
 
     function restoreLocalStorage() {
-        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_EXPERIMENTAL) !== null) {
-            cbExperimental.checked = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_EXPERIMENTAL) === "true";
-        }
+        // No se restaura la opción experimental porque está prohibido poner audio en la web sin interacción del usuario
+        // if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_EXPERIMENTAL) !== null) {
+        //     cbExperimental.checked = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_EXPERIMENTAL) === "true";
+        //     easter.setActivated(cbExperimental.checked);
+        // }
         if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_DIFFICULTY) !== null) {
             selDifficulty.value = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_DIFFICULTY);
         }
@@ -571,8 +581,10 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
 /** TODO: list
  * - El easter egg es esquizofrénico
+ *      - Perder si se tarda mucho tiempo en colocar
  * - Backend
  *      - En el backend implementar la fecha allí, ya no se hará desde el cliente
  *      - El input de nombre también se comprobará el regex en el backend
  *      - Conseguir la tabla de puntuaciones
+ * - La tabla de puntuaciones en realidad son tres tablas: https://www.w3schools.com/howto/howto_js_tabs.asp
  */
