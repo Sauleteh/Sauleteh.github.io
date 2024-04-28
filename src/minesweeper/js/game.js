@@ -18,6 +18,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     const inputRows = document.querySelector("#inputRows");
     const inputMines = document.querySelector("#inputMines");
     const customData = document.querySelectorAll(".customDifficulty"); // Son los <li> de las opciones personalizadas
+    const status = document.querySelector("#scoreboarddiv span.statusCheck");
 
     const konamiCode = new KonamiCode();
     konamiCode.addListener();
@@ -154,6 +155,35 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 ctx.closePath();
             }
         }
+    }
+
+    function getScoreboard() {
+        fetch("https://gayofo.com/api/minesweeper/scoreboard", { // TODO: Obtener la tabla de puntuaciones de las 3 dificultades
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
+        }).then(response => {
+            status.textContent = "Online";
+            status.style.color = "green";
+            return response.json();
+        }).then(data => {
+            // TODO: Hacer para las 3 tablas de dificultades
+            const scoreboardListItems = document.querySelectorAll("#scoreboarddiv ol li");
+            for (let i = 0; i < data.length; i++) {
+                const actualListItem = scoreboardListItems[i];
+                actualListItem.querySelector("span.name").textContent = data[i].username;
+
+                const msTime = data[i].score;
+                const miliseconds = chronoObj.zeroPad(Math.floor(msTime) % 1000, 3);
+                const seconds = chronoObj.zeroPad(Math.floor(msTime / 1000) % 60, 2);
+                const minutes = chronoObj.zeroPad(Math.floor(msTime / 1000 / 60), 2);
+                actualListItem.querySelector("span.score").textContent = `${minutes}:${seconds}.${miliseconds}`;
+            }
+        }).catch(error => {
+            console.log("No se pudo conectar con el servidor:", error);
+            
+            status.textContent = "Offline";
+            status.style.color = "red";
+        })
     }
 
     function generateBoard(initialSquare) {
@@ -469,7 +499,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         }
         else {
             // Al recibir la respuesta, mostrar el botón de continuar en vez de cargando
-            console.log("Enviando puntuación al servidor...")
+            console.log("Enviando puntuación al servidor...") // TODO: Enviar puntuación al servidor
             return fetch("https://gayofo.com/api/minesweeper/scoreboard/" + nameSelected, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -494,6 +524,9 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             isGameOver = false;
             isGameWon = false;
             drawBoard();
+            status.textContent = "Comprobando...";
+            status.style.color = "white";
+            getScoreboard();
         }
     }
 
@@ -517,6 +550,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     initOptionsEvents();
     restoreLocalStorage();
     onDifficultySelected(selDifficulty.value); // Aquí se inicializa y dibuja el tablero, además de la carga de eventos
+    getScoreboard();
 });
 
 /** TODO: list
@@ -525,6 +559,5 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
  *      - En el backend implementar la fecha allí, ya no se hará desde el cliente
  *      - El input de nombre también se comprobará el regex en el backend
  *      - Conseguir la tabla de puntuaciones
- *      - Cuando se termine la partida, al reiniciar el tablero, se reincia también la tabla de puntuaciones online
  * - Un padding de 1px entre los cuadrados
  */
