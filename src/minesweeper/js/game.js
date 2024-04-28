@@ -38,6 +38,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
     function initializeBoard() {
         console.log("Initializing board...");
+        console.log(boardWidth, boardHeight, numOfMines)
         initEvents();
         canvas.width = Constants.SQUARE_SIZE * boardWidth + boardWidth - 1;
         canvas.height = Constants.SQUARE_SIZE * boardHeight + boardHeight - 1;
@@ -374,9 +375,9 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
     function onDifficultySelected(difficulty) {
         if (parseInt(difficulty) === Constants.DIFFICULTY_LABELS.CUSTOM) {
-            boardWidth = inputCols.value;
-            boardHeight = inputRows.value;
-            numOfMines = inputMines.value;
+            boardWidth = parseInt(inputCols.value);
+            boardHeight = parseInt(inputRows.value);
+            numOfMines = parseInt(inputMines.value);
         }
         else {
             boardWidth = Constants.DIFFICULTY_DATA[difficulty].cols;
