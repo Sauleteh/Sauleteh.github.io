@@ -39,8 +39,8 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     function initializeBoard() {
         console.log("Initializing board...");
         initEvents();
-        canvas.width = Constants.SQUARE_SIZE * boardWidth;
-        canvas.height = Constants.SQUARE_SIZE * boardHeight;
+        canvas.width = Constants.SQUARE_SIZE * boardWidth + boardWidth - 1;
+        canvas.height = Constants.SQUARE_SIZE * boardHeight + boardHeight - 1;
         ctx.imageSmoothingEnabled = false; // Desactivar suavizado de imágenes
         
         boardGenerated = false;
@@ -69,10 +69,10 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                             Constants.SQUARE_TYPES.UNREVEALED
                     ) * Constants.IMG_SQUARE_SIZE, // Posición X del cuadrado en la imagen
                     0, // Posición Y del cuadrado en la imagen
-                    Constants.IMG_SQUARE_SIZE, // An cho del cuadrado en la imagen
+                    Constants.IMG_SQUARE_SIZE, // Ancho del cuadrado en la imagen
                     Constants.IMG_SQUARE_SIZE, // Alto del cuadrado en la imagen
-                    j * Constants.SQUARE_SIZE, // Posición X del cuadrado
-                    i * Constants.SQUARE_SIZE, // Posición Y del cuadrado
+                    j * Constants.SQUARE_SIZE + j, // Posición X del cuadrado
+                    i * Constants.SQUARE_SIZE + i, // Posición Y del cuadrado
                     Constants.SQUARE_SIZE, // Ancho del cuadrado
                     Constants.SQUARE_SIZE // Alto del cuadrado
                 );
@@ -85,10 +85,10 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                             $spriteSquares,
                             Constants.NUMBER_TO_TYPE[square.content] * Constants.IMG_SQUARE_SIZE, // Posición X del cuadrado en la imagen
                             0, // Posición Y del cuadrado en la imagen
-                            Constants.IMG_SQUARE_SIZE, // An cho del cuadrado en la imagen
+                            Constants.IMG_SQUARE_SIZE, // Ancho del cuadrado en la imagen
                             Constants.IMG_SQUARE_SIZE, // Alto del cuadrado en la imagen
-                            j * Constants.SQUARE_SIZE, // Posición X del cuadrado
-                            i * Constants.SQUARE_SIZE, // Posición Y del cuadrado
+                            j * Constants.SQUARE_SIZE + j, // Posición X del cuadrado
+                            i * Constants.SQUARE_SIZE + i, // Posición Y del cuadrado
                             Constants.SQUARE_SIZE, // Ancho del cuadrado
                             Constants.SQUARE_SIZE // Alto del cuadrado
                         );
@@ -102,10 +102,10 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                             Constants.SQUARE_TYPES.FLAG
                         ) * Constants.IMG_SQUARE_SIZE, // Posición X del cuadrado en la imagen
                         0, // Posición Y del cuadrado en la imagen
-                        Constants.IMG_SQUARE_SIZE, // An cho del cuadrado en la imagen
+                        Constants.IMG_SQUARE_SIZE, // Ancho del cuadrado en la imagen
                         Constants.IMG_SQUARE_SIZE, // Alto del cuadrado en la imagen
-                        j * Constants.SQUARE_SIZE, // Posición X del cuadrado
-                        i * Constants.SQUARE_SIZE, // Posición Y del cuadrado
+                        j * Constants.SQUARE_SIZE + j, // Posición X del cuadrado
+                        i * Constants.SQUARE_SIZE + i, // Posición Y del cuadrado
                         Constants.SQUARE_SIZE, // Ancho del cuadrado
                         Constants.SQUARE_SIZE // Alto del cuadrado
                     );
@@ -388,9 +388,19 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         drawBoard();
     }
 
+    function getClickedSquare(event) {
+        console.log(Math.floor((event.offsetY) / (Constants.SQUARE_SIZE + 1)), Math.floor((event.offsetX) / (Constants.SQUARE_SIZE + 1)));
+        return {
+            row: Math.floor((event.offsetY) / (Constants.SQUARE_SIZE + 1)),
+            col: Math.floor((event.offsetX) / (Constants.SQUARE_SIZE + 1))
+        };
+    }
+
     function onClickListener(event) {
-        let clickedRow = Math.floor(event.offsetY / Constants.SQUARE_SIZE);
-        let clickedCol = Math.floor(event.offsetX / Constants.SQUARE_SIZE);
+        const clickedSquare = getClickedSquare(event)
+        const clickedCol = clickedSquare.col;
+        const clickedRow = clickedSquare.row;
+
         if (clickedRow >= boardHeight || clickedRow < 0 || clickedCol >= boardWidth || clickedCol < 0) return; // Comprobar dimensiones
         else if (board[clickedRow][clickedCol].revealed) { // Si ya está revelado, no hacemos nada
             if (isRightPressed) onLeftAndRightClickListener(event); // Si se hace click izquierdo y derecho, revelar adyacentes
@@ -414,13 +424,15 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             onGameOver();
         }
         
-        console.log(clickedRow, clickedCol);
+        // console.log(clickedRow, clickedCol);
         drawBoard();
     }
 
     function onRightClickListener(event) {
-        let clickedRow = Math.floor(event.offsetY / Constants.SQUARE_SIZE);
-        let clickedCol = Math.floor(event.offsetX / Constants.SQUARE_SIZE);
+        const clickedSquare = getClickedSquare(event)
+        const clickedCol = clickedSquare.col;
+        const clickedRow = clickedSquare.row;
+
         if (clickedRow >= boardHeight || clickedRow < 0 || clickedCol >= boardWidth || clickedCol < 0) return;
         event.preventDefault(); // Evitar que aparezca el menú contextual
         if (board[clickedRow][clickedCol].revealed) { // Si está revelado, no se puede poner bandera
@@ -431,17 +443,20 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         // Se cambia el estado de la bandera
         board[clickedRow][clickedCol].flagged = !board[clickedRow][clickedCol].flagged;
 
-        console.log(clickedRow, clickedCol);
+        // console.log(clickedRow, clickedCol);
         drawBoard();
         return false;
     }
 
     function onLeftAndRightClickListener(event) {
-        let clickedRow = Math.floor(event.offsetY / Constants.SQUARE_SIZE);
-        let clickedCol = Math.floor(event.offsetX / Constants.SQUARE_SIZE);
+        const clickedSquare = getClickedSquare(event)
+        const clickedCol = clickedSquare.col;
+        const clickedRow = clickedSquare.row;
+
         if (clickedRow >= boardHeight || clickedRow < 0 || clickedCol >= boardWidth || clickedCol < 0) return; // Comprobar dimensiones
         revealAdjacentSquares(board[clickedRow][clickedCol]);
 
+        // console.log(clickedRow, clickedCol);
         drawBoard();
     }
 
@@ -559,5 +574,4 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
  *      - En el backend implementar la fecha allí, ya no se hará desde el cliente
  *      - El input de nombre también se comprobará el regex en el backend
  *      - Conseguir la tabla de puntuaciones
- * - Un padding de 1px entre los cuadrados
  */
