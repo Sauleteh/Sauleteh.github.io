@@ -20,12 +20,16 @@ export class Easter
         this.dataArray = null;
         this.animPixels = [];
         this.chronoRevealSquare = new Chronometer();
+        document.addEventListener("keydown", this.keyDownListener);
+        document.addEventListener("keyup", this.keyUpListener);
+        this.ctrlDown = false;
+        this.specialKeyDown = false;
     }
 
     setActivated(activated) {
         console.log("Easter egg activated: " + activated);
         this.activated = activated;
-        this.manageActivation(); // TODO: Descomentar
+        this.manageActivation();
     }
 
     manageActivation() {
@@ -115,7 +119,10 @@ export class Easter
             Game.canvas.style.backgroundColor = `rgb(0, ${this.bass*2}, ${this.bass*2})`; // Es más cian cuanto más potente sea el bajo
 
             const myScale = Math.max(this.bass / 18, 1.5); // Cuanto más potente sea el bajo, más zoom
-            Game.ctx.translate(-this.mouseX * (myScale - 1), -this.mouseY * (myScale - 1)); // TODO: Cuanto más cerca se esté de morir por no tocar, más agitar la cámara
+            Game.ctx.translate( // Cuanto más cerca se esté de morir por no tocar una casilla, más agitar la cámara
+                -this.mouseX * (myScale - 1) + (Math.random() - 0.5) * Math.max(this.chronoRevealSquare.getElapsedTime() / 10000 - 0.5, 0) * 250,
+                -this.mouseY * (myScale - 1) + (Math.random() - 0.5) * Math.max(this.chronoRevealSquare.getElapsedTime() / 10000 - 0.5, 0) * 250
+            );
             Game.ctx.scale(myScale, myScale);
         }
 
@@ -247,16 +254,11 @@ export class Easter
         this.mouseY = event.offsetY;
     }
 
-    mouseDownListener = (event) => {
-        console.log("Mouse click detected: " + event.offsetX + ", " + event.offsetY);
-        this.mouseDown = true;
-    }
+    mouseDownListener = () => { this.mouseDown = true; }
+    mouseUpListener = () => { this.mouseDown = false; this.canDoAction = true; }
 
-    mouseUpListener = (event) => {
-        console.log("Mouse click detected: " + event.offsetX + ", " + event.offsetY);
-        this.mouseDown = false;
-        this.canDoAction = true;
-    }
+    keyDownListener = (event) => { this.ctrlDown = event.ctrlKey; this.specialKeyDown = event.key === "º"; }
+    keyUpListener = (event) => { this.ctrlDown = event.ctrlKey; this.specialKeyDown = event.key === "º"; }
 
     getRandomColor = () => {
         return ["#00FFFF", "#00FF00", "#0000FF", "#FFFFFF", "#000000", "#00AAAA", "#FFFF00"][Math.floor(Math.random() * 7)];

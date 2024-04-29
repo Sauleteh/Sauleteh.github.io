@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     let board = [];
     let nameSelected = ""; // Se guarda el nombre del jugador al empezar la partida para evitar cambios en mitad de la partida
     let difficultySelected = 0; // Se guarda la dificultad seleccionada al empezar la partida para evitar cambios en mitad de la partida
+    let isSpecialMode = false; // ¿Está activado el modo especial?
     isGameOver = false; 
     let isSubmittingScore = false; // ¿Se está subiendo la puntuación al servidor?
     let isGameWon = false; // ¿Se ha ganado la partida?
@@ -183,11 +184,17 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                     const actualListItem = actualList[j];
                     actualListItem.querySelector("span.name").textContent = data[i][j].username;
 
+                    if (data[i][j].special) actualListItem.querySelector("span.name").classList.add("specialColor");
+                    else actualListItem.querySelector("span.name").classList.remove("specialColor");
+                    
                     const msTime = data[i][j].score;
                     const miliseconds = chronoObj.zeroPad(Math.floor(msTime) % 1000, 3);
                     const seconds = chronoObj.zeroPad(Math.floor(msTime / 1000) % 60, 2);
                     const minutes = chronoObj.zeroPad(Math.floor(msTime / 1000 / 60), 2);
                     actualListItem.querySelector("span.score").textContent = `${minutes}:${seconds}.${miliseconds}`;
+
+                    if (data[i][j].special) actualListItem.querySelector("span.score").classList.add("specialColor");
+                    else actualListItem.querySelector("span.score").classList.remove("specialColor");
                 }
             }
         }).catch(error => {
@@ -308,7 +315,12 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         cbExperimental.addEventListener("change", function() {
             document.activeElement.blur();
             if (boardGenerated) return; // No se puede cambiar la opción si se está jugando
-            // TODO: Si no se está pulsando shift mientras se hace click, no se activa el easter egg y el switch vuelve a su posición original
+            // Si no se está pulsando las teclas especiales mientras se hace click, no se activa el easter egg y el switch vuelve a su posición original
+            console.log(easter.ctrlDown, easter.specialKeyDown, cbExperimental.checked)
+            if ((!easter.ctrlDown || !easter.specialKeyDown) && cbExperimental.checked) {
+                cbExperimental.checked = false;
+                return;
+            }
             easter.setActivated(cbExperimental.checked); // (Aquí se dibuja también el tablero)
             localStorage.setItem(Constants.STORAGE_KEYS.OPTION_EXPERIMENTAL, cbExperimental.checked);
         });
@@ -496,6 +508,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         boardGenerated = true;
         nameSelected = inputName.value;
         difficultySelected = selDifficulty.value;
+        isSpecialMode = cbExperimental.checked;
         enableOptions(false);
     }
 
@@ -537,7 +550,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             return fetch("https://gayofo.com/api/minesweeper/scoreboard/" + nameSelected, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ "time": msTime, "difficulty": difficultySelected })
+                body: JSON.stringify({ "time": msTime, "difficulty": difficultySelected, "special": isSpecialMode })
             }).then(() => {
                 console.log("Puntuación enviada correctamente");
                 isSubmittingScore = false;
@@ -588,6 +601,6 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 });
 
 /** TODO: list
- * - El easter egg es esquizofrénico
- *      - Perder si se tarda mucho tiempo en colocar
+ * - Backend
+ *     - Las tablas de puntuaciones, por cada usuario, además del username, score y date (en su dificultad correspondiente), también se tendrá un booleano "special"
  */

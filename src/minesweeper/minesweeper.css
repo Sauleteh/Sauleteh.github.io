@@ -52,3 +52,24 @@ label {
     font-size: 14px;
     color: white;
 }
+
+.specialColor {
+    color: red;
+    text-shadow: 0 0 1px rgb(255, 0, 0);
+    background: linear-gradient(to right, red, white, red, white, rgb(255, 145, 0), yellow, red, yellow, red, yellow, red);
+    animation: specialAnimation 6s linear infinite;
+
+    font-weight: 500;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-size: 400% auto;
+}
+
+@keyframes specialAnimation {
+    0% { background-position: 0% 50%; text-shadow: 0 0 1px red; }
+    3% { background-position: 65% 50%; text-shadow: 0 0 2px rgb(255, 180, 0); }
+    85% { background-position: 100% 50%; text-shadow: 0 0 1px red; }
+    95% { background-position: 100% 50%; text-shadow: 0 0 1px rgb(255, 90, 0); }
+    100% { background-position: 100% 50%; text-shadow: 0 0 1px rgb(255, 135, 0); }
+}
