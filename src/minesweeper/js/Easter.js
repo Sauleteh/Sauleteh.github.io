@@ -115,7 +115,7 @@ export class Easter
             Game.canvas.style.backgroundColor = `rgb(0, ${this.bass*2}, ${this.bass*2})`; // Es más cian cuanto más potente sea el bajo
 
             const myScale = Math.max(this.bass / 18, 1.5); // Cuanto más potente sea el bajo, más zoom
-            Game.ctx.translate(-this.mouseX * (myScale - 1), -this.mouseY * (myScale - 1));
+            Game.ctx.translate(-this.mouseX * (myScale - 1), -this.mouseY * (myScale - 1)); // TODO: Cuanto más cerca se esté de morir por no tocar, más agitar la cámara
             Game.ctx.scale(myScale, myScale);
         }
 
