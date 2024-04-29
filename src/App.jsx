@@ -31,6 +31,17 @@ export function App() {
         <div className="divisorProyectos">
             <h1 className="titulo finalizado">Proyectos finalizados</h1>
             <div className="contenedorProyectos">
+            <Proyecto
+                    titulo="Buscaminas"
+                    plataforma="Web | HTML, CSS y JS"
+                    descripcion="El buscaminas clásico. Debido al éxito que tuvo el Tetris de esta página, he decidido continuar
+                                con el desarrollo de videojuegos clásicos. Al igual que mi anterior título, este juego también cuenta
+                                con un scoreboard online separado en tres niveles de dificultad. También puedes jugar en modo offline
+                                con dimensiones personalizadas."
+                    thumbnail={null}
+                    link="./minesweeper/minesweeper.html"
+                >nuevo</Proyecto>
+
                 <Proyecto
                     titulo="Tetris"
                     plataforma="Web | HTML, CSS y JS"
@@ -41,7 +52,7 @@ export function App() {
                                 tus amigos."
                     thumbnail={tetrisJS}
                     link="./tetris/tetris.html"
-                >nuevo</Proyecto>
+                ></Proyecto>
 
                 <Proyecto
                     titulo="Mi virus"
@@ -319,17 +330,6 @@ export function App() {
                                 client-side por lo que es usable hasta en servidores vanilla."
                     thumbnail={minecraftBotMod}
                     link="https://github.com/Sauleteh/Minecraft-Bot-Mod"
-                ></Proyecto>
-
-                <Proyecto
-                    titulo="Buscaminas"
-                    plataforma="Web | HTML, CSS y JS"
-                    descripcion="El buscaminas clásico. Debido al éxito que tuvo el Tetris de esta página, he decidido continuar
-                                con el desarrollo de videojuegos clásicos. Al igual que mi anterior título, este juego también cuenta
-                                con un scoreboard online separado en tres niveles de dificultad. También puedes jugar en modo offline
-                                con dimensiones personalizadas."
-                    thumbnail={null}
-                    link="./minesweeper/minesweeper.html"
                 ></Proyecto>
             </div>
         </div>

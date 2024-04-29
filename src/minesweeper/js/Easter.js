@@ -1,5 +1,5 @@
 import * as Game from "./game.js";
-import * as Constants from "./constants.js";
+import * as Constants from "./Constants.js";
 import { Chronometer } from "./Chronometer.js";
 
 export class Easter
