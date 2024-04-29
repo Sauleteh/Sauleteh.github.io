@@ -414,7 +414,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         }
 
         initializeBoard();
-        drawBoard();
+        setTimeout(() => drawBoard(), 100); // Esperar 100ms para poder renderizarlo correctamente
     }
 
     function getClickedSquare(event) {
