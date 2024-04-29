@@ -127,6 +127,31 @@
     line-height: 10px;
 }
 
+#scoreboarddiv label.scoreboardDifficulty {
+    font-family: 'MineSweeper', sans-serif;
+    font-size: 10px;
+    color: white;
+    text-align: center;
+    margin-top: 10px;
+    border-radius: 5px;
+    background-color: #3d3d47;
+    padding: 5px;
+    border: 1px solid white;
+    user-select: none;
+}
+
+#scoreboarddiv label.scoreboardDifficulty:hover {
+    color: rgb(192, 255, 255);
+    background-color: #252627;
+    border: 1px solid rgb(192, 255, 255);
+}
+
+#scoreboarddiv label.scoreboardDifficulty:active {
+    color: cyan;
+    background-color: #1b1c1d;
+    border: 1px solid cyan;
+}
+
 #scoreboarddiv li {
     text-align: left;
     height: 10px;

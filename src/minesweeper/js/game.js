@@ -166,7 +166,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     window.drawBoard = drawBoard; // Hacer la función global para que Easter.js pueda acceder a ella
 
     function getScoreboard() {
-        fetch("https://gayofo.com/api/minesweeper/scoreboard", { // TODO: Obtener la tabla de puntuaciones de las 3 dificultades
+        fetch("https://gayofo.com/api/minesweeper/scoreboard", { // Obtener la tabla de puntuaciones de las 3 dificultades
             method: "GET",
             headers: { "Content-Type": "application/json" }
         }).then(response => {
@@ -174,17 +174,21 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             status.style.color = "green";
             return response.json();
         }).then(data => {
-            // TODO: Hacer para las 3 tablas de dificultades
-            const scoreboardListItems = document.querySelectorAll("#scoreboarddiv ol li");
-            for (let i = 0; i < data.length; i++) {
-                const actualListItem = scoreboardListItems[i];
-                actualListItem.querySelector("span.name").textContent = data[i].username;
+            // console.log(data);
 
-                const msTime = data[i].score;
-                const miliseconds = chronoObj.zeroPad(Math.floor(msTime) % 1000, 3);
-                const seconds = chronoObj.zeroPad(Math.floor(msTime / 1000) % 60, 2);
-                const minutes = chronoObj.zeroPad(Math.floor(msTime / 1000 / 60), 2);
-                actualListItem.querySelector("span.score").textContent = `${minutes}:${seconds}.${miliseconds}`;
+            for (let i = 0; i < data.length; i++) { // Por cada dificultad...
+                const actualList = document.querySelectorAll("#scoreboarddiv ol#scoreDif" + i + " li");
+                console.log(actualList);
+                for (let j = 0; j < data[i].length; j++) { // Por cada puntuación...
+                    const actualListItem = actualList[j];
+                    actualListItem.querySelector("span.name").textContent = data[i][j].username;
+
+                    const msTime = data[i][j].score;
+                    const miliseconds = chronoObj.zeroPad(Math.floor(msTime) % 1000, 3);
+                    const seconds = chronoObj.zeroPad(Math.floor(msTime / 1000) % 60, 2);
+                    const minutes = chronoObj.zeroPad(Math.floor(msTime / 1000 / 60), 2);
+                    actualListItem.querySelector("span.score").textContent = `${minutes}:${seconds}.${miliseconds}`;
+                }
             }
         }).catch(error => {
             console.log("No se pudo conectar con el servidor:", error);
@@ -525,7 +529,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         }
         else {
             // Al recibir la respuesta, mostrar el botón de continuar en vez de cargando
-            console.log("Enviando puntuación al servidor...") // TODO: Enviar puntuación al servidor
+            console.log("Enviando puntuación al servidor...")
             return fetch("https://gayofo.com/api/minesweeper/scoreboard/" + nameSelected, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -582,9 +586,4 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 /** TODO: list
  * - El easter egg es esquizofrénico
  *      - Perder si se tarda mucho tiempo en colocar
- * - Backend
- *      - En el backend implementar la fecha allí, ya no se hará desde el cliente
- *      - El input de nombre también se comprobará el regex en el backend
- *      - Conseguir la tabla de puntuaciones
- * - La tabla de puntuaciones en realidad son tres tablas: https://www.w3schools.com/howto/howto_js_tabs.asp
  */

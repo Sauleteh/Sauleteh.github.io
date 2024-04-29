@@ -46,3 +46,19 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 });
+
+// Para cambiar la tabla de puntuaciones basado en la dificultad
+let difficulty = 0;
+let difficultyLabels = ["Principiante", "Intermedio", "Experto"];
+// eslint-disable-next-line no-unused-vars
+function changeDifficultyTab(element)
+{
+    difficulty = (difficulty + 1) % 3;
+    element.innerHTML = difficultyLabels[difficulty];
+
+    const divs = document.querySelectorAll("#scoreboarddiv .scoreboardOlDif");
+    divs.forEach(div => { div.style.display = "none"; });
+
+    const actualDiv = document.querySelector("#scoreboarddiv #scoreDif" + difficulty);
+    actualDiv.style.display = "block";
+}
