@@ -24,6 +24,7 @@ import packCss from "./assets/packCss.webp"
 import autoBingo from "./assets/autoBingo.webp"
 import miVirus from "./assets/miVirus.webp"
 import tetrisJS from "./assets/tetrisJS.webp"
+import minesweeperJS from "./assets/minesweeperJS.webp"
 
 export function App() {
     return (
@@ -38,7 +39,7 @@ export function App() {
                                 con el desarrollo de videojuegos clásicos. Al igual que mi anterior título, este juego también cuenta
                                 con un scoreboard online separado en tres niveles de dificultad. También puedes jugar en modo offline
                                 con dimensiones personalizadas."
-                    thumbnail={null}
+                    thumbnail={minesweeperJS}
                     link="./minesweeper/minesweeper.html"
                 >nuevo</Proyecto>
 
