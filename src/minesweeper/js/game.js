@@ -308,6 +308,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         cbExperimental.addEventListener("change", function() {
             document.activeElement.blur();
             if (boardGenerated) return; // No se puede cambiar la opción si se está jugando
+            // TODO: Si no se está pulsando shift mientras se hace click, no se activa el easter egg y el switch vuelve a su posición original
             easter.setActivated(cbExperimental.checked); // (Aquí se dibuja también el tablero)
             localStorage.setItem(Constants.STORAGE_KEYS.OPTION_EXPERIMENTAL, cbExperimental.checked);
         });
