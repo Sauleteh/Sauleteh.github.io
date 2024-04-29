@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
     function initializeBoard() {
         console.log("Initializing board...");
-        console.log(boardWidth, boardHeight, numOfMines)
+        // console.log(boardWidth, boardHeight, numOfMines)
         initEvents();
         canvas.width = Constants.SQUARE_SIZE * boardWidth + boardWidth - 1;
         canvas.height = Constants.SQUARE_SIZE * boardHeight + boardHeight - 1;
@@ -179,7 +179,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
             for (let i = 0; i < data.length; i++) { // Por cada dificultad...
                 const actualList = document.querySelectorAll("#scoreboarddiv ol#scoreDif" + i + " li");
-                console.log(actualList);
+                // console.log(actualList);
                 for (let j = 0; j < data[i].length; j++) { // Por cada puntuación...
                     const actualListItem = actualList[j];
                     actualListItem.querySelector("span.name").textContent = data[i][j].username;
@@ -316,7 +316,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             document.activeElement.blur();
             if (boardGenerated) return; // No se puede cambiar la opción si se está jugando
             // Si no se está pulsando las teclas especiales mientras se hace click, no se activa el easter egg y el switch vuelve a su posición original
-            console.log(easter.ctrlDown, easter.specialKeyDown, cbExperimental.checked)
+            // console.log(easter.ctrlDown, easter.specialKeyDown, cbExperimental.checked)
             if ((!easter.ctrlDown || !easter.specialKeyDown) && cbExperimental.checked) {
                 cbExperimental.checked = false;
                 return;
@@ -418,7 +418,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     }
 
     function getClickedSquare(event) {
-        console.log(Math.floor((event.offsetY) / (Constants.SQUARE_SIZE + 1)), Math.floor((event.offsetX) / (Constants.SQUARE_SIZE + 1)));
+        // console.log(Math.floor((event.offsetY) / (Constants.SQUARE_SIZE + 1)), Math.floor((event.offsetX) / (Constants.SQUARE_SIZE + 1)));
         return {
             row: Math.floor((event.offsetY) / (Constants.SQUARE_SIZE + 1)),
             col: Math.floor((event.offsetX) / (Constants.SQUARE_SIZE + 1))
@@ -539,7 +539,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     window.onGameOver = onGameOver; // Hacer la función global para que Easter.js pueda acceder a ella
 
     function submitScore(msTime) {
-        console.log(msTime, nameSelected);
+        // console.log(msTime, nameSelected);
         if (nameSelected === "" || parseInt(difficultySelected) === Constants.DIFFICULTY_LABELS.CUSTOM) {
             isSubmittingScore = false;
             return new Promise((resolve, reject) => reject("No se ha introducido un nombre o la dificultad es personalizada"));
@@ -562,7 +562,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     }
 
     function onContinueClickListener(event) {
-        console.log("Continuing...");
+        // console.log("Continuing...");
         if (event.offsetX >= canvas.width / 2 - Constants.CONTINUE_SIZE / 2 && event.offsetX <= canvas.width / 2 + Constants.CONTINUE_SIZE / 2 && event.offsetY >= canvas.height / 2 - Constants.CONTINUE_SIZE / 2 && event.offsetY <= canvas.height / 2 + Constants.CONTINUE_SIZE / 2) {
             initializeBoard();
             enableOptions(true);

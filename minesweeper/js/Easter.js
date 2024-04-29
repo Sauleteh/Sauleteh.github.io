@@ -27,7 +27,7 @@ export class Easter
     }
 
     setActivated(activated) {
-        console.log("Easter egg activated: " + activated);
+        // console.log("Easter egg activated: " + activated);
         this.activated = activated;
         this.manageActivation();
     }
