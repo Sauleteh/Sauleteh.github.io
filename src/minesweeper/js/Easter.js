@@ -1,5 +1,6 @@
 import * as Game from "./game.js";
 import * as Constants from "./constants.js";
+import { Chronometer } from "./Chronometer.js";
 
 export class Easter
 {
@@ -18,12 +19,13 @@ export class Easter
         this.analyser = null;
         this.dataArray = null;
         this.animPixels = [];
+        this.chronoRevealSquare = new Chronometer();
     }
 
     setActivated(activated) {
-        // console.log("Easter egg activated: " + activated);
-        // this.activated = activated;
-        // this.manageActivation(); // TODO: Descomentar
+        console.log("Easter egg activated: " + activated);
+        this.activated = activated;
+        this.manageActivation(); // TODO: Descomentar
     }
 
     manageActivation() {
@@ -226,6 +228,12 @@ export class Easter
                 Constants.SQUARE_SIZE
             );
             Game.ctx.globalAlpha = 1;
+
+            Game.ctx.fillStyle = "red";
+            Game.ctx.globalAlpha = Math.max(this.chronoRevealSquare.getElapsedTime() / 10000 - 0.2, 0);
+            Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
+            Game.ctx.globalAlpha = 1;
+            if (this.chronoRevealSquare.getElapsedTime() > 10000) window.onGameOver();
         }
 
         Game.ctx.restore();

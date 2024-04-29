@@ -282,6 +282,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 if (board[row][col].flagged) continue; // Si está con bandera, no revelar
 
                 board[row][col].revealed = true;
+                easter.chronoRevealSquare.start();
 
                 isGameWon = board.every(row => row.every(square => square.revealed || square.content === Constants.MINE_ID));
                 if (board[row][col].content === Constants.MINE_ID || isGameWon) {
@@ -428,6 +429,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         }
 
         board[clickedRow][clickedCol].revealed = true;
+        easter.chronoRevealSquare.start();
         isGameWon = board.every(row => row.every(square => square.revealed || square.content === Constants.MINE_ID));
 
         if (board[clickedRow][clickedCol].content === 0) {
@@ -520,6 +522,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         
         canvas.addEventListener("click", onContinueClickListener); // Habilitar un listener de click para el botón central (en el caso de ganar, esperar a subir la puntuación al servidor)
     }
+    window.onGameOver = onGameOver; // Hacer la función global para que Easter.js pueda acceder a ella
 
     function submitScore(msTime) {
         console.log(msTime, nameSelected);
