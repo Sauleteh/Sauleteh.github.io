@@ -602,5 +602,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
 /** TODO: list
  * - Backend
- *     - Las tablas de puntuaciones, por cada usuario, además del username, score y date (en su dificultad correspondiente), también se tendrá un booleano "special"
+ *     - ¿El scoreboard, al reemplazar un score por otro, se cambia correctamente o si el score es mayor (peor) lo cambia?
+ * - Mostrar todas las minas sin revelar si se pierde
+ * - Flash + sonido de disparo en el easter egg al perder por pasar los 10 segundos
  */

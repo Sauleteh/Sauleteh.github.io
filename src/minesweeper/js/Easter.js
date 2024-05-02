@@ -240,7 +240,9 @@ export class Easter
             Game.ctx.globalAlpha = Math.max(this.chronoRevealSquare.getElapsedTime() / 10000 - 0.2, 0);
             Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
             Game.ctx.globalAlpha = 1;
-            if (this.chronoRevealSquare.getElapsedTime() > 10000) window.onGameOver();
+            if (this.chronoRevealSquare.getElapsedTime() > 10000) {
+                window.onGameOver();
+            }
         }
 
         Game.ctx.restore();
