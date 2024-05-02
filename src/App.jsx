@@ -314,7 +314,7 @@ export function App() {
         <br/>
         <hr/>
         <div className="divisorProyectos">
-            <h1 className="titulo wip">Proyectos en desarrollo</h1>
+            <h1 className="titulo wip">Proyectos en desarrollo / pausados</h1>
             <div className="contenedorProyectos">
                 <Proyecto
                     titulo="Juego de flecha que va muy rápido"
