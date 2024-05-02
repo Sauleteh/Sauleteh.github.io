@@ -603,6 +603,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 /** TODO: list
  * - Backend
  *     - ¿El scoreboard, al reemplazar un score por otro, se cambia correctamente o si el score es mayor (peor) lo cambia?
+ *     - He cambiado la URL de la página, hay que actualizarlo
  * - Mostrar todas las minas sin revelar si se pierde
  * - Flash + sonido de disparo en el easter egg al perder por pasar los 10 segundos
  */
