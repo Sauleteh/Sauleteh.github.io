@@ -24,6 +24,11 @@ export class Easter
         document.addEventListener("keyup", this.keyUpListener);
         this.ctrlDown = false;
         this.specialKeyDown = false;
+        this.timeToDeath = 10000; // Milisegundos
+        this.deathAnimationTime = 2000; // Milisegundos
+
+        this.$sfxShoot = document.querySelector("#sfxShoot");
+        this.$sfxEarRinging = document.querySelector("#sfxEarRinging");
     }
 
     setActivated(activated) {
@@ -120,8 +125,8 @@ export class Easter
 
             const myScale = Math.max(this.bass / 18, 1.5); // Cuanto más potente sea el bajo, más zoom
             Game.ctx.translate( // Cuanto más cerca se esté de morir por no tocar una casilla, más agitar la cámara
-                -this.mouseX * (myScale - 1) + (Math.random() - 0.5) * Math.max(this.chronoRevealSquare.getElapsedTime() / 10000 - 0.5, 0) * 250,
-                -this.mouseY * (myScale - 1) + (Math.random() - 0.5) * Math.max(this.chronoRevealSquare.getElapsedTime() / 10000 - 0.5, 0) * 250
+                -this.mouseX * (myScale - 1) + (Math.random() - 0.5) * Math.max(this.chronoRevealSquare.getElapsedTime() / this.timeToDeath - 0.5, 0) * 250,
+                -this.mouseY * (myScale - 1) + (Math.random() - 0.5) * Math.max(this.chronoRevealSquare.getElapsedTime() / this.timeToDeath - 0.5, 0) * 250
             );
             Game.ctx.scale(myScale, myScale);
         }
@@ -237,10 +242,29 @@ export class Easter
             Game.ctx.globalAlpha = 1;
 
             Game.ctx.fillStyle = "red";
-            Game.ctx.globalAlpha = Math.max(this.chronoRevealSquare.getElapsedTime() / 10000 - 0.2, 0);
+            Game.ctx.globalAlpha = Math.max(this.chronoRevealSquare.getElapsedTime() / this.timeToDeath - 0.2, 0);
             Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
             Game.ctx.globalAlpha = 1;
-            if (this.chronoRevealSquare.getElapsedTime() > 10000) window.onGameOver();
+            if (this.chronoRevealSquare.getElapsedTime() > this.timeToDeath) {
+                window.onGameOver();
+                this.$sfxShoot.currentTime = 0;
+                this.$sfxEarRinging.currentTime = 0;
+                this.$sfxShoot.play();
+                this.$sfxEarRinging.play();
+            }
+        }
+        else if (Game.isGameOver) {
+            Game.ctx.fillStyle = "white";
+
+            let alpha = this.timeToDeath + this.deathAnimationTime - this.chronoRevealSquare.getElapsedTime() + 2000; // +2s de delay para el color blanco
+            
+            if (alpha > this.deathAnimationTime) alpha = 1;
+            else if (alpha < 0) alpha = 0;
+            else alpha /= this.deathAnimationTime;
+
+            Game.ctx.globalAlpha = alpha;
+            Game.ctx.fillRect(0, 0, Game.canvas.width, Game.canvas.height);
+            Game.ctx.globalAlpha = 1;
         }
 
         Game.ctx.restore();
