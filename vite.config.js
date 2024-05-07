@@ -26,6 +26,10 @@ export default defineConfig({
       {
         src: 'src/minesweeper/*',
         dest: 'minesweeper'
+      },
+      {
+        src: 'src/circle-dodger/*',
+        dest: 'circle-dodger'
       }
     ]
   })],

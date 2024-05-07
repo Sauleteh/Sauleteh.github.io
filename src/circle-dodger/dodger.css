@@ -1,0 +1,70 @@
+body {
+    display: grid;
+    place-items: center;
+    grid-template-rows: auto 1fr;
+}
+
+div.game {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+canvas {
+    border: 8px solid black;
+    background-color: white;
+    margin: 0 auto;
+    image-rendering: pixelated;
+}
+
+h1 {
+    font-family: 'Raleway', sans-serif;
+    font-size: 32px;
+    color: white;
+}
+
+footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 10px;
+    color: white;
+    font-family: 'Raleway', sans-serif;
+    font-size: 10px;
+    clear: both;
+    position: absolute;
+    bottom: 0;
+}
+
+label {
+    font-family: 'Raleway', sans-serif;
+    font-size: 14px;
+    color: white;
+}
+
+.specialColor {
+    color: red;
+    text-shadow: 0 0 1px rgb(255, 0, 0);
+    background: linear-gradient(to right, red, white, red, white, rgb(255, 145, 0), yellow, red, yellow, red, yellow, red);
+    animation: specialAnimation 6s linear infinite;
+
+    font-weight: 500;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-size: 400% auto;
+}
+
+@keyframes specialAnimation {
+    0% { background-position: 0% 50%; text-shadow: 0 0 1px red; }
+    3% { background-position: 65% 50%; text-shadow: 0 0 2px rgb(255, 180, 0); }
+    85% { background-position: 100% 50%; text-shadow: 0 0 1px red; }
+    95% { background-position: 100% 50%; text-shadow: 0 0 1px rgb(255, 90, 0); }
+    100% { background-position: 100% 50%; text-shadow: 0 0 1px rgb(255, 135, 0); }
+}

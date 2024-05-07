@@ -332,6 +332,15 @@ export function App() {
                     thumbnail={minecraftBotMod}
                     link="https://github.com/Sauleteh/Minecraft-Bot-Mod"
                 ></Proyecto>
+
+                <Proyecto
+                    titulo="Circle Dodger"
+                    plataforma="Web | HTML, CSS y JS"
+                    descripcion="Un pequeño juego donde eres un círculo y cuyo objetivo es esquivar otras figuras que se
+                                encuentren en el tablero de juego. Cuanto más tiempo sobrevivas, mayor será la dificultad."
+                    thumbnail={null} // TODO
+                    link="./circle-dodger/dodger.html"
+                ></Proyecto>
             </div>
         </div>
         <br/>
