@@ -253,7 +253,7 @@ export class Easter
                 this.$sfxEarRinging.play();
             }
         }
-        else if (Game.isGameOver) {
+        else if (Game.isGameOver && this.chronoRevealSquare.getElapsedTime() > this.timeToDeath) {
             Game.ctx.fillStyle = "white";
 
             let alpha = this.timeToDeath + this.deathAnimationTime - this.chronoRevealSquare.getElapsedTime() + 2000; // +2s de delay para el color blanco
