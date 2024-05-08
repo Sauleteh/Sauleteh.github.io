@@ -16,26 +16,26 @@
 
 #controlsdiv {
     z-index: 10;
-    left: 7%;
+    left: 3%;
     top: 20%;
 }
 
 #optionsdiv {
     z-index: 9;
-    left: 7%;
+    left: 5%;
     top: 50%;
 }
 
 #scoreboarddiv {
     z-index: 11;
-    left: 76%;
+    left: 80%;
     top: 38%;
     padding: 5px;
 }
 
 #timediv {
     z-index: 12;
-    left: 76%;
+    left: 80%;
     top: 20%;
     padding: 5px;
 }
