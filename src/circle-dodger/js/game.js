@@ -295,22 +295,24 @@ document.addEventListener('DOMContentLoaded', function() {
     function draw(now) {
         window.requestAnimationFrame(draw);
         if (!fpsController.shouldContinue(now)) return;
+        console.log(fpsController.elapsed);
         
         clearCanvas();
         drawPlayer();
         drawEnemies();
         
-        if (!isGameStarted) return;
-        drawEnemyWarning();
-        checkCollisions();
-        if (isGameOver) { // Mientras no se juega...
-            console.log("Game over!");
-            onGameOver();
-            resetGame();
-        }
-        else { // Mientras se juega...
-            updateEnemies();
-            updateLevel();
+        if (isGameStarted) {
+            drawEnemyWarning();
+            checkCollisions();
+            if (isGameOver) { // Mientras no se juega...
+                console.log("Game over!");
+                onGameOver();
+                resetGame();
+            }
+            else { // Mientras se juega...
+                updateEnemies();
+                updateLevel();
+            }
         }
 
         fpsController.updateLastTime(now);
