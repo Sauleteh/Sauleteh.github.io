@@ -186,8 +186,15 @@ document.addEventListener('DOMContentLoaded', function() {
             enemy.figure.x += enemy.direction.dX * enemySpeedMultiplier * fpsController.elapsed / 20;
             enemy.figure.y += enemy.direction.dY * enemySpeedMultiplier * fpsController.elapsed / 20;
 
+            // Si el enemigo sale de la pantalla, se invierte su dirección
             if (enemy.figure.x < 0 || enemy.figure.x + enemy.figure.width > canvas.width) enemy.direction.dX *= -1;
             if (enemy.figure.y < 0 || enemy.figure.y + enemy.figure.height > canvas.height) enemy.direction.dY *= -1;
+
+            // Si el enemigo sale de la pantalla, se coloca en el borde de la pantalla
+            if (enemy.figure.x < 0) enemy.figure.x = 0;
+            if (enemy.figure.x + enemy.figure.width > canvas.width) enemy.figure.x = canvas.width - enemy.figure.width;
+            if (enemy.figure.y < 0) enemy.figure.y = 0;
+            if (enemy.figure.y + enemy.figure.height > canvas.height) enemy.figure.y = canvas.height - enemy.figure.height;
         });
     }
 
