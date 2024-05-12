@@ -183,8 +183,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (level === 1) enemySpeedMultiplier = Math.max(1, Math.min(5, (chronoObj.getElapsedTime() / 1000 / 5))); // A los 25s de juego, el multiplicador será 5
             else if (level === 2) enemySpeedMultiplier = Math.max(4, Math.min(5, 5 - ((chronoObj.getElapsedTime() - 30000) / 1000 / 5))); // En 5s, el multiplicador pasará de 5 a 4
             //console.log(enemySpeedMultiplier);
-            enemy.figure.x += enemy.direction.dX * enemySpeedMultiplier;
-            enemy.figure.y += enemy.direction.dY * enemySpeedMultiplier;
+            enemy.figure.x += enemy.direction.dX * enemySpeedMultiplier * fpsController.elapsed / 20;
+            enemy.figure.y += enemy.direction.dY * enemySpeedMultiplier * fpsController.elapsed / 20;
 
             if (enemy.figure.x < 0 || enemy.figure.x + enemy.figure.width > canvas.width) enemy.direction.dX *= -1;
             if (enemy.figure.y < 0 || enemy.figure.y + enemy.figure.height > canvas.height) enemy.direction.dY *= -1;
