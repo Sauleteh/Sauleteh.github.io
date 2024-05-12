@@ -76,6 +76,10 @@
     justify-content: space-between;
 }
 
+#controlsdiv li.ignoreFlex {
+    display: inline-block !important;
+}
+
 #optionsdiv select option, #optionsdiv select, #optionsdiv input, #optionsdiv .customImage {
     background: rgb(41, 41, 41);
     color: #fff;
