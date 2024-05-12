@@ -851,7 +851,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 }).then(response => {
                     return response.json();
                 }).then(data => {
-                    if (data.deviceID !== null && data.deviceID !== undefined) { //console.log(data.deviceID);
+                    if (data.deviceID !== null && data.deviceID !== undefined) {
                         localStorage.setItem(Constants.STORAGE_KEYS.DEVICE_ID, data.deviceID);
                     }
                     window.location.reload();
