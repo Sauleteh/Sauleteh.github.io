@@ -3,6 +3,7 @@ import { FPSControllerV2 } from "./FPSControllerV2.js";
 import { RectangleFigure } from "./RectangleFigure.js";
 import { Direction } from "./Direction.js";
 import { Chronometer } from "./Chronometer.js";
+import * as Constants from "./Constants.js";
 
 document.addEventListener('DOMContentLoaded', function() {
     const canvas = document.querySelector("canvas.board");
@@ -10,6 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const chronoText = document.querySelector("label.chronometer");
     const levelText = document.querySelector("label.level");
     const cbClickInsteadOfHolding = document.querySelector("#cbClickInsteadOfHolding");
+    const inputName = document.querySelector("#inputName");
+    const status = document.querySelector("#scoreboarddiv span.statusCheck");
 
     canvas.onselectstart = function() { return false; } // Evitar que se seleccione texto al hacer click y arrastrar
     canvas.width = 800;
@@ -21,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let player = null;
     let isMouseDownOnPlayer = false;
     let isMouseClickOnPlayer = false;
+    let nameSelected = "";
 
     let enemies = [];
 
@@ -47,6 +51,48 @@ document.addEventListener('DOMContentLoaded', function() {
         canvas.removeEventListener("mousedown", onMouseDown);
         canvas.removeEventListener("mouseup", onMouseUp);
         canvas.removeEventListener("mousemove", onMouseMove);
+    }
+
+    function initOptions() {
+        cbClickInsteadOfHolding.addEventListener("change", function() {
+            document.activeElement.blur();
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_CLICK_INSTEAD_OF_HOLDING, cbClickInsteadOfHolding.checked);
+        });
+
+        inputName.addEventListener("input", function() {
+            inputName.value = inputName.value.replace(/\W/g, ""); // \W = [^a-zA-Z0-9_]
+            if (isGameStarted) return; // No se puede cambiar el nombre si se está jugando
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_NAME, inputName.value);
+        });
+    }
+
+    function getScoreboard() {
+        fetch("https://gayofo.com/api/circledodger/scoreboard", { // Obtener la tabla de puntuaciones de las 3 dificultades
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
+        }).then(response => {
+            status.textContent = "Online";
+            status.style.color = "green";
+            return response.json();
+        }).then(data => { // TODO: Comprobar que funciona
+            // console.log(data);
+            const scoreList = document.querySelectorAll("#scoreboarddiv ol li");
+            // console.log(actualList);
+            for (let i = 0; i < data.length; i++) { // Por cada puntuación...
+                const actualListItem = scoreList[i];
+                actualListItem.querySelector("span.name").textContent = data[i].username;
+                
+                const msTime = data[i].score;
+                const miliseconds = chronoObj.zeroPad(Math.floor(msTime) % 1000, 3);
+                const seconds = chronoObj.zeroPad(Math.floor(msTime / 1000) % 60, 2);
+                const minutes = chronoObj.zeroPad(Math.floor(msTime / 1000 / 60), 2);
+                actualListItem.querySelector("span.score").textContent = `${minutes}:${seconds}.${miliseconds}`;
+            }
+        }).catch(error => {
+            console.log("No se pudo conectar con el servidor:", error);
+            status.textContent = "Offline";
+            status.style.color = "red";
+        })
     }
 
     function onClickListener(e) {
@@ -92,6 +138,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     isGameStarted = true;
                     chronoText.textContent = "00:00";
                     chronoObj.start(setInterval(everySecond, 1000)); // Actualizar el cronómetro cada segundo (1000ms));
+                    nameSelected = inputName.value;
+                    enableOptions(false);
                 }
             }
         }
@@ -121,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (player.isCollidingWith(enemy.figure) || player.isOutOfCanvas(canvas))
             {
                 console.log("Collision detected!");
-                // TODO: isGameOver = true;
+                isGameOver = true;
             }
         });
     }
@@ -134,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
         enemies.forEach(enemy => {
             if (level === 1) enemySpeedMultiplier = Math.max(1, Math.min(5, (chronoObj.getElapsedTime() / 1000 / 5))); // A los 25s de juego, el multiplicador será 5
             else if (level === 2) enemySpeedMultiplier = Math.max(4, Math.min(5, 5 - ((chronoObj.getElapsedTime() - 30000) / 1000 / 5))); // En 5s, el multiplicador pasará de 5 a 4
-            console.log(enemySpeedMultiplier);
+            //console.log(enemySpeedMultiplier);
             enemy.figure.x += enemy.direction.dX * enemySpeedMultiplier;
             enemy.figure.y += enemy.direction.dY * enemySpeedMultiplier;
 
@@ -179,6 +227,29 @@ document.addEventListener('DOMContentLoaded', function() {
         const seconds = chronoObj.zeroPad(Math.floor(msTime / 1000) % 60, 2);
         const minutes = chronoObj.zeroPad(Math.floor(msTime / 1000 / 60), 2);
         chronoText.textContent = `${minutes}:${seconds}.${miliseconds}`;
+        submitScore(msTime);
+        enableOptions(true);
+    }
+
+    function submitScore(msTime) {
+        // console.log(msTime, nameSelected);
+        if (nameSelected === "") {
+            return new Promise((resolve, reject) => reject("No se ha introducido un nombre o la dificultad es personalizada"));
+        }
+        else {
+            // Al recibir la respuesta, mostrar el botón de continuar en vez de cargando
+            console.log("Enviando puntuación al servidor...")
+            return fetch("https://gayofo.com/api/circledodger/scoreboard/" + nameSelected, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ "time": msTime })
+            }).then(() => {
+                console.log("Puntuación enviada correctamente");
+                getScoreboard();
+            }).catch(error => {
+                console.log("No se pudo conectar con el servidor:", error);
+            })
+        }
     }
 
     function updateLevel() {
@@ -207,6 +278,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function restoreLocalStorage() {
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_CLICK_INSTEAD_OF_HOLDING) !== null) {
+            cbClickInsteadOfHolding.checked = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_CLICK_INSTEAD_OF_HOLDING) === "true";
+        }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_NAME) !== null) {
+            inputName.value = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_NAME);
+        }
+    }
+
+    function enableOptions(isEnabled) {
+        cbClickInsteadOfHolding.disabled = !isEnabled;
+        inputName.disabled = !isEnabled;
+    }
+
     function draw(now) {
         window.requestAnimationFrame(draw);
         if (!fpsController.shouldContinue(now)) return;
@@ -214,9 +299,9 @@ document.addEventListener('DOMContentLoaded', function() {
         clearCanvas();
         drawPlayer();
         drawEnemies();
-        drawEnemyWarning();
-
+        
         if (!isGameStarted) return;
+        drawEnemyWarning();
         checkCollisions();
         if (isGameOver) { // Mientras no se juega...
             console.log("Game over!");
@@ -231,16 +316,19 @@ document.addEventListener('DOMContentLoaded', function() {
         fpsController.updateLastTime(now);
     }
 
+    initOptions();
+    restoreLocalStorage();
     resetGame();
+    getScoreboard();
     draw();
 });
 
 /** TODO list
  * - [?] PRIORITARIO: Delta time
- * - [ ] Implementar cronómetro
- * - [ ] Implementar backend
- *       - [ ] Guardar puntuaciones
- *       - [ ] Consultar puntuaciones
+ * - [X] Implementar cronómetro
+ * - [X] Implementar backend
+ *       - [X] Guardar puntuaciones
+ *       - [X] Consultar puntuaciones
  * - [X] Implementar game over: Al colisionar, se muestra un mensaje de game over y se reinicia el juego (el cronómetro no se reinicia hasta que se empieza otra partida)
  * - [ ] Implementar niveles: Cada cierto tiempo, aumenta la dificultad
  *       - [X] Nivel 1 (0-30s): De 1 a 5 de multiplicador de velocidad de enemigos (máx. 5 a los 25s)
@@ -260,7 +348,7 @@ document.addEventListener('DOMContentLoaded', function() {
  *       - Los tres primeros power-ups que aparecen se pueden escoger en las opciones
  *       - Todos los power-ups son acumulables
  * - [ ] Implementar power-downs: Al colisionar con un power-down, se obtiene una penalización
- *       - [ ] Cada 30 segundos (y durante 5 segundos), aparece un power-down en una posición aleatoria
+ *       - [ ] Cada 30 segundos (y durante 5 segundos), aparece un power-down en la posición contraria al jugador
  *             - Power-down 1: Aumenta el radio del jugador (durante 10 segundos)
  *             - Power-down 2: Aumenta el tamaño de los enemigos (durante 10 segundos)
  *             - Power-down 3: El jugador se convierte en un cuadrado (durante 10 segundos)
@@ -268,6 +356,6 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [X] Implementar movimiento de los enemigos básico
  * - [ ] Implementar música (a medida que avanza el juego, a la música se le añaden más instrumentos)
  * - [ ] Implementar efectos visuales (ej: rastro del jugador)
- * - [ ] Implementar LocalStorage
- * - [ ] Al estar jugando, no se puede cambiar el nombre de usuario
+ * - [X] Implementar LocalStorage
+ * - [X] Al estar jugando, no se puede cambiar el nombre de usuario
  */
