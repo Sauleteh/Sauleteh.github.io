@@ -1,9 +1,4 @@
-@font-face {
-    font-family: 'PressStart2P';
-    src: url('../assets/PressStart2P-Regular.ttf') format('truetype');
-}
-
-#controlsdiv, #optionsdiv, #scoreboarddiv {
+.fwdiv {
     position: absolute;
     display: flex;
     flex-direction: column;
@@ -21,24 +16,31 @@
 
 #controlsdiv {
     z-index: 10;
-    left: 7%;
+    left: 3%;
     top: 20%;
 }
 
 #optionsdiv {
     z-index: 9;
-    left: 7%;
+    left: 5%;
     top: 50%;
 }
 
 #scoreboarddiv {
     z-index: 11;
-    left: 76%;
+    left: 80%;
     top: 38%;
     padding: 5px;
 }
 
-#controlsdivheader, #optionsdivheader, #scoreboarddivheader {
+#timediv {
+    z-index: 12;
+    left: 80%;
+    top: 20%;
+    padding: 5px;
+}
+
+.fwdivheader {
     padding-top: 10px;
     padding-bottom: 10px;
     width: 100%;
@@ -46,7 +48,7 @@
     z-index: 99;
 }
 
-#controlsdiv hr, #optionsdiv hr, #scoreboarddiv hr {
+.fwdiv hr {
     width: 100%;
     border: 0;
     height: 1px;
@@ -54,16 +56,16 @@
     background-image: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0));
 }
 
-#controlsdiv ul, #optionsdiv ul, #scoreboarddiv ol {
+.fwdiv ul, .fwdiv ol {
     padding-left: 8px;
     padding-right: 8px;
 }
 
-#controlsdiv li, #optionsdiv li, #scoreboarddiv li {
-    font-family: 'PressStart2P', sans-serif;
+.fwdiv li {
+    font-family: 'Raleway', sans-serif;
     color: white;
     list-style-type: none;
-    font-size: 8px;
+    font-size: 11px;
     text-align: left;
     display: flex;
     justify-content: left;
@@ -74,20 +76,41 @@
     justify-content: space-between;
 }
 
-#optionsdiv select option, #optionsdiv select, #optionsdiv input {
+#optionsdiv select option, #optionsdiv select, #optionsdiv input, #optionsdiv input, #optionsdiv .customImage {
     background: rgb(41, 41, 41);
     color: #fff;
     text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+    margin-left: 15px;
 }
 
-#controlsdiv li+li, #optionsdiv li+li, #scoreboarddiv li+li {
+#optionsdiv input:disabled {
+    background: rgb(41, 41, 41);
+    color: #808182;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+}
+
+#optionsdiv input[type="file"] {
+    display: none;
+}
+#optionsdiv .customImage {
+    border: 1px solid #767676;
+    font-size: 12px;
+    padding: 3px 6px;
+    cursor: pointer;
+}
+#optionsdiv .customImage:hover {
+    background: #3d3d47;
+}
+
+.fwdiv li+li {
     margin-top: 8px;
 }
 
-#controlsdiv label.title, #optionsdiv label.title, #scoreboarddiv label.title{
-    font-family: 'PressStart2P', sans-serif;
+.fwtitle {
+    font-family: 'Raleway', sans-serif;
     color: white;
-    font-size: 13px;
+    font-size: 15px;
+    font-weight: bold;
     cursor: move;
 }
 
@@ -95,9 +118,19 @@
     color: rgb(0, 255, 255);
 }
 
+#controlsdiv img.control {
+    width: 20px;
+    height: 20px;
+    filter: invert(93%) sepia(23%) saturate(2165%) hue-rotate(104deg) brightness(104%) contrast(102%);
+}
+
+#controlsdiv {
+    max-width: 280px;
+}
+
 #scoreboarddiv label.credits, #scoreboarddiv label.status {
-    font-family: 'PressStart2P', sans-serif;
-    font-size: 7px;
+    font-family: 'Raleway', sans-serif;
+    font-size: 12px;
     color: white;
     max-width: 260px;
     text-align: center;
@@ -134,10 +167,10 @@
     animation: goldenAnimation 4s linear infinite;
     background-size: 400% auto;
     height: 35px;
-    font-size: 15px;
+    font-size: 13.5px;
 }
 #scoreboarddiv li:nth-child(1) > span.score {
-    font-size: 9.5px;
+    font-size: 12.5px;
 }
 
 #scoreboarddiv li:nth-child(2) {
@@ -148,7 +181,7 @@
     font-size: 13px;
 }
 #scoreboarddiv li:nth-child(2) > span.score {
-    font-size: 9px;
+    font-size: 12px;
 }
 
 #scoreboarddiv li:nth-child(3) {
@@ -156,16 +189,26 @@
     animation: copperAnimation 10s linear infinite;
     background-size: 600% auto;
     height: 23px;
-    font-size: 11px;
+    font-size: 12.5px;
 }
 #scoreboarddiv li:nth-child(3) > span.score {
-    font-size: 8.5px;
+    font-size: 11.5px;
 }
 
 #scoreboarddiv ol {
     text-align: left;
     width: 100%;
     justify-content: space-between;
+}
+
+#timediv label.chronometer {
+    font-family: 'Raleway', sans-serif;
+    font-size: 16px;
+    color: cyan;
+    text-align: center;
+    font-weight: bold;
+    padding-top: 10px;
+    padding-bottom: 4px;
 }
 
 /* Checkbox redondeado: https://www.w3schools.com/howto/howto_css_switch.asp */
@@ -222,6 +265,13 @@ input:checked + .slider:before {
 .slider.round:before {
     border-radius: 50%;
 }
+input:disabled + .slider {
+    background-color: #252627;
+}
+input:disabled + .slider:before {
+    background-color: #3d3d47;
+}
+/* Fin checkbox redondeado */
 
 .hide {
     display: none !important;
@@ -282,19 +332,4 @@ input:checked + .slider:before {
     0% { background-position: 0% 50%; text-shadow: 0 0 1px rgb(184, 115, 51); }
     3% { background-position: 65% 50%; text-shadow: 0 0 2px rgb(156, 85, 18); }
     100% { background-position: 100% 50%; text-shadow: 0 0 1px rgb(184, 115, 51); }
-}
-
-img#passHelp {
-    border: 1px solid white;
-    border-radius: 50%;
-    padding: 1.5%;
-    background-color: #3d3d47;
-    cursor: help;
-    margin-right: 50%;
-    transition: 1s;
-}
-
-img#passHelp:hover {
-    border: 1px solid cyan;
-    background-color: #212124;
 }
