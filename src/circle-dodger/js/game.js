@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const levelText = document.querySelector("label.level");
     const cbClickInsteadOfHolding = document.querySelector("#cbClickInsteadOfHolding");
     const inputName = document.querySelector("#inputName");
+    const inputImage = document.querySelector("#inputImage");
     const status = document.querySelector("#scoreboarddiv span.statusCheck");
 
     canvas.onselectstart = function() { return false; } // Evitar que se seleccione texto al hacer click y arrastrar
@@ -25,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let isMouseDownOnPlayer = false;
     let isMouseClickOnPlayer = false;
     let nameSelected = "";
+    let playerCustomSkin = null; // Objeto Image para la imagen personalizada del jugador
 
     let enemies = [];
 
@@ -63,6 +65,19 @@ document.addEventListener('DOMContentLoaded', function() {
             inputName.value = inputName.value.replace(/\W/g, ""); // \W = [^a-zA-Z0-9_]
             if (isGameStarted) return; // No se puede cambiar el nombre si se está jugando
             localStorage.setItem(Constants.STORAGE_KEYS.OPTION_NAME, inputName.value);
+        });
+
+        inputImage.addEventListener("change", function() {
+            const file = inputImage.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    playerCustomSkin = img;
+                }
+                reader.readAsDataURL(file);
+            }
         });
     }
 
@@ -150,11 +165,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function drawPlayer() {
+        ctx.save();
         ctx.beginPath();
         ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
-        ctx.fillStyle = player.color;
-        ctx.fill();
+        if (playerCustomSkin === null)
+        {
+            // Si no se ha seleccionado una imagen personalizada, se dibuja un círculo con el color del jugador
+            ctx.fillStyle = player.color;
+            ctx.fill();
+        }
+        else
+        {
+            // Si se ha seleccionado una imagen personalizada, se dibuja la imagen en forma circular
+            ctx.clip();
+            ctx.drawImage(playerCustomSkin, player.x - player.radius, player.y - player.radius, player.radius * 2, player.radius * 2);
+        }
         ctx.closePath();
+        ctx.restore();
     }
 
     function drawEnemies() {
@@ -302,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function draw(now) {
         window.requestAnimationFrame(draw);
         if (!fpsController.shouldContinue(now)) return;
-        console.log(fpsController.elapsed);
+        //console.log(fpsController.elapsed);
         
         clearCanvas();
         drawPlayer();
