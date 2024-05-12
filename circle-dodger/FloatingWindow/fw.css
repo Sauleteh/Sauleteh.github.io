@@ -76,7 +76,7 @@
     justify-content: space-between;
 }
 
-#optionsdiv select option, #optionsdiv select, #optionsdiv input, #optionsdiv input, #optionsdiv .customImage {
+#optionsdiv select option, #optionsdiv select, #optionsdiv input, #optionsdiv .customImage {
     background: rgb(41, 41, 41);
     color: #fff;
     text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
