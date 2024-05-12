@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
             status.textContent = "Online";
             status.style.color = "green";
             return response.json();
-        }).then(data => { // TODO: Comprobar que funciona
+        }).then(data => {
             // console.log(data);
             const scoreList = document.querySelectorAll("#scoreboarddiv ol li");
             // console.log(actualList);
@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function submitScore(msTime) {
         // console.log(msTime, nameSelected);
         if (nameSelected === "") {
-            return new Promise((resolve, reject) => reject("No se ha introducido un nombre o la dificultad es personalizada"));
+            return new Promise((resolve, reject) => reject("No se ha introducido un nombre"));
         }
         else {
             // Al recibir la respuesta, mostrar el botón de continuar en vez de cargando
@@ -360,7 +360,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /** TODO list
- * - [?] PRIORITARIO: Delta time
+ * - [X?] PRIORITARIO: Delta time
  * - [X] Implementar cronómetro
  * - [X] Implementar backend
  *       - [X] Guardar puntuaciones
