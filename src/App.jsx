@@ -93,7 +93,8 @@ export function App() {
                     plataforma="Windows | Java"
                     descripcion="Un programa creado con la finalidad de observar los horarios de UniOvi en un formato
                                 más visual, pudiendo elegir las asignaturas, las PLs y las TGs. Solo habría que dar
-                                como input los PDFs con los horarios."
+                                como input los PDFs con los horarios. Lo más interesante es el detector de conflictos
+                                para saber qué asignaturas coger sin que choquen entre sí."
                     thumbnail={visualizadorHorariosUniOvi}
                     link="https://github.com/Sauleteh/visualizador-de-conflictos-horarios-uniovi"
                 ></Proyecto>
