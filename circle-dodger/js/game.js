@@ -55,6 +55,10 @@ document.addEventListener('DOMContentLoaded', function() {
         canvas.removeEventListener("mousemove", onMouseMove);
     }
 
+    window.onblur = function () {
+        location.reload(); // Reiniciar página al perder el foco
+    };
+
     function initOptions() {
         cbClickInsteadOfHolding.addEventListener("change", function() {
             document.activeElement.blur();
