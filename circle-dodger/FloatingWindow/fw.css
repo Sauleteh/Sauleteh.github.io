@@ -144,6 +144,10 @@
     line-height: 10px;
 }
 
+label.status {
+    font-weight: bold;
+}
+
 #scoreboarddiv li {
     text-align: left;
     height: 10px;
@@ -156,10 +160,12 @@
 
 #scoreboarddiv li > span.name {
     text-align: center;
+    font-weight: bold;
 }
 
 #scoreboarddiv li > span.score, #scoreboarddiv li > span.number {
     width: 92px;
+    font-weight: bold;
 }
 
 #scoreboarddiv li > span.score {
