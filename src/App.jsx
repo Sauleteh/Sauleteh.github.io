@@ -25,6 +25,7 @@ import autoBingo from "./assets/autoBingo.webp"
 import miVirus from "./assets/miVirus.webp"
 import tetrisJS from "./assets/tetrisJS.webp"
 import minesweeperJS from "./assets/minesweeperJS.webp"
+import circleDodgerJS from "./assets/circleDodgerJS.webp"
 
 export function App() {
     return (
@@ -32,7 +33,16 @@ export function App() {
         <div className="divisorProyectos">
             <h1 className="titulo finalizado">Proyectos finalizados</h1>
             <div className="contenedorProyectos">
-            <Proyecto
+                <Proyecto
+                    titulo="Circle Dodger"
+                    plataforma="Web | HTML, CSS y JS"
+                    descripcion="Un pequeño juego donde eres un círculo y cuyo objetivo es esquivar otras figuras que se
+                                encuentren en el tablero de juego. Cuanto más tiempo sobrevivas, mayor será la dificultad."
+                    thumbnail={circleDodgerJS}
+                    link="./circle-dodger/dodger.html"
+                >nuevo</Proyecto>
+
+                <Proyecto
                     titulo="Buscaminas"
                     plataforma="Web | HTML, CSS y JS"
                     descripcion="El buscaminas clásico. Debido al éxito que tuvo el Tetris de esta página, he decidido continuar
@@ -53,7 +63,7 @@ export function App() {
                                 tus amigos."
                     thumbnail={tetrisJS}
                     link="./tetris/tetris.html"
-                ></Proyecto>
+                >nuevo</Proyecto>
 
                 <Proyecto
                     titulo="Mi virus"
@@ -331,15 +341,6 @@ export function App() {
                                 client-side por lo que es usable hasta en servidores vanilla."
                     thumbnail={minecraftBotMod}
                     link="https://github.com/Sauleteh/Minecraft-Bot-Mod"
-                ></Proyecto>
-
-                <Proyecto
-                    titulo="Circle Dodger"
-                    plataforma="Web | HTML, CSS y JS"
-                    descripcion="Un pequeño juego donde eres un círculo y cuyo objetivo es esquivar otras figuras que se
-                                encuentren en el tablero de juego. Cuanto más tiempo sobrevivas, mayor será la dificultad."
-                    thumbnail={null} // TODO
-                    link="./circle-dodger/dodger.html"
                 ></Proyecto>
             </div>
         </div>
