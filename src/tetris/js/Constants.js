@@ -14,7 +14,9 @@ export const STORAGE_KEYS = { // Claves de almacenamiento local
     OPTION_KONAMICODE: "optKonami",
     OPTION_MUSIC: "optMusic",
     OPTION_SFX: "optSFX",
-    OPTION_PRACTICE: "optPractice"
+    OPTION_PRACTICE: "optPractice",
+    DEVICE_ID: "deviceID",
+    PASS: "userPass"
 }
 
 export const COLORS = {

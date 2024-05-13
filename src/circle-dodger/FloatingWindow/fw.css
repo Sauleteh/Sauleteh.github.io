@@ -76,17 +76,34 @@
     justify-content: space-between;
 }
 
-#optionsdiv select option, #optionsdiv select, #optionsdiv input {
+#controlsdiv li.ignoreFlex {
+    display: inline-block !important;
+}
+
+#optionsdiv select option, #optionsdiv select, #optionsdiv input, #optionsdiv .customImage {
     background: rgb(41, 41, 41);
     color: #fff;
     text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
-    margin-left: 20px;
+    margin-left: 15px;
 }
 
 #optionsdiv input:disabled {
     background: rgb(41, 41, 41);
     color: #808182;
     text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+}
+
+#optionsdiv input[type="file"] {
+    display: none;
+}
+#optionsdiv .customImage {
+    border: 1px solid #767676;
+    font-size: 12px;
+    padding: 3px 6px;
+    cursor: pointer;
+}
+#optionsdiv .customImage:hover {
+    background: #3d3d47;
 }
 
 .fwdiv li+li {

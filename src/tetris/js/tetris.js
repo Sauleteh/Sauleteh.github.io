@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     const cbMusic = document.querySelector("#cbMusic");
     const cbSfx = document.querySelector("#cbSfx");
     const cbPracticeMode = document.querySelector("#cbPracticeMode");
+    const inputPassword = document.querySelector("#inputPassword");
     let practiceWasActive = false;
 
     const konamiCode = new KonamiCode();
@@ -206,6 +207,11 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             document.activeElement.blur();
             localStorage.setItem(Constants.STORAGE_KEYS.OPTION_PRACTICE, cbPracticeMode.checked);
             if (cbPracticeMode.checked) practiceWasActive = true; // Siempre que se active el modo práctica, ya no se podrá puntuar para el scoreboard
+        });
+
+        inputPassword.addEventListener("input", function() {
+            inputPassword.value = inputPassword.value.replace(/\D/g, ""); // \D = [^0-9]
+            localStorage.setItem(Constants.STORAGE_KEYS.PASS, inputPassword.value);
         });
     }
 
@@ -837,12 +843,17 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         }
 
         if (controls.keys.enter.isPressed && !controls.keys.enter.actionDone) {
-            if (name[0] !== '' && name[1] !== '' && name[2] !== '' && !nameConfirmed && gameOver && nameIndex === 3) {
+            if (name[0] !== '' && name[1] !== '' && name[2] !== '' && !nameConfirmed && gameOver && nameIndex === 3 && inputPassword.value.length === 4) {
                 fetch("https://gayofo.com/api/tetris/scoreboard/" + name.join(''), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ "score": score, "date": new Date().toISOString().slice(0, 19).replace('T', ' ') })
-                }).then(() => {
+                    body: JSON.stringify({ "score": score, "deviceID": localStorage.getItem(Constants.STORAGE_KEYS.DEVICE_ID), "pass": localStorage.getItem(Constants.STORAGE_KEYS.PASS) })
+                }).then(response => {
+                    return response.json();
+                }).then(data => {
+                    if (data.deviceID !== null && data.deviceID !== undefined) {
+                        localStorage.setItem(Constants.STORAGE_KEYS.DEVICE_ID, data.deviceID);
+                    }
                     window.location.reload();
                 }).catch(error => {
                     console.log("No se pudo conectar con el servidor:", error);    
@@ -851,6 +862,15 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                 nameConfirmed = true;
             }
             controls.keys.enter.actionDone = true;
+
+            if (inputPassword.value.length !== 4) {
+                inputPassword.style.borderColor = "red";
+                inputPassword.style.backgroundColor = "rgba(255, 0, 0, 0.2)";
+                setTimeout(() => {
+                    inputPassword.style.borderColor = null
+                    inputPassword.style.backgroundColor = null;
+                }, 1000);
+            }
         }
     }
 
@@ -946,6 +966,9 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         }
         if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_PRACTICE) !== null) {
             cbPracticeMode.checked = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_PRACTICE) === "true";
+        }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.PASS) !== null) {
+            inputPassword.value = localStorage.getItem(Constants.STORAGE_KEYS.PASS);
         }
     }
 
