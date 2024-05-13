@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     window.onblur = function () {
-        location.reload(); // Reiniciar página al perder el foco
+        if (isGameStarted) location.reload(); // Reiniciar página al perder el foco
     };
 
     function initOptions() {
@@ -330,6 +330,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function enableOptions(isEnabled) {
         cbClickInsteadOfHolding.disabled = !isEnabled;
         inputName.disabled = !isEnabled;
+        inputImage.disabled = !isEnabled;
     }
 
     function draw(now) {
