@@ -141,6 +141,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     isGameStarted = true;
                     chronoText.textContent = "00:00";
                     chronoObj.start(setInterval(everySecond, 1000)); // Actualizar el cronómetro cada segundo (1000ms));
+                    nameSelected = inputName.value;
+                    enableOptions(false);
                 }
             }
         }
