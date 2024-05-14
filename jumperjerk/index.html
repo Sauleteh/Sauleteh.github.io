@@ -52,12 +52,12 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/JumpeJerkWeb.loader.js";
+      var loaderUrl = buildUrl + "/JumperJerkWeb.loader.js";
       var config = {
         arguments: [],
-        dataUrl: buildUrl + "/JumpeJerkWeb.data.br",
-        frameworkUrl: buildUrl + "/JumpeJerkWeb.framework.js.br",
-        codeUrl: buildUrl + "/JumpeJerkWeb.wasm.br",
+        dataUrl: buildUrl + "/JumperJerkWeb.data.unityweb",
+        frameworkUrl: buildUrl + "/JumperJerkWeb.framework.js.unityweb",
+        codeUrl: buildUrl + "/JumperJerkWeb.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "Rantor Games",
         productName: "Jumper Jerk",
@@ -93,7 +93,7 @@
         canvas.style.height = "600px";
       }
 
-      canvas.style.background = "url('" + buildUrl + "/JumpeJerkWeb.jpg') center / cover";
+      canvas.style.background = "url('" + buildUrl + "/JumperJerkWeb.jpg') center / cover";
       document.querySelector("#unity-loading-bar").style.display = "block";
 
       var script = document.createElement("script");
