@@ -30,6 +30,10 @@ export default defineConfig({
       {
         src: 'src/circle-dodger/*',
         dest: 'circle-dodger'
+      },
+      {
+        src: 'src/jumperjerk/*',
+        dest: 'jumperjerk'
       }
     ]
   })],
