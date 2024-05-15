@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let player = null;
     let isMouseDownOnPlayer = false;
     let isMouseClickOnPlayer = false;
+    let isMouseRightDown = false;
     let nameSelected = "";
     let playerCustomSkin = null; // Objeto Image para la imagen personalizada del jugador
 
@@ -45,6 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
         canvas.addEventListener("mousedown", onMouseDown);
         canvas.addEventListener("mouseup", onMouseUp);
         canvas.addEventListener("mousemove", onMouseMove);
+        canvas.addEventListener("contextmenu", function(e) { e.preventDefault(); }); // Evitar que aparezca el menú contextual al hacer click derecho
     }
 
     function stopEvents() {
@@ -53,6 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
         canvas.removeEventListener("mousedown", onMouseDown);
         canvas.removeEventListener("mouseup", onMouseUp);
         canvas.removeEventListener("mousemove", onMouseMove);
+        canvas.removeEventListener("contextmenu", function(e) { e.preventDefault(); });
     }
 
     window.onblur = function () {
@@ -122,15 +125,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function onMouseDown(e) {
-        // console.log("Mouse down event");
+        // console.log("Mouse down event:", e.button);
 
         // Si al pulsar, el ratón está sobre el jugador, se activa la variable para moverlo
         if (e.button === 0 && player.isPointInside(e.offsetX, e.offsetY)) isMouseDownOnPlayer = true;
+        
+        if (e.button === 2) isMouseRightDown = true;
     }
 
     function onMouseUp(e) {
         // console.log("Mouse up event");
         if (e.button === 0) isMouseDownOnPlayer = false;
+
+        if (e.button === 2) isMouseRightDown = false;
     }
 
     function onMouseMove(e) {
@@ -139,8 +146,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (cbClickInsteadOfHolding.checked) {
             // Al hacer click en el jugador, se mueve hacia la posición del mouse hasta que se haga otro click
             if (isMouseClickOnPlayer) {
-                player.x = e.offsetX;
-                player.y = e.offsetY;
+                if (!isMouseRightDown) {
+                    player.x = e.offsetX;
+                    player.y = e.offsetY;
+                }
                 if (!isGameStarted) {
                     isGameStarted = true;
                     chronoText.textContent = "00:00";
@@ -153,8 +162,10 @@ document.addEventListener('DOMContentLoaded', function() {
         else {
             // Al mantener en el jugador, se mueve hacia la posición del mouse mientras se mantenga presionado
             if (isMouseDownOnPlayer) {
-                player.x = e.offsetX;
-                player.y = e.offsetY;
+                if (!isMouseRightDown) {
+                    player.x = e.offsetX;
+                    player.y = e.offsetY;
+                }
                 if (!isGameStarted) {
                     isGameStarted = true;
                     chronoText.textContent = "00:00";

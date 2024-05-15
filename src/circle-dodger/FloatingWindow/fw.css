@@ -126,6 +126,8 @@
     width: 20px;
     height: 20px;
     filter: invert(93%) sepia(23%) saturate(2165%) hue-rotate(104deg) brightness(104%) contrast(102%);
+    margin-right: 5px;
+    aspect-ratio: 1 / 1;
 }
 
 #controlsdiv {
