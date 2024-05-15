@@ -11,7 +11,7 @@ export class Chronometer
         this.startTime = performance.now();
         this.intervalId = intervalId;
     }
-ç
+
     // Detiene la ejecución peródica de la función asignada en start()
     stop() { clearInterval(this.intervalId); }
 
