@@ -52,12 +52,12 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/JumperJerkWeb.loader.js";
+      var loaderUrl = buildUrl + "/Nueva carpeta.loader.js";
       var config = {
         arguments: [],
-        dataUrl: buildUrl + "/JumperJerkWeb.data.unityweb",
-        frameworkUrl: buildUrl + "/JumperJerkWeb.framework.js.unityweb",
-        codeUrl: buildUrl + "/JumperJerkWeb.wasm.unityweb",
+        dataUrl: buildUrl + "/Nueva carpeta.data.unityweb",
+        frameworkUrl: buildUrl + "/Nueva carpeta.framework.js.unityweb",
+        codeUrl: buildUrl + "/Nueva carpeta.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "Rantor Games",
         productName: "Jumper Jerk",
@@ -93,7 +93,7 @@
         canvas.style.height = "720px";
       }
 
-      canvas.style.background = "url('" + buildUrl + "/JumperJerkWeb.jpg') center / cover";
+      canvas.style.background = "url('" + buildUrl + "/Nueva carpeta.jpg') center / cover";
       document.querySelector("#unity-loading-bar").style.display = "block";
 
       var script = document.createElement("script");
@@ -104,7 +104,7 @@
               }).then((unityInstance) => {
                 document.querySelector("#unity-loading-bar").style.display = "none";
                 document.querySelector("#unity-fullscreen-button").onclick = () => {
-                  unityInstance.SetFullscreen(1);
+                  //unityInstance.SetFullscreen(1);
                 };
 
               }).catch((message) => {
