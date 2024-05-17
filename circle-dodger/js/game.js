@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             }).then(data => {
                 console.log("Puntuación enviada correctamente");
-                if (data.deviceID !== null && data.pass !== null) {
+                if (data.deviceID !== null && data.deviceID !== undefined) {
                     localStorage.setItem(Constants.STORAGE_KEYS.DEVICE_ID, data.deviceID);
                 }
                 getScoreboard();
