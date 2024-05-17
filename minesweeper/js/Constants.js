@@ -11,7 +11,9 @@ export const STORAGE_KEYS = { // Claves de almacenamiento local
     OPTION_NAME: "optNameMS",
     OPTION_COLS: "optColsMS",
     OPTION_ROWS: "optRowsMS",
-    OPTION_MINES: "optMinesMS"
+    OPTION_MINES: "optMinesMS",
+    DEVICE_ID: "deviceID_long",
+    PASS: "userPass_long"
 };
 
 // Posición de las imágenes en el sprite

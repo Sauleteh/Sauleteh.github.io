@@ -33,6 +33,14 @@
         <hr/>
         <ul>
             <li>
+                <span>Nombre</span>
+                <input type="text" id="inputName" size="10" maxlength="12" />
+            </li>
+            <li>
+                <span>PIN</span><img src="./assets/imgs/help_icon.png" id="passHelp" alt="Ayuda" title="Cuando se envíe la puntuación, este PIN debe coincidir con el PIN escrito en la primera puntuación subida del usuario." width="8px" />
+                <input type="password" id="inputPassword" size="4" maxlength="4" />
+            </li>
+            <li>
                 <span>Dificultad</span>
                 <select name="difficulty" id="difficultySelect">
                     <option selected value="0">Principiante</option>
@@ -53,10 +61,6 @@
             <li class="customDifficulty">
                 <span>Minas</span>
                 <input type="number" id="inputMines" min="1" max="64" value="10" />
-            </li>
-            <li>
-                <span>Nombre</span>
-                <input type="text" id="inputName" size="10" maxlength="12" />
             </li>
             
             <li class="hide">

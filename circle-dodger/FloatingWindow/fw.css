@@ -345,3 +345,18 @@ input:disabled + .slider:before {
     3% { background-position: 65% 50%; text-shadow: 0 0 2px rgb(156, 85, 18); }
     100% { background-position: 100% 50%; text-shadow: 0 0 1px rgb(184, 115, 51); }
 }
+
+img#passHelp {
+    border: 1px solid white;
+    border-radius: 50%;
+    padding: 1.5%;
+    background-color: #3d3d47;
+    cursor: help;
+    margin-right: 30%;
+    transition: 1s;
+}
+
+img#passHelp:hover {
+    border: 1px solid cyan;
+    background-color: #212124;
+}

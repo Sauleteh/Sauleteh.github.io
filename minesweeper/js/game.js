@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     const inputCols = document.querySelector("#inputCols");
     const inputRows = document.querySelector("#inputRows");
     const inputMines = document.querySelector("#inputMines");
+    const inputPassword = document.querySelector("#inputPassword");
     const customData = document.querySelectorAll(".customDifficulty"); // Son los <li> de las opciones personalizadas
     const status = document.querySelector("#scoreboarddiv span.statusCheck");
 
@@ -352,6 +353,11 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             if (parseInt(selDifficulty.options[selDifficulty.selectedIndex].value) === Constants.DIFFICULTY_LABELS.CUSTOM) onDifficultySelected(Constants.DIFFICULTY_LABELS.CUSTOM); // Si está en personalizado, cambiar las minas
             localStorage.setItem(Constants.STORAGE_KEYS.OPTION_MINES, inputMines.value);
         });
+
+        inputPassword.addEventListener("input", function() {
+            inputPassword.value = inputPassword.value.replace(/\D/g, ""); // \D = [^0-9]
+            localStorage.setItem(Constants.STORAGE_KEYS.PASS, inputPassword.value);
+        });
     }
 
     function initEvents() {
@@ -397,6 +403,10 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_MINES) !== null) {
             inputMines.value = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_MINES);
         }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.PASS) !== null) {
+            inputPassword.value = localStorage.getItem(Constants.STORAGE_KEYS.PASS);
+        }
+
         if ((inputCols.value - 1) * (inputRows.value - 1) < inputMines.value) inputMines.value = (inputCols.value - 1) * (inputRows.value - 1); // Si se ha puesto más minas de las que se pueden, se pone el máximo
         customData.forEach(element => element.style.display = parseInt(selDifficulty.value) === Constants.DIFFICULTY_LABELS.CUSTOM ? "flex" : "none");
     }
@@ -438,7 +448,16 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         else if (board[clickedRow][clickedCol].flagged) return; // Si está con bandera, no hacemos nada
 
         if (!boardGenerated) {
-            onGameStart(board[clickedRow][clickedCol]);
+            if (inputPassword.value.length !== 4) {
+                inputPassword.style.borderColor = "red";
+                inputPassword.style.backgroundColor = "rgba(255, 0, 0, 0.2)";
+                setTimeout(() => {
+                    inputPassword.style.borderColor = null
+                    inputPassword.style.backgroundColor = null;
+                }, 1000);
+                return;
+            }
+            else onGameStart(board[clickedRow][clickedCol]);
         }
 
         board[clickedRow][clickedCol].revealed = true;
@@ -540,9 +559,9 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
     function submitScore(msTime) {
         // console.log(msTime, nameSelected);
-        if (nameSelected === "" || parseInt(difficultySelected) === Constants.DIFFICULTY_LABELS.CUSTOM) {
+        if (nameSelected === "" || parseInt(difficultySelected) === Constants.DIFFICULTY_LABELS.CUSTOM || inputPassword.value.length !== 4) {
             isSubmittingScore = false;
-            return new Promise((resolve, reject) => reject("No se ha introducido un nombre o la dificultad es personalizada"));
+            return new Promise((resolve, reject) => reject("No se ha introducido un nombre y/o contraseña o la dificultad es personalizada"));
         }
         else {
             // Al recibir la respuesta, mostrar el botón de continuar en vez de cargando
@@ -550,9 +569,14 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             return fetch("https://gayofo.com/api/minesweeper/scoreboard/" + nameSelected, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ "time": msTime, "difficulty": difficultySelected, "special": isSpecialMode })
-            }).then(() => {
+                body: JSON.stringify({ "time": msTime, "difficulty": difficultySelected, "special": isSpecialMode, "deviceID": localStorage.getItem(Constants.STORAGE_KEYS.DEVICE_ID), "pass": localStorage.getItem(Constants.STORAGE_KEYS.PASS) })
+            }).then(response => {
+                return response.json();
+            }).then(data => {
                 console.log("Puntuación enviada correctamente");
+                if (data.deviceID !== null && data.pass !== null) {
+                    localStorage.setItem(Constants.STORAGE_KEYS.DEVICE_ID, data.deviceID);
+                }
                 isSubmittingScore = false;
             }).catch(error => {
                 console.log("No se pudo conectar con el servidor:", error);

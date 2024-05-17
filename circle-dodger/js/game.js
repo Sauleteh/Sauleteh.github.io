@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const cbClickInsteadOfHolding = document.querySelector("#cbClickInsteadOfHolding");
     const inputName = document.querySelector("#inputName");
     const inputImage = document.querySelector("#inputImage");
+    const inputPassword = document.querySelector("#inputPassword");
     const status = document.querySelector("#scoreboarddiv span.statusCheck");
 
     canvas.onselectstart = function() { return false; } // Evitar que se seleccione texto al hacer click y arrastrar
@@ -86,6 +87,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 reader.readAsDataURL(file);
             }
         });
+
+        inputPassword.addEventListener("input", function() {
+            inputPassword.value = inputPassword.value.replace(/\D/g, ""); // \D = [^0-9]
+            localStorage.setItem(Constants.STORAGE_KEYS.PASS, inputPassword.value);
+        });
     }
 
     function getScoreboard() {
@@ -142,6 +148,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function onMouseMove(e) {
         // console.log("Mouse move event");
+        if (inputPassword.value.length !== 4) {
+            inputPassword.style.borderColor = "red";
+            inputPassword.style.backgroundColor = "rgba(255, 0, 0, 0.2)";
+            setTimeout(() => {
+                inputPassword.style.borderColor = null
+                inputPassword.style.backgroundColor = null;
+            }, 1000);
+            return;
+        }
 
         if (cbClickInsteadOfHolding.checked) {
             // Al hacer click en el jugador, se mueve hacia la posición del mouse hasta que se haga otro click
@@ -284,8 +299,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function submitScore(msTime) {
         // console.log(msTime, nameSelected);
-        if (nameSelected === "") {
-            return new Promise((resolve, reject) => reject("No se ha introducido un nombre"));
+        if (nameSelected === "" || inputPassword.value.length !== 4) {
+            return new Promise((resolve, reject) => reject("No se ha introducido un nombre y/o contraseña"));
         }
         else {
             // Al recibir la respuesta, mostrar el botón de continuar en vez de cargando
@@ -293,9 +308,14 @@ document.addEventListener('DOMContentLoaded', function() {
             return fetch("https://gayofo.com/api/circledodger/scoreboard/" + nameSelected, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ "time": msTime })
-            }).then(() => {
+                body: JSON.stringify({ "time": msTime, "deviceID": localStorage.getItem(Constants.STORAGE_KEYS.DEVICE_ID), "pass": localStorage.getItem(Constants.STORAGE_KEYS.PASS) })
+            }).then(response => {
+                return response.json();
+            }).then(data => {
                 console.log("Puntuación enviada correctamente");
+                if (data.deviceID !== null && data.pass !== null) {
+                    localStorage.setItem(Constants.STORAGE_KEYS.DEVICE_ID, data.deviceID);
+                }
                 getScoreboard();
             }).catch(error => {
                 console.log("No se pudo conectar con el servidor:", error);
@@ -335,6 +355,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_NAME) !== null) {
             inputName.value = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_NAME);
+        }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.PASS) !== null) {
+            inputPassword.value = localStorage.getItem(Constants.STORAGE_KEYS.PASS);
         }
     }
 
