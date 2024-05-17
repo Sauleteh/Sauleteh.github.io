@@ -15,8 +15,8 @@ export const STORAGE_KEYS = { // Claves de almacenamiento local
     OPTION_MUSIC: "optMusic",
     OPTION_SFX: "optSFX",
     OPTION_PRACTICE: "optPractice",
-    DEVICE_ID: "deviceID",
-    PASS: "userPass"
+    DEVICE_ID: "deviceID_short",
+    PASS: "userPass_short"
 }
 
 export const COLORS = {
