@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const chronoText = document.querySelector("label.chronometer");
     const levelText = document.querySelector("label.level");
     const cbClickInsteadOfHolding = document.querySelector("#cbClickInsteadOfHolding");
+    const cbShowLastDeath = document.querySelector("#cbShowLastDeath");
     const inputName = document.querySelector("#inputName");
     const inputImage = document.querySelector("#inputImage");
     const inputPassword = document.querySelector("#inputPassword");
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let playerCustomSkin = null; // Objeto Image para la imagen personalizada del jugador
 
     let enemies = [];
+    let imgLastDeath = new Image();
 
     let isGameOver = false;
     let isGameStarted = false;
@@ -92,6 +94,15 @@ document.addEventListener('DOMContentLoaded', function() {
             inputPassword.value = inputPassword.value.replace(/\D/g, ""); // \D = [^0-9]
             localStorage.setItem(Constants.STORAGE_KEYS.PASS, inputPassword.value);
         });
+
+        cbShowLastDeath.addEventListener("change", function() {
+            document.activeElement.blur();
+
+            // Se deben detener/iniciar los eventos de ratón para que no influyan en la visualización de la última muerte
+            if (cbShowLastDeath.checked) stopEvents();
+            else initEvents();
+        });
+        cbShowLastDeath.disabled = true; // Al no haberse hecho una partida, no se puede mostrar la última muerte
     }
 
     function getScoreboard() {
@@ -363,6 +374,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function enableOptions(isEnabled) {
         cbClickInsteadOfHolding.disabled = !isEnabled;
+        cbShowLastDeath.disabled = !isEnabled;
         inputName.disabled = !isEnabled;
         inputImage.disabled = !isEnabled;
     }
@@ -372,22 +384,29 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!fpsController.shouldContinue(now)) return;
         //console.log(fpsController.elapsed);
         
-        clearCanvas();
-        drawPlayer();
-        drawEnemies();
-        
-        if (isGameStarted) {
-            drawEnemyWarning();
-            checkCollisions();
-            if (isGameOver) { // Mientras no se juega...
-                console.log("Game over!");
-                onGameOver();
-                resetGame();
+        if (!cbShowLastDeath.checked) { // Flujo normal
+            clearCanvas();
+            drawPlayer();
+            drawEnemies();
+            
+            if (isGameStarted) {
+                drawEnemyWarning();
+                checkCollisions();
+                if (isGameOver) { // Mientras no se juega...
+                    console.log("Game over!");
+                    onGameOver();
+                    resetGame();
+                    imgLastDeath.src = canvas.toDataURL();
+                }
+                else { // Mientras se juega...
+                    updateEnemies();
+                    updateLevel();
+                }
             }
-            else { // Mientras se juega...
-                updateEnemies();
-                updateLevel();
-            }
+        }
+        else { // Si se quiere que se muestre la última muerte...
+            clearCanvas();
+            ctx.drawImage(imgLastDeath, 0, 0);
         }
 
         fpsController.updateLastTime(now);
