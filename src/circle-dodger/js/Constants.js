@@ -1,3 +1,5 @@
+export const BACKGROUND_CIRCLE_EFFECT_RADIUS = 800; // Radio del círculo de efecto de fondo
+
 export const STORAGE_KEYS = { // Claves de almacenamiento local
     OPTION_CLICK_INSTEAD_OF_HOLDING: "optClickInsteadOfHoldingCD",
     OPTION_EFFECTS: "optEffectsCD",
