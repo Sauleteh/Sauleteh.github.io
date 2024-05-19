@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const levelText = document.querySelector("label.level");
     const cbClickInsteadOfHolding = document.querySelector("#cbClickInsteadOfHolding");
     const cbShowLastDeath = document.querySelector("#cbShowLastDeath");
+    const selEffects = document.querySelector("#effectSelect");
     const inputName = document.querySelector("#inputName");
     const inputImage = document.querySelector("#inputImage");
     const inputPassword = document.querySelector("#inputPassword");
@@ -103,6 +104,12 @@ document.addEventListener('DOMContentLoaded', function() {
             else initEvents();
         });
         cbShowLastDeath.disabled = true; // Al no haberse hecho una partida, no se puede mostrar la última muerte
+
+        selEffects.addEventListener("change", function() {
+            document.activeElement.blur();
+            const selectedEffect = selEffects.options[selEffects.selectedIndex].value;
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_EFFECTS, selectedEffect);
+        });
     }
 
     function getScoreboard() {
@@ -360,6 +367,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    const trailParticles = [];
+    function drawEffects() {
+        // Efecto de rastro del jugador
+        const effectFloat = Constants.EFFECT_DATA[selEffects.value]; // La potencia del efecto
+        if (selEffects.selectedIndex === Constants.EFFECT_LABELS.OFF) return; // Si no hay efecto, no se dibuja nada
+
+        trailParticles.push(new CircleFigure(player.x, player.y, player.radius, "rgb(0, 75, 255)"));
+        for (let i = 0; i < trailParticles.length; i++) {
+            const particle = trailParticles[i];
+            ctx.fillStyle = particle.color;
+            ctx.globalAlpha = i / 100 + effectFloat;
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.radius / (selEffects.selectedIndex === Constants.EFFECT_LABELS.STRONG ? 1 : 1.25), 0, Math.PI * 2);
+            ctx.fill();
+            ctx.closePath();
+        }
+        if (trailParticles.length > 10) trailParticles.shift();
+        ctx.globalAlpha = 1;
+    }
+
     function restoreLocalStorage() {
         if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_CLICK_INSTEAD_OF_HOLDING) !== null) {
             cbClickInsteadOfHolding.checked = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_CLICK_INSTEAD_OF_HOLDING) === "true";
@@ -370,6 +397,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (localStorage.getItem(Constants.STORAGE_KEYS.PASS) !== null) {
             inputPassword.value = localStorage.getItem(Constants.STORAGE_KEYS.PASS);
         }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_EFFECTS) !== null) {
+            selEffects.value = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_EFFECTS);
+        }
     }
 
     function enableOptions(isEnabled) {
@@ -377,6 +407,8 @@ document.addEventListener('DOMContentLoaded', function() {
         cbShowLastDeath.disabled = !isEnabled;
         inputName.disabled = !isEnabled;
         inputImage.disabled = !isEnabled;
+        inputPassword.disabled = !isEnabled;
+        selEffects.disabled = !isEnabled;
     }
 
     function draw(now) {
@@ -386,6 +418,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!cbShowLastDeath.checked) { // Flujo normal
             clearCanvas();
+            drawEffects();
             drawPlayer();
             drawEnemies();
             

@@ -66,20 +66,30 @@
                     <span class="slider round"></span>
                 </label>
             </li>
-            
-            <li class="hide">
-                <span>???</span>
-                <label class="switch">
-                    <input id="cbExpOpt" type="checkbox">
-                    <span class="slider round"></span>
-                </label>
-            </li>
 
             <li>
                 <span>Imagen personalizada</span>
                 <label class="customImage">
                     Cargar
                     <input type="file" id="inputImage" accept="image/*" />
+                </label>
+            </li>
+
+            <li>
+                <span>Efectos</span>
+                <select name="effects" id="effectSelect">
+                    <option value="0">Desactivado</option>
+                    <option value="1">Suave</option>
+                    <option value="2">Medio</option>
+                    <option value="3">Fuerte</option>
+                </select>
+            </li>
+
+            <li class="hide">
+                <span>???</span>
+                <label class="switch">
+                    <input id="cbExpOpt" type="checkbox">
+                    <span class="slider round"></span>
                 </label>
             </li>
         </ul>
