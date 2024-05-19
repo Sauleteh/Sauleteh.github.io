@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const levelText = document.querySelector("label.level");
     const cbClickInsteadOfHolding = document.querySelector("#cbClickInsteadOfHolding");
     const cbShowLastDeath = document.querySelector("#cbShowLastDeath");
+    const selEffects = document.querySelector("#effectSelect");
     const inputName = document.querySelector("#inputName");
     const inputImage = document.querySelector("#inputImage");
     const inputPassword = document.querySelector("#inputPassword");
@@ -32,7 +33,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let playerCustomSkin = null; // Objeto Image para la imagen personalizada del jugador
 
     let enemies = [];
+    let enemyCollided = null;
     let imgLastDeath = new Image();
+    const trailParticles = [];
+    const backgroundCircles = [];
 
     let isGameOver = false;
     let isGameStarted = false;
@@ -103,6 +107,12 @@ document.addEventListener('DOMContentLoaded', function() {
             else initEvents();
         });
         cbShowLastDeath.disabled = true; // Al no haberse hecho una partida, no se puede mostrar la última muerte
+
+        selEffects.addEventListener("change", function() {
+            document.activeElement.blur();
+            const selectedEffect = selEffects.options[selEffects.selectedIndex].value;
+            localStorage.setItem(Constants.STORAGE_KEYS.OPTION_EFFECTS, selectedEffect);
+        });
     }
 
     function getScoreboard() {
@@ -224,13 +234,24 @@ document.addEventListener('DOMContentLoaded', function() {
             ctx.drawImage(playerCustomSkin, player.x - player.radius, player.y - player.radius, player.radius * 2, player.radius * 2);
         }
         ctx.closePath();
+
+        ctx.beginPath();
+        ctx.arc(player.x, player.y, player.radius + 1, 0, Math.PI * 2); // Se le suma 1 al radio para que el borde no entre en la hitbox
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.closePath();
+
         ctx.restore();
     }
 
     function drawEnemies() {
         enemies.forEach(enemy => {
             ctx.fillStyle = enemy.figure.color;
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 2;
             ctx.fillRect(enemy.figure.x, enemy.figure.y, enemy.figure.width, enemy.figure.height);
+            ctx.strokeRect(enemy.figure.x - 1, enemy.figure.y - 1, enemy.figure.width + 1, enemy.figure.height + 1); // Se le suma 1 al contorno para que el borde no entre en la hitbox
         });
     }
 
@@ -240,6 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
             {
                 console.log("Collision detected!");
                 isGameOver = true;
+                enemyCollided = enemy;
             }
         });
     }
@@ -360,6 +382,50 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function drawEffects() {
+        const effectFloat = Constants.EFFECT_DATA[selEffects.value]; // La potencia del efecto
+
+        // Efecto de rastro del jugador
+        if (selEffects.selectedIndex !== Constants.EFFECT_LABELS.OFF) // Si están los efectos activados...
+        {
+            trailParticles.push(new CircleFigure(player.x, player.y, player.radius, playerCustomSkin === null ? "rgb(0, 75, 255)" : "rgb(128, 128, 128)"));
+            for (let i = 0; i < trailParticles.length; i++) {
+                const particle = trailParticles[i];
+                ctx.fillStyle = particle.color;
+                ctx.globalAlpha = i / 100 + effectFloat;
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.radius / (selEffects.selectedIndex === Constants.EFFECT_LABELS.STRONG ? 1 : 1.25), 0, Math.PI * 2);
+                ctx.fill();
+                ctx.closePath();
+            }
+            if (trailParticles.length > 10) trailParticles.shift();
+
+            // Efecto de círculos de fondo
+            if (backgroundCircles.length === 0 || backgroundCircles[backgroundCircles.length - 1].x <= canvas.width * 0.75 + Constants.BACKGROUND_CIRCLE_EFFECT_RADIUS) backgroundCircles.push(new CircleFigure(canvas.width + Constants.BACKGROUND_CIRCLE_EFFECT_RADIUS, canvas.height / 2, Constants.BACKGROUND_CIRCLE_EFFECT_RADIUS, "rgb(0, 0, 0)"));
+            backgroundCircles.forEach(circle => {
+                ctx.fillStyle = circle.color;
+                ctx.globalAlpha = Math.max(0, circle.x / (canvas.width + Constants.BACKGROUND_CIRCLE_EFFECT_RADIUS) * (effectFloat + 0.01));
+                ctx.beginPath();
+                ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.closePath();
+
+                circle.x -= 3 * (effectFloat + 0.01) * fpsController.elapsed;
+            });
+            if (backgroundCircles[0].x <= 0) backgroundCircles.shift();
+
+            ctx.globalAlpha = 1;
+        }
+    }
+
+    function drawEnemyCollided() {
+        // Se dibuja un rectángulo semitransparente en la posición del enemigo colisionado para observar mejor la colisión
+        ctx.fillStyle = enemyCollided.figure.color;
+        ctx.globalAlpha = 0.5;
+        ctx.fillRect(enemyCollided.figure.x, enemyCollided.figure.y, enemyCollided.figure.width, enemyCollided.figure.height);
+        ctx.globalAlpha = 1;
+    }
+
     function restoreLocalStorage() {
         if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_CLICK_INSTEAD_OF_HOLDING) !== null) {
             cbClickInsteadOfHolding.checked = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_CLICK_INSTEAD_OF_HOLDING) === "true";
@@ -370,6 +436,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (localStorage.getItem(Constants.STORAGE_KEYS.PASS) !== null) {
             inputPassword.value = localStorage.getItem(Constants.STORAGE_KEYS.PASS);
         }
+        if (localStorage.getItem(Constants.STORAGE_KEYS.OPTION_EFFECTS) !== null) {
+            selEffects.value = localStorage.getItem(Constants.STORAGE_KEYS.OPTION_EFFECTS);
+        }
     }
 
     function enableOptions(isEnabled) {
@@ -377,6 +446,8 @@ document.addEventListener('DOMContentLoaded', function() {
         cbShowLastDeath.disabled = !isEnabled;
         inputName.disabled = !isEnabled;
         inputImage.disabled = !isEnabled;
+        inputPassword.disabled = !isEnabled;
+        selEffects.disabled = !isEnabled;
     }
 
     function draw(now) {
@@ -386,8 +457,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!cbShowLastDeath.checked) { // Flujo normal
             clearCanvas();
-            drawPlayer();
+            drawEffects();
             drawEnemies();
+            drawPlayer();
             
             if (isGameStarted) {
                 drawEnemyWarning();
@@ -396,6 +468,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log("Game over!");
                     onGameOver();
                     resetGame();
+                    drawEnemyCollided(); // Se dibuja al enemigo colisionado para observar mejor la colisión (y que no molesten los bordes)
                     imgLastDeath.src = canvas.toDataURL();
                 }
                 else { // Mientras se juega...
@@ -420,38 +493,38 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /** TODO list
- * - [X?] PRIORITARIO: Delta time
+ * - [X] PRIORITARIO: Delta time
  * - [X] Implementar cronómetro
  * - [X] Implementar backend
  *       - [X] Guardar puntuaciones
  *       - [X] Consultar puntuaciones
  * - [X] Implementar game over: Al colisionar, se muestra un mensaje de game over y se reinicia el juego (el cronómetro no se reinicia hasta que se empieza otra partida)
- * - [ ] Implementar niveles: Cada cierto tiempo, aumenta la dificultad
+ * - [-] Implementar niveles: Cada cierto tiempo, aumenta la dificultad (CANCELED: Las personas ni siquiera consiguen llegar al nivel 2)
  *       - [X] Nivel 1 (0-30s): De 1 a 5 de multiplicador de velocidad de enemigos (máx. 5 a los 25s)
  *       - [X] Nivel 2 (30-60s): Bajada de multiplicador de velocidad de enemigos a 4 (transición de 5s) + un nuevo enemigo + power-downs
- *       - [ ] Nivel 3 (60-90s): Aparición de áreas circulares que matan al jugador si entra en ellas cuando se activen
+ *       - [-] Nivel 3 (60-90s): Aparición de áreas circulares que matan al jugador si entra en ellas cuando se activen
  *             - Propiedades área circular: Tiempo de activación 3s, intervalo de aparición 6s, radio 60
- *       - [ ] Nivel 4 (90-120s): Las áreas circulares ocurren con mayor frecuencia y a mayor velocidad
+ *       - [-] Nivel 4 (90-120s): Las áreas circulares ocurren con mayor frecuencia y a mayor velocidad
  *             - Propiedades área circular: Tiempo de activación 2s, intervalo de aparición 4s, radio 60
- *       - [ ] Nivel 5 (120s en adelante): Subida de multiplicador de velocidad de enemigos de 4 a 6 (transición de 10s) + áreas circulares más grandes
+ *       - [-] Nivel 5 (120s en adelante): Subida de multiplicador de velocidad de enemigos de 4 a 6 (transición de 10s) + áreas circulares más grandes
  *             - Propiedades área circular: Tiempo de activación 2s, intervalo de aparición 4s, radio 80
- * - [ ] Implementar power-ups: Al colisionar con un power-up, se obtiene un beneficio
- *       - [ ] Cada 15 segundos (y durante 10 segundos), aparece un power-up en una posición aleatoria
+ * - [-] Implementar power-ups: Al colisionar con un power-up, se obtiene un beneficio (CANCELED: Se aleja de lo que se buscaba hacer en el juego)
+ *       - [-] Cada 15 segundos (y durante 10 segundos), aparece un power-up en una posición aleatoria
  *             - Power-up 1: Disminuye el radio del jugador (permanente)
  *             - Power-up 2: Disminuye el tamaño de los enemigos (permanente)
  *             - Power-up 3: Disminuye en 2 el multiplicador de velocidad de los enemigos (durante 8 segundos) cuando le des a la Z
  *             - Power-up 4: El tiempo se detiene (durante 3 segundos) cuando le des a la X
  *       - Los tres primeros power-ups que aparecen se pueden escoger en las opciones
  *       - Todos los power-ups son acumulables
- * - [ ] Implementar power-downs: Al colisionar con un power-down, se obtiene una penalización
- *       - [ ] Cada 30 segundos (y durante 5 segundos), aparece un power-down en la posición contraria al jugador
+ * - [-] Implementar power-downs: Al colisionar con un power-down, se obtiene una penalización (CANCELED: Se aleja de lo que se buscaba hacer en el juego)
+ *       - [-] Cada 30 segundos (y durante 5 segundos), aparece un power-down en la posición contraria al jugador
  *             - Power-down 1: Aumenta el radio del jugador (durante 10 segundos)
  *             - Power-down 2: Aumenta el tamaño de los enemigos (durante 10 segundos)
  *             - Power-down 3: El jugador se convierte en un cuadrado (durante 10 segundos)
  *             - Power-down 4: Los enemigos tienen atracción gravitatoria hacia el jugador (durante 5 segundos), es decir, los enemigos se moverán un poquito hacia la posición del jugador
  * - [X] Implementar movimiento de los enemigos básico
- * - [ ] Implementar música (a medida que avanza el juego, a la música se le añaden más instrumentos)
- * - [ ] Implementar efectos visuales (ej: rastro del jugador)
+ * - [?] Implementar música (QUESTIONABLE: No se sabe si en realidad es necesario)
+ * - [X] Implementar efectos visuales (ej: rastro del jugador)
  * - [X] Implementar LocalStorage
  * - [X] Al estar jugando, no se puede cambiar el nombre de usuario
  */
