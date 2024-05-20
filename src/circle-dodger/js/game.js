@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function getScoreboard() {
-        fetch("https://gayofo.com/api/circledodger/scoreboard", { // Obtener la tabla de puntuaciones de las 3 dificultades
+        fetch("https://sauleteh.gayofo.com/api/circledodger/scoreboard", { // Obtener la tabla de puntuaciones de las 3 dificultades
             method: "GET",
             headers: { "Content-Type": "application/json" }
         }).then(response => {
@@ -338,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function() {
         else {
             // Al recibir la respuesta, mostrar el botón de continuar en vez de cargando
             console.log("Enviando puntuación al servidor...")
-            return fetch("https://gayofo.com/api/circledodger/scoreboard/" + nameSelected, {
+            return fetch("https://sauleteh.gayofo.com/api/circledodger/scoreboard/" + nameSelected, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ "time": msTime, "deviceID": localStorage.getItem(Constants.STORAGE_KEYS.DEVICE_ID), "pass": localStorage.getItem(Constants.STORAGE_KEYS.PASS) })
