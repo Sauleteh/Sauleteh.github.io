@@ -168,7 +168,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     window.drawBoard = drawBoard; // Hacer la función global para que Easter.js pueda acceder a ella
 
     function getScoreboard() {
-        fetch("https://gayofo.com/api/minesweeper/scoreboard", { // Obtener la tabla de puntuaciones de las 3 dificultades
+        fetch("https://sauleteh.gayofo.com/api/minesweeper/scoreboard", { // Obtener la tabla de puntuaciones de las 3 dificultades
             method: "GET",
             headers: { "Content-Type": "application/json" }
         }).then(response => {
@@ -566,7 +566,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         else {
             // Al recibir la respuesta, mostrar el botón de continuar en vez de cargando
             console.log("Enviando puntuación al servidor...")
-            return fetch("https://gayofo.com/api/minesweeper/scoreboard/" + nameSelected, {
+            return fetch("https://sauleteh.gayofo.com/api/minesweeper/scoreboard/" + nameSelected, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ "time": msTime, "difficulty": difficultySelected, "special": isSpecialMode, "deviceID": localStorage.getItem(Constants.STORAGE_KEYS.DEVICE_ID), "pass": localStorage.getItem(Constants.STORAGE_KEYS.PASS) })

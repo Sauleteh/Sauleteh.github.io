@@ -161,7 +161,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
             localStorage.setItem(Constants.STORAGE_KEYS.OPTION_STYLE, selectedSkin);
         });
 
-        fetch("https://gayofo.com/api/tetris/scoreboard", {
+        fetch("https://sauleteh.gayofo.com/api/tetris/scoreboard", {
             method: "GET",
             headers: { "Content-Type": "application/json" }
         }).then(response => {
@@ -844,7 +844,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
         if (controls.keys.enter.isPressed && !controls.keys.enter.actionDone) {
             if (name[0] !== '' && name[1] !== '' && name[2] !== '' && !nameConfirmed && gameOver && nameIndex === 3 && inputPassword.value.length === 4) {
-                fetch("https://gayofo.com/api/tetris/scoreboard/" + name.join(''), {
+                fetch("https://sauleteh.gayofo.com/api/tetris/scoreboard/" + name.join(''), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ "score": score, "deviceID": localStorage.getItem(Constants.STORAGE_KEYS.DEVICE_ID), "pass": localStorage.getItem(Constants.STORAGE_KEYS.PASS) })
