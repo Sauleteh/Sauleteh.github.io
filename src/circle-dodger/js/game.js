@@ -188,6 +188,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 if (!isGameStarted) {
                     isGameStarted = true;
+                    canvas.width = 800;
+                    canvas.height = 600;
                     chronoText.textContent = "00:00";
                     chronoObj.start(setInterval(everySecond, 1000)); // Actualizar el cronómetro cada segundo (1000ms));
                     nameSelected = inputName.value;
@@ -204,6 +206,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 if (!isGameStarted) {
                     isGameStarted = true;
+                    canvas.width = 800;
+                    canvas.height = 600;
                     chronoText.textContent = "00:00";
                     chronoObj.start(setInterval(everySecond, 1000)); // Actualizar el cronómetro cada segundo (1000ms));
                     nameSelected = inputName.value;
