@@ -26,6 +26,7 @@ import miVirus from "./assets/miVirus.webp"
 import tetrisJS from "./assets/tetrisJS.webp"
 import minesweeperJS from "./assets/minesweeperJS.webp"
 import circleDodgerJS from "./assets/circleDodgerJS.webp"
+import chessOnline from "./assets/chessOnline.webp"
 
 export function App() {
     return (
@@ -34,13 +35,22 @@ export function App() {
             <h1 className="titulo finalizado">Proyectos finalizados</h1>
             <div className="contenedorProyectos">
                 <Proyecto
+                    titulo="Ajedrez online"
+                    plataforma="Web | React y TS (frontend), Node.js y websockets (backend)"
+                    descripcion="Ajedrez mejorado con respecto a mi versión anterior. Ahora cuenta con gestión de usuarios y
+                                salas, chat en tiempo real, historial de partidas, posibilidad de espectar otras partidas y
+                                es totalmente online."
+                    thumbnail={chessOnline}
+                    link="https://sauleteh.gayofo.com/chess/home"
+                >nuevo</Proyecto>
+                <Proyecto
                     titulo="Circle Dodger"
                     plataforma="Web | HTML, CSS y JS"
                     descripcion="Un pequeño juego donde eres un círculo y cuyo objetivo es esquivar otras figuras que se
                                 encuentren en el tablero de juego. Cuanto más tiempo sobrevivas, mayor será la dificultad."
                     thumbnail={circleDodgerJS}
                     link="./circle-dodger/dodger.html"
-                >nuevo</Proyecto>
+                ></Proyecto>
 
                 <Proyecto
                     titulo="Buscaminas"
@@ -51,7 +61,7 @@ export function App() {
                                 con dimensiones personalizadas."
                     thumbnail={minesweeperJS}
                     link="./minesweeper/minesweeper.html"
-                >nuevo</Proyecto>
+                ></Proyecto>
 
                 <Proyecto
                     titulo="Tetris"
@@ -63,7 +73,7 @@ export function App() {
                                 tus amigos."
                     thumbnail={tetrisJS}
                     link="./tetris/tetris.html"
-                >nuevo</Proyecto>
+                ></Proyecto>
 
                 <Proyecto
                     titulo="Mi virus"
