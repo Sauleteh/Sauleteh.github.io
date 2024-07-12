@@ -45,6 +45,17 @@ export function App() {
                 >nuevo</Proyecto>
 
                 <Proyecto
+                    titulo="Visualizador de horarios de UniOvi"
+                    plataforma="Windows | Java"
+                    descripcion="Un programa creado con la finalidad de observar los horarios de UniOvi en un formato
+                                más visual, pudiendo elegir las asignaturas, las PLs y las TGs. Solo habría que dar
+                                como input los PDFs con los horarios. Lo más interesante es el detector de conflictos
+                                para saber qué asignaturas coger sin que choquen entre sí."
+                    thumbnail={visualizadorHorariosUniOvi}
+                    link="https://github.com/Sauleteh/visualizador-de-conflictos-horarios-uniovi"
+                ></Proyecto>
+
+                <Proyecto
                     titulo="Circle Dodger"
                     plataforma="Web | HTML, CSS y JS"
                     descripcion="Un pequeño juego donde eres un círculo y cuyo objetivo es esquivar otras figuras que se
@@ -97,17 +108,6 @@ export function App() {
                                 un juego de carreras para disfrutar de aquellos mapas personalizados hechos con este fin."
                     thumbnail={speedControl}
                     link="https://github.com/Sauleteh/speed-control"
-                ></Proyecto>
-
-                <Proyecto
-                    titulo="Visualizador de horarios de UniOvi"
-                    plataforma="Windows | Java"
-                    descripcion="Un programa creado con la finalidad de observar los horarios de UniOvi en un formato
-                                más visual, pudiendo elegir las asignaturas, las PLs y las TGs. Solo habría que dar
-                                como input los PDFs con los horarios. Lo más interesante es el detector de conflictos
-                                para saber qué asignaturas coger sin que choquen entre sí."
-                    thumbnail={visualizadorHorariosUniOvi}
-                    link="https://github.com/Sauleteh/visualizador-de-conflictos-horarios-uniovi"
                 ></Proyecto>
 
                 <Proyecto
