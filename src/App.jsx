@@ -43,6 +43,7 @@ export function App() {
                     thumbnail={chessOnline}
                     link="https://sauleteh.gayofo.com/chess/home"
                 >nuevo</Proyecto>
+
                 <Proyecto
                     titulo="Circle Dodger"
                     plataforma="Web | HTML, CSS y JS"
@@ -129,7 +130,7 @@ export function App() {
                 ></Proyecto>
 
                 <Proyecto
-                    titulo="Ajedrez"
+                    titulo="Ajedrez (Antiguo)"
                     plataforma="Web | HTML, CSS y JS"
                     descripcion="El juego clásico del ajedrez hecho en HTML, CSS y JS. Para mover las piezas hay
                                 que hacer click en una y luego en la casilla a la que se quiera mover. Modos de
