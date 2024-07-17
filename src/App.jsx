@@ -27,6 +27,8 @@ import tetrisJS from "./assets/tetrisJS.webp"
 import minesweeperJS from "./assets/minesweeperJS.webp"
 import circleDodgerJS from "./assets/circleDodgerJS.webp"
 import chessOnline from "./assets/chessOnline.webp"
+import wallpapersEngine from "./assets/wallpapersEngine.webp"
+import snakeTerminal from "./assets/snakeTerminal.webp"
 
 export function App() {
     return (
@@ -267,6 +269,8 @@ export function App() {
                     plataforma="Windows | HTML, CSS y JS"
                     descripcion="Fondos animados ya sean modificaciones de otros fondos o creaciones propias, hechos específicamente
                                 para ser usados con el programa Wallpaper Engine."
+                    thumbnail={wallpapersEngine}
+                    link="https://github.com/Sauleteh/wallpaper-engine-wallpapers"
                 >intermitente</Proyecto>
 
                 <Proyecto
@@ -327,9 +331,11 @@ export function App() {
 
                 <Proyecto
                     titulo="Snake Terminal"
-                    plataforma="Cualquier plataforma (CMD) | C"
-                    descripcion="El clásico juego de la serpiente, pero en la terminal. Para personalizar el juego (tamaño del tablero,
-                                velocidad de la serpiente, etc) hay que modificar el código fuente."
+                    plataforma="Linux | C"
+                    descripcion="El clásico juego de la serpiente, pero en la terminal mediante la librería curses. Para personalizar el juego
+                                (tamaño del tablero, velocidad de la serpiente, etc) hay que modificar el código fuente."
+                    thumbnail={snakeTerminal}
+                    link="https://github.com/Sauleteh/snake-terminal"
                 ></Proyecto>
             </div>
         </div>
