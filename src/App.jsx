@@ -29,6 +29,7 @@ import circleDodgerJS from "./assets/circleDodgerJS.webp"
 import chessOnline from "./assets/chessOnline.webp"
 import wallpapersEngine from "./assets/wallpapersEngine.webp"
 import snakeTerminal from "./assets/snakeTerminal.webp"
+import pokedexApp from "./assets/pokedexApp.webp"
 
 export function App() {
     return (
@@ -87,6 +88,23 @@ export function App() {
                                 tus amigos."
                     thumbnail={tetrisJS}
                     link="./tetris/tetris.html"
+                ></Proyecto>
+
+                <Proyecto
+                    titulo="Pokédex App"
+                    plataforma="Android | Kotlin"
+                    descripcion="Aplicación Android realizada para la asignatura Informática Móvil (4o año) como trabajo individual.
+                                En esta aplicación se ponen a prueba los conocimientos relacionados con bases de datos, obtención de datos
+                                a partir de una API, etc. En la aplicación se pueden ver todos los Pokémon, así como sus detalles (habilidades,
+                                estadísticas, ...), localización en el mapa regional del Pokémon que se seleccione mediante pool de hilos y corutinas,
+                                filtrado de Pokémon e incluso un visualizador de debilidades y resistencias para el Pokémon seleccionado. También tiene
+                                un widget personalizado donde cada día te sale un Pokémon diferente (y con posibilidad de marcarlo como favorito).
+                                Todos los datos de los Pokémon se obtienen de la PokéAPI y para su posterior almacenamiento se utilizó Room. Para las
+                                pruebas se hizo uso de JUnit, Barista y Mockito."
+                    thumbnail={pokedexApp}
+                    link="Todo el proyecto está subido a GitHub pero no puedo proporcionar acceso al repositorio por temas de copyright con Nintendo. La
+                            app tampoco se encuentra en la Play Store por la razón anterior."
+                    linkToPopup
                 ></Proyecto>
 
                 <Proyecto
