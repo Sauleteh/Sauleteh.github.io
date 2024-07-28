@@ -30,6 +30,7 @@ import chessOnline from "./assets/chessOnline.webp"
 import wallpapersEngine from "./assets/wallpapersEngine.webp"
 import snakeTerminal from "./assets/snakeTerminal.webp"
 import pokedexApp from "./assets/pokedexApp.webp"
+import valorantLineupsOrganizer from "./assets/valorantLineupsOrganizer.webp"
 
 export function App() {
     return (
@@ -37,6 +38,16 @@ export function App() {
         <div className="divisorProyectos">
             <h1 className="titulo finalizado">Proyectos finalizados</h1>
             <div className="contenedorProyectos">
+                <Proyecto
+                    titulo="Valorant: Organizador de lineups de Sova"
+                    plataforma="Windows | C"
+                    descripcion="Organiza los lineups de los distintos mapas de Valorant para el agente Sova mediante un creador de lineups.
+                                Saca tres fotos y crea automáticamente una imagen a partir de esas tres fotos, además de guardar la foto en
+                                la carpeta correspondiente."
+                    thumbnail={valorantLineupsOrganizer}
+                    link="https://github.com/Sauleteh/valorant-sova-lineups-organizer"
+                >nuevo</Proyecto>
+
                 <Proyecto
                     titulo="Ajedrez online"
                     plataforma="Web | React y TS (frontend), Node.js y websockets (backend)"
