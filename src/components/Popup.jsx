@@ -1,8 +1,9 @@
 import PropTypes from "prop-types"
 import { useImperativeHandle, useState, forwardRef } from "react";
+import "../css/Popup.css";
 
 export const Popup = forwardRef((props, childRef) => {
-    const [clase, setClase] = useState("popup-esconder");
+    const [clase, setClase] = useState("popup-hide");
     const [estilo, setEstilo] = useState({display: "none"});
     
     useImperativeHandle(childRef, () => ({
@@ -16,7 +17,7 @@ export const Popup = forwardRef((props, childRef) => {
     }));
 
     const handleClick = () => {
-        setClase("popup-esconder");
+        setClase("popup-hide");
         setTimeout(() => { // display no tiene transición en CSS así que le insertamos un timeout
             setEstilo({display: "none"});
         }, 500);
@@ -24,12 +25,12 @@ export const Popup = forwardRef((props, childRef) => {
 
     return (
         <div className={clase} style={estilo}>
-            <div className="popup-parte-superior">
+            <div className="popup-upper-div">
                 <label className="popup-label">No existe enlace al proyecto</label>
-                <button className="popup-boton" onClick={handleClick}></button>
+                <button className="popup-button" onClick={handleClick}></button>
             </div>
-            <hr className="popup-linea"/>
-            <p className="popup-parrafo">{props.mensaje}</p>
+            <hr className="popup-line"/>
+            <p className="popup-text">{props.message}</p>
         </div>
     )
 });
@@ -37,6 +38,6 @@ export const Popup = forwardRef((props, childRef) => {
 Popup.displayName = "Popup";
 
 Popup.propTypes = {
-    mensaje: PropTypes.string,
+    message: PropTypes.string,
     childRef: PropTypes.object
 }

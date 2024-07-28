@@ -8,32 +8,8 @@ export default defineConfig({
   plugins: [react(), viteStaticCopy({
     targets: [
       {
-        src: 'src/ajedrez/*',
-        dest: 'ajedrez'
-      },
-      {
-        src: 'src/punteria/*',
-        dest: 'punteria'
-      },
-      {
-        src: 'src/redes/*',
-        dest: 'redes'
-      },
-      {
-        src: 'src/tetris/*',
-        dest: 'tetris'
-      },
-      {
-        src: 'src/minesweeper/*',
-        dest: 'minesweeper'
-      },
-      {
-        src: 'src/circle-dodger/*',
-        dest: 'circle-dodger'
-      },
-      {
-        src: 'src/jumperjerk/*',
-        dest: 'jumperjerk'
+        src: 'src/projects/*',
+        dest: 'projects'
       }
     ]
   })],

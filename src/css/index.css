@@ -1,0 +1,25 @@
+:root { --titleSize: 36px; }
+
+html {
+    scrollbar-color: #3d3d47 #111314;
+}
+
+body {
+    margin: 0px;
+}
+
+@media (max-width: 882px) {
+    :root { --titleSize: 24px; }
+}
+
+@media (max-width: 600px) {
+    :root { --titleSize: 21px; }
+}
+
+@media (max-width: 408px) {
+    :root { --titleSize: 20px; }
+}
+
+@media (max-width: 340px) {
+    :root { --titleSize: 23px; }
+}

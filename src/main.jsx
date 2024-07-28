@@ -1,8 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { App } from './App.jsx'
-import './index.css'
-import './index_small.css'
+import './css/index.css'
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -17,27 +16,27 @@ window.onload = () => { adaptarTitulos(); addTooltip(); };
 
 function adaptarTitulos() // Cambia el tamaño de los títulos dependiendo de su longitud
 {
-  const tamDefault = parseFloat(getComputedStyle(document.querySelector(":root")).getPropertyValue("--tamTitulo"));
+  const defaultSize = parseFloat(getComputedStyle(document.querySelector(":root")).getPropertyValue("--titleSize"));
 
-  document.querySelectorAll("p.titulo").forEach(element => {
-    element.style.fontSize = (element.innerText.length <= 30 ? tamDefault : (tamDefault - ((element.innerText.length - 30) * 0.37))) + "px";
+  document.querySelectorAll(".project-title").forEach(element => {
+    element.style.fontSize = (element.innerText.length <= 30 ? defaultSize : (defaultSize - ((element.innerText.length - 30) * 0.37))) + "px";
   });
 }
 
 function addTooltip() { // Adición de tooltips a los estados de los proyectos
-  document.querySelectorAll(".nuevo").forEach(element => {
+  document.querySelectorAll(".new").forEach(element => {
     element.setAttribute("title", "Proyecto recientemente agregado");
   })
-  document.querySelectorAll(".progreso").forEach(element => {
+  document.querySelectorAll(".progress").forEach(element => {
     element.setAttribute("title", "Proyecto que sigue en continuo desarrollo");
   })
-  document.querySelectorAll(".pendiente").forEach(element => {
+  document.querySelectorAll(".pending").forEach(element => {
     element.setAttribute("title", "Proyecto que actualmente no funciona de forma correcta");
   })
-  document.querySelectorAll(".intermitente").forEach(element => {
+  document.querySelectorAll(".intermittent").forEach(element => {
     element.setAttribute("title", "Proyecto con un desarrollo casual a lo largo del tiempo conforme a mis necesidades");
   })
-  document.querySelectorAll(".pausado").forEach(element => {
+  document.querySelectorAll(".paused").forEach(element => {
     element.setAttribute("title", "Proyecto pausado durante un tiempo indeterminado");
   })
 }

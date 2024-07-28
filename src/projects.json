@@ -6,7 +6,7 @@
         "thumbnail": "/assets/valorantLineupsOrganizer.webp",
         "link": "https://github.com/Sauleteh/valorant-sova-lineups-organizer",
         "linkToPopup": false,
-        "tag": "nuevo"
+        "tag": "new"
     },
     {
         "title": "Ajedrez online",
@@ -15,7 +15,7 @@
         "thumbnail": "/assets/chessOnline.webp",
         "link": "https://sauleteh.gayofo.com/chess/home",
         "linkToPopup": false,
-        "tag": "nuevo"
+        "tag": "new"
     },
     {
         "title": "Visualizador de horarios de UniOvi",
@@ -31,7 +31,7 @@
         "platform": "Web | HTML, CSS y JS (frontend), Node.js y express (backend)",
         "description": "Un pequeño juego donde eres un círculo y cuyo objetivo es esquivar otras figuras que se encuentren en el tablero de juego. Cuanto más tiempo sobrevivas, mayor será la dificultad.",
         "thumbnail": "/assets/circleDodgerJS.webp",
-        "link": "./circle-dodger/dodger.html",
+        "link": "./projects/circle-dodger/dodger.html",
         "linkToPopup": false,
         "tag": ""
     },
@@ -40,7 +40,7 @@
         "platform": "Web | HTML, CSS y JS (frontend), Node.js y express (backend)",
         "description": "El buscaminas clásico. Al igual que el tetris, este juego también cuenta con un scoreboard online pero separado en tres niveles de dificultad. También puedes jugar en modo offline con dimensiones personalizadas.",
         "thumbnail": "/assets/minesweeperJS.webp",
-        "link": "./minesweeper/minesweeper.html",
+        "link": "./projects/minesweeper/minesweeper.html",
         "linkToPopup": false,
         "tag": ""
     },
@@ -49,7 +49,7 @@
         "platform": "Web | HTML, CSS y JS (frontend), Node.js y express (backend)",
         "description": "El clásico juego del Tetris hecho para el navegador. A diferencia de otros proyectos que tengo hechos en JavaScript, este es el primero en el que uso canvas y objetos. He intentado hacerlo lo más parecido posible al Tetris original. Además, he añadido un scoreboard online para que puedas competir con tus amigos.",
         "thumbnail": "/assets/tetrisJS.webp",
-        "link": "./tetris/tetris.html",
+        "link": "./projects/tetris/tetris.html",
         "linkToPopup": false,
         "tag": ""
     },
@@ -85,7 +85,7 @@
         "platform": "Web | HTML, CSS y JS",
         "description": "Un pequeño proyecto para practicar JavaScript. Se trata de una página donde un cubo de tamaño variable irá moviéndose de forma senoidal a una velocidad creciente a medida que subas de nivel manteniendo el ratón encima de él.",
         "thumbnail": "/assets/pruebaPunteria.webp",
-        "link": "./punteria/punteria.html",
+        "link": "./projects/punteria/punteria.html",
         "linkToPopup": false,
         "tag": ""
     },
@@ -94,7 +94,7 @@
         "platform": "Web | HTML, CSS y JS",
         "description": "Una página creada para crear de forma sencilla subredes dando como entradas la IP inicial y su máscara, además de los hosts que se quiere para cada subred.",
         "thumbnail": "/assets/redesSubnetting.webp",
-        "link": "./redes/redes.html",
+        "link": "./projects/redes/redes.html",
         "linkToPopup": false,
         "tag": ""
     },
@@ -103,9 +103,9 @@
         "platform": "Web | HTML, CSS y JS",
         "description": "El juego clásico del ajedrez hecho en HTML, CSS y JS. Para mover las piezas hay que hacer click en una y luego en la casilla a la que se quiera mover. Modos de juego: Multijugador local, jugador contra máquina o máquina contra máquina.",
         "thumbnail": "/assets/ajedrez.webp",
-        "link": "./ajedrez/ajedrez.html",
+        "link": "./projects/ajedrez/ajedrez.html",
         "linkToPopup": false,
-        "tag": "progreso"
+        "tag": "progress"
     },
     {
         "title": "Genshin Impact: Simulador de artefactos",
@@ -159,7 +159,7 @@
         "thumbnail": "/assets/valorantAutoMusica.webp",
         "link": "https://github.com/Sauleteh/valorant-auto-musica",
         "linkToPopup": false,
-        "tag": "progreso"
+        "tag": "progress"
     },
     {
         "title": "Obtención automática de nombres de episodios para su renombrado",
@@ -168,7 +168,7 @@
         "thumbnail": "/assets/renombradorEpisodios.webp",
         "link": "https://github.com/Sauleteh/obtenedor-nombres-episodios-para-renombrado",
         "linkToPopup": false,
-        "tag": "pendiente"
+        "tag": "pending"
     },
     {
         "title": "Calculadora matemática de cadenas de texto",
@@ -195,7 +195,7 @@
         "thumbnail": "/assets/programasOpenComputers.webp",
         "link": "https://github.com/Sauleteh/opencomputers-programas",
         "linkToPopup": false,
-        "tag": "intermitente"
+        "tag": "intermittent"
     },
     {
         "title": "Adivina el Pokémon",
@@ -213,7 +213,7 @@
         "thumbnail": "/assets/packCss.webp",
         "link": "https://github.com/Sauleteh/pack-css",
         "linkToPopup": false,
-        "tag": "intermitente"
+        "tag": "intermittent"
     },
     {
         "title": "IA para Pokémon Showdown",
@@ -231,7 +231,7 @@
         "thumbnail": "/assets/wallpapersEngine.webp",
         "link": "https://github.com/Sauleteh/wallpaper-engine-wallpapers",
         "linkToPopup": false,
-        "tag": "intermitente"
+        "tag": "intermittent"
     },
     {
         "title": "Sudoku dibujando a mano",
