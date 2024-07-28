@@ -1,0 +1,281 @@
+[
+    {
+        "title": "Valorant: Organizador de lineups de Sova",
+        "platform": "Windows | C",
+        "description": "Organiza los lineups de los distintos mapas de Valorant para el agente Sova mediante un creador de lineups. Saca tres fotos y crea automáticamente una imagen a partir de esas tres fotos, además de guardar la foto en la carpeta correspondiente.",
+        "thumbnail": "/assets/valorantLineupsOrganizer.webp",
+        "link": "https://github.com/Sauleteh/valorant-sova-lineups-organizer",
+        "linkToPopup": false,
+        "tag": "nuevo"
+    },
+    {
+        "title": "Ajedrez online",
+        "platform": "Web | React y TS (frontend), Node.js y websockets (backend)",
+        "description": "Ajedrez mejorado con respecto a mi versión anterior. Ahora cuenta con gestión de usuarios y salas, chat en tiempo real, historial de partidas, posibilidad de espectar otras partidas y es totalmente online.",
+        "thumbnail": "/assets/chessOnline.webp",
+        "link": "https://sauleteh.gayofo.com/chess/home",
+        "linkToPopup": false,
+        "tag": "nuevo"
+    },
+    {
+        "title": "Visualizador de horarios de UniOvi",
+        "platform": "Windows | Java",
+        "description": "Un programa creado con la finalidad de observar los horarios de UniOvi en un formato más visual, pudiendo elegir las asignaturas, las PLs y las TGs. Solo habría que dar como input los PDFs con los horarios. Lo más interesante es el detector de conflictos para saber qué asignaturas coger sin que choquen entre sí.",
+        "thumbnail": "/assets/visualizadorHorariosUniOvi.webp",
+        "link": "https://github.com/Sauleteh/visualizador-de-conflictos-horarios-uniovi",
+        "linkToPopup": false,
+        "tag": ""
+    },
+    {
+        "title": "Circle Dodger",
+        "platform": "Web | HTML, CSS y JS (frontend), Node.js y express (backend)",
+        "description": "Un pequeño juego donde eres un círculo y cuyo objetivo es esquivar otras figuras que se encuentren en el tablero de juego. Cuanto más tiempo sobrevivas, mayor será la dificultad.",
+        "thumbnail": "/assets/circleDodgerJS.webp",
+        "link": "./circle-dodger/dodger.html",
+        "linkToPopup": false,
+        "tag": ""
+    },
+    {
+        "title": "Buscaminas",
+        "platform": "Web | HTML, CSS y JS (frontend), Node.js y express (backend)",
+        "description": "El buscaminas clásico. Al igual que el tetris, este juego también cuenta con un scoreboard online pero separado en tres niveles de dificultad. También puedes jugar en modo offline con dimensiones personalizadas.",
+        "thumbnail": "/assets/minesweeperJS.webp",
+        "link": "./minesweeper/minesweeper.html",
+        "linkToPopup": false,
+        "tag": ""
+    },
+    {
+        "title": "Tetris",
+        "platform": "Web | HTML, CSS y JS (frontend), Node.js y express (backend)",
+        "description": "El clásico juego del Tetris hecho para el navegador. A diferencia de otros proyectos que tengo hechos en JavaScript, este es el primero en el que uso canvas y objetos. He intentado hacerlo lo más parecido posible al Tetris original. Además, he añadido un scoreboard online para que puedas competir con tus amigos.",
+        "thumbnail": "/assets/tetrisJS.webp",
+        "link": "./tetris/tetris.html",
+        "linkToPopup": false,
+        "tag": ""
+    },
+    {
+        "title": "Pokédex App",
+        "platform": "Android | Kotlin",
+        "description": "Aplicación Android realizada para la asignatura Informática Móvil (4o año) como trabajo individual. En esta aplicación se ponen a prueba los conocimientos relacionados con bases de datos, obtención de datos a partir de una API, etc. En la aplicación se pueden ver todos los Pokémon, así como sus detalles (habilidades, estadísticas, ...), localización en el mapa regional del Pokémon que se seleccione mediante pool de hilos y corutinas, filtrado de Pokémon e incluso un visualizador de debilidades y resistencias para el Pokémon seleccionado. También tiene un widget personalizado donde cada día te sale un Pokémon diferente (y con posibilidad de marcarlo como favorito). Todos los datos de los Pokémon se obtienen de la PokéAPI y para su posterior almacenamiento se utilizó Room. Para las pruebas se hizo uso de JUnit, Barista y Mockito.",
+        "thumbnail": "/assets/pokedexApp.webp",
+        "link": "Todo el proyecto está subido a GitHub pero no puedo proporcionar acceso al repositorio por temas de copyright con Nintendo. La app tampoco se encuentra en la Play Store por la razón anterior.",
+        "linkToPopup": true,
+        "tag": ""
+    },
+    {
+        "title": "Mi virus",
+        "platform": "Windows | C#",
+        "description": "Virus con capacidad de control remoto de dispositivos mediante polling a mi base de datos. Las opciones disponibles que tiene el virus, para cada usuario infectado, son: apagar, reiniciar, keylogging y llenar la RAM. Utiliza sistemas cliente-servidor mediante Named Pipes y múltiples procesos.",
+        "thumbnail": "/assets/miVirus.webp",
+        "link": "Por temas de seguridad no puedo subir el código fuente a GitHub. No es que GitHub no deje subirlo, es que simplemente prefiero no meterme en problemas de ningún tipo. Puedo enseñar el código a quien quiera pero solo en persona y con gente de confianza.",
+        "linkToPopup": true,
+        "tag": ""
+    },
+    {
+        "title": "Rocket League: Speed Control (Plugin)",
+        "platform": "Windows | C++",
+        "description": "Un plugin creado con el SDK de BakkesMod para el juego Rocket League que permite ajustar de forma cómoda ajustes varios para transformar la experiencia por defecto del juego en un juego de carreras para disfrutar de aquellos mapas personalizados hechos con este fin.",
+        "thumbnail": "/assets/speedControl.webp",
+        "link": "https://github.com/Sauleteh/speed-control",
+        "linkToPopup": false,
+        "tag": ""
+    },
+    {
+        "title": "Test: Juego de puntería",
+        "platform": "Web | HTML, CSS y JS",
+        "description": "Un pequeño proyecto para practicar JavaScript. Se trata de una página donde un cubo de tamaño variable irá moviéndose de forma senoidal a una velocidad creciente a medida que subas de nivel manteniendo el ratón encima de él.",
+        "thumbnail": "/assets/pruebaPunteria.webp",
+        "link": "./punteria/punteria.html",
+        "linkToPopup": false,
+        "tag": ""
+    },
+    {
+        "title": "Calculadora de subnetting",
+        "platform": "Web | HTML, CSS y JS",
+        "description": "Una página creada para crear de forma sencilla subredes dando como entradas la IP inicial y su máscara, además de los hosts que se quiere para cada subred.",
+        "thumbnail": "/assets/redesSubnetting.webp",
+        "link": "./redes/redes.html",
+        "linkToPopup": false,
+        "tag": ""
+    },
+    {
+        "title": "Ajedrez (Antiguo)",
+        "platform": "Web | HTML, CSS y JS",
+        "description": "El juego clásico del ajedrez hecho en HTML, CSS y JS. Para mover las piezas hay que hacer click en una y luego en la casilla a la que se quiera mover. Modos de juego: Multijugador local, jugador contra máquina o máquina contra máquina.",
+        "thumbnail": "/assets/ajedrez.webp",
+        "link": "./ajedrez/ajedrez.html",
+        "linkToPopup": false,
+        "tag": "progreso"
+    },
+    {
+        "title": "Genshin Impact: Simulador de artefactos",
+        "platform": "Windows | C++",
+        "description": "Un simulador de obtención de artefactos que calcula de la forma más parecida posible a la del juego Genshin Impact.",
+        "thumbnail": "/assets/genshinArtifactSimulador.webp",
+        "link": "https://github.com/Sauleteh/genshin-impact-simulador-artefactos",
+        "linkToPopup": false,
+        "tag": ""
+    },
+    {
+        "title": "Rocket League: Visualizador de inventario con detector de repetidos",
+        "platform": "Windows | Java",
+        "description": "Un programa que te permite visualizar tu inventario de objetos del Rocket League con la función principal de detectar los objetos que tienes repetidos para venderlos.",
+        "thumbnail": "/assets/rocketLeagueDetectorInventario.webp",
+        "link": "https://github.com/Sauleteh/rocket-league-visualizador-inventario-y-repetidos",
+        "linkToPopup": false,
+        "tag": ""
+    },
+    {
+        "title": "Color Tiles",
+        "platform": "Windows, Linux y macOS | Java",
+        "description": "Un juego creado a partir de unas instrucciones proporcionadas por mi profesor de Introducción a la Programación (1er año) para el trabajo grupal.",
+        "thumbnail": "/assets/colorTiles.webp",
+        "link": "https://github.com/Sauleteh/color-tiles",
+        "linkToPopup": false,
+        "tag": ""
+    },
+    {
+        "title": "Juego de combate por turnos",
+        "platform": "Windows, Linux y macOS | Java",
+        "description": "Un proyecto de temática libre hecho para la asignatura Comunicación Persona Máquina (2o año) como primer trabajo entregable. La temática que elegí se basó en la creación de un juego por turnos.",
+        "thumbnail": "/assets/combatePorTurnos.webp",
+        "link": "https://github.com/Sauleteh/trabajo-cpm-combate",
+        "linkToPopup": false,
+        "tag": ""
+    },
+    {
+        "title": "Genshin Impact: Saltador de texto automático",
+        "platform": "Windows (CMD) | Python",
+        "description": "Un programa que permite saltar el texto (y las elecciones) de forma automática lo más rápido posible para el juego Genshin Impact.",
+        "thumbnail": "/assets/genshinAutoSkipper.webp",
+        "link": "https://github.com/Sauleteh/genshin-impact-saltador-texto",
+        "linkToPopup": false,
+        "tag": ""
+    },
+    {
+        "title": "Valorant: Controlador de música automático",
+        "platform": "Windows (CMD) | Python",
+        "description": "Un programa que automáticamente controla el volumen y reproducción de los videos de YouTube dependiendo de lo que ocurra dentro del juego Valorant.",
+        "thumbnail": "/assets/valorantAutoMusica.webp",
+        "link": "https://github.com/Sauleteh/valorant-auto-musica",
+        "linkToPopup": false,
+        "tag": "progreso"
+    },
+    {
+        "title": "Obtención automática de nombres de episodios para su renombrado",
+        "platform": "Cualquier plataforma (CMD) | Python",
+        "description": "Un programa que obtiene los títulos de los episodios de una serie para renombrar los archivos de video dando como input cualquier página web que contenga los nombres de los episodios.",
+        "thumbnail": "/assets/renombradorEpisodios.webp",
+        "link": "https://github.com/Sauleteh/obtenedor-nombres-episodios-para-renombrado",
+        "linkToPopup": false,
+        "tag": "pendiente"
+    },
+    {
+        "title": "Calculadora matemática de cadenas de texto",
+        "platform": "Cualquier plataforma (CMD) | Python",
+        "description": "Cálculo de operaciones matemáticas con solo introducir una cadena de texto. El tamaño de la cadena es ilimitado y se pueden realizar operaciones con paréntesis, números con décimas y funciona con las cuatro operaciones elementales: suma, resta, multiplicación y división. Fue mi primer programa.",
+        "thumbnail": "/assets/calculadoraString.webp",
+        "link": "https://github.com/Sauleteh/calculadora-matematica-string",
+        "linkToPopup": false,
+        "tag": ""
+    },
+    {
+        "title": "Estadística: Calculadora de sucesos",
+        "platform": "Cualquier plataforma (CMD) | Python",
+        "description": "Un conjunto de programas relativos al cálculo de probabilidades de sucesos, muy útiles para saber porcentajes de obtención de objetos/personajes en juegos gacha. Uno de los programas cuenta con un pequeño simulador automático que te presenta los resultados que se obtuvieron en la ejecución.",
+        "thumbnail": "/assets/estadisticaSucesos.webp",
+        "link": "https://github.com/Sauleteh/calculos-estadisticos",
+        "linkToPopup": false,
+        "tag": ""
+    },
+    {
+        "title": "Minecraft: Pack de programas LUA para OpenComputers",
+        "platform": "Windows | Lua",
+        "description": "Un conjunto de programas creados para ser usados en los distintos dispositivos informáticos del mod OpenComputers para el juego Minecraft. En concreto, tengo bastantes programas de todo tipo para drones, para el PC, para el robot y para los servidores. No todos los programas están creados de cero por mí, algunos son modificaciones de otros programas que encontré en Internet y los mejoré. Los programas más destacados a mi parecer son el tres en raya con IA o para dos jugadores y el minado automático con robots.",
+        "thumbnail": "/assets/programasOpenComputers.webp",
+        "link": "https://github.com/Sauleteh/opencomputers-programas",
+        "linkToPopup": false,
+        "tag": "intermitente"
+    },
+    {
+        "title": "Adivina el Pokémon",
+        "platform": "Linux | Bash",
+        "description": "Un pequeño juego de adivinar el Pokémon el cual te mostrará un dibujo en la terminal y deberás adivinar el nombre del Pokémon.",
+        "thumbnail": "/assets/adivinaElPokemon.webp",
+        "link": "https://github.com/Sauleteh/adivina-el-pokemon",
+        "linkToPopup": false,
+        "tag": ""
+    },
+    {
+        "title": "Pack de CSS para páginas web",
+        "platform": "Web | CSS",
+        "description": "Repositorio donde tengo almacenados diversos CSS creados con el propósito de cambiar el estilo de distintias páginas web como por ejemplo YouTube en modo extra oscuro con tonos en verde, entre otros.",
+        "thumbnail": "/assets/packCss.webp",
+        "link": "https://github.com/Sauleteh/pack-css",
+        "linkToPopup": false,
+        "tag": "intermitente"
+    },
+    {
+        "title": "IA para Pokémon Showdown",
+        "platform": "Web | JavaScript",
+        "description": "Mi propia inteligencia artificial para jugar al Pokémon Showdown sin tocar nada, las decisiones las toma el propio programa. Créditos a PokéAPI por el suministro de datos.",
+        "thumbnail": "/assets/pokemonShowdownIA.webp",
+        "link": "https://github.com/Sauleteh/pokemon-showdown-ia",
+        "linkToPopup": false,
+        "tag": ""
+    },
+    {
+        "title": "Wallpaper Engine: Mis fondos animados",
+        "platform": "Windows | HTML, CSS y JS",
+        "description": "Fondos animados ya sean modificaciones de otros fondos o creaciones propias, hechos específicamente para ser usados con el programa Wallpaper Engine.",
+        "thumbnail": "/assets/wallpapersEngine.webp",
+        "link": "https://github.com/Sauleteh/wallpaper-engine-wallpapers",
+        "linkToPopup": false,
+        "tag": "intermitente"
+    },
+    {
+        "title": "Sudoku dibujando a mano",
+        "platform": "Windows | C#",
+        "description": "Juego hecho en Unity como primer proyecto en este entorno. Se trata de un tablero de sudoku generado de forma aleatoria mediante backtracking (para que se pueda resolver). Cuenta con detección de números erróneos y detección de partida terminada. La diferencia de los demás sudokus se encuentra en la forma de escribir los números: para escribir un número debes dibujarlo literalmente, el programa intentará predecir qué número has dibujado y sustituirá tu dibujo por el número. Inspirado en el sudoku del juego de Nintendo DS: Dr. Kawashima's Brain Training.",
+        "thumbnail": "/assets/sudokuUnity.webp",
+        "link": "https://github.com/Sauleteh/unity-sudoku-handwritten",
+        "linkToPopup": false,
+        "tag": ""
+    },
+    {
+        "title": "Bingo con detección de voz",
+        "platform": "Android | Kotlin",
+        "description": "Aplicación Android que cuenta con creación de cartones y con posibilidad de simulación de los mismos, para cuando quieras jugar al Bingo con tu familia en Navidad. El toque interesante de esta aplicación se encuentra en que puedes automatizar el rellenado de los cartones, es decir, en vez de pulsar sobre los números de los cartones para marcarlos como que han salido, el programa detectará los números que se digan mediante el micrófono de tu dispositivo y los apuntará automáticamente (Speech To Text).",
+        "thumbnail": "/assets/autoBingo.webp",
+        "link": "https://github.com/Sauleteh/android-bingo-audio-recognition",
+        "linkToPopup": false,
+        "tag": ""
+    },
+    {
+        "title": "Página web Pokémon",
+        "platform": "Web | HTML, CSS y JS",
+        "description": "El segundo trabajo de temática libre hecho para la asignatura CPM. Trataba de hacer una página web en la que se incluyeran toda variedad de etiquetas, reglas CSS, funciones JS y aplicar internacionalización siguiendo un guión de requisitos obligatorio. En mi caso, elegí hacer una página web sobre Pokémon y aunque no sea una obra de arte debido a los limitantes que hubo en los requisitos, considero que quedó bastante bien.",
+        "thumbnail": "/assets/paginaPokemon.webp",
+        "link": "Este proyecto contiene varias imágenes y videos de la franquicia de Pokémon por lo que me es imposible subirlo al GitHub sin infringir derechos de autor. Si algún día me aburro y me da por rehacer las imágenes a mano, lo subiré (menos los videos).",
+        "linkToPopup": true,
+        "tag": ""
+    },
+    {
+        "title": "Encriptador y desencriptador de archivos .keyx",
+        "platform": "Windows | C",
+        "description": "Un programa dos en uno que encripta archivos .keyx (llaves para abrir bases de datos de KeePass) y desencripta archivos .bins (extensión específica de este programa) mediante técnicas hashing (que no especificaré) y dos algoritmos de cifrado privados y de clave única: uno trabaja a nivel de bits a cinco niveles de profundidad y el otro a nivel de bytes junto con el hashing. Un archivo .keyx contiene 240 bytes y el programa tarda aproximadamente 15 minutos en tratar estos bytes (tanto para encriptar como para desencriptar), es mucho tiempo pero también es mucha seguridad.",
+        "thumbnail": "/assets/des-encriptador.webp",
+        "link": "No está subido en GitHub por el hecho de que el programa es de clave única con algoritmos privados y hacerlo open source haría el programa inseguro. Si por alguna razón algún día me piden este programa, lo subiré a GitHub pero sin su código fuente. Hacerle ingeniería inversa a este programa no me preocupa pues es demasiado difícil sabiendo cómo está hecho por dentro el código y dudo de que alguien se moleste en hacer eso a un programa que solo uso yo y que probablemente lo usen unas pocas personas más en el futuro.",
+        "linkToPopup": true,
+        "tag": ""
+    },
+    {
+        "title": "Snake Terminal",
+        "platform": "Linux | C",
+        "description": "El clásico juego de la serpiente, pero en la terminal mediante la librería curses. Para personalizar el juego (tamaño del tablero, velocidad de la serpiente, etc) hay que modificar el código fuente.",
+        "thumbnail": "/assets/snakeTerminal.webp",
+        "link": "https://github.com/Sauleteh/snake-terminal",
+        "linkToPopup": false,
+        "tag": ""
+    }
+]
