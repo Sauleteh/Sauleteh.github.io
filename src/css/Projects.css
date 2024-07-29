@@ -1,9 +1,9 @@
-.app-line {
+.projects-line {
     box-shadow: 0 0 6px white;
     margin: 20px;
 }
 
-.app-title {
+.projects-title {
     font-family: 'Raleway', monospace;
     text-transform: uppercase;
     font-weight: bold;
@@ -17,12 +17,12 @@
     transform: skewX(-10deg);
 }
 
-.app-title.app-completed { text-shadow: 0 0 6px #00ff00; }
-.app-title.app-completed::before { box-shadow: 0 0 6px #00ff00; }
-.app-title.app-wip { text-shadow: 0 0 6px #ffff00; }
-.app-title.app-wip::before { box-shadow: 0 0 6px #ffff00; }
+.projects-title.projects-completed { text-shadow: 0 0 6px #00ff00; }
+.projects-title.projects-completed::before { box-shadow: 0 0 6px #00ff00; }
+.projects-title.projects-wip { text-shadow: 0 0 6px #ffff00; }
+.projects-title.projects-wip::before { box-shadow: 0 0 6px #ffff00; }
 
-.app-title::before {
+.projects-title::before {
     content: '';
     position: absolute;
     width: 100%;
@@ -35,17 +35,17 @@
     transition: transform 0.2s ease-in-out;
 }
 
-.app-title:hover::before {
+.projects-title:hover::before {
     transform-origin: center;
     transform: scaleX(1);
 }
 
-.app-section {
+.projects-section {
     text-align: center;
-    animation: aparecerAnimation 3s;
+    animation: showAnimation 3s;
 }
 
-.app-container {
+.projects-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -53,12 +53,17 @@
     text-align: left;
 }
 
-.app-container > * {
+.projects-container > * {
     visibility: visible;
 }
 
+@keyframes showAnimation {
+    from { opacity: 0; visisibility: hidden; }
+    to { opacity: 1; visibility: visible; }
+}
+
 @media (max-width: 882px) {
-    .app-title {
+    .projects-title {
         font-size: 35px;
         margin-top: 30px;
         margin-left: 10px;
@@ -67,7 +72,7 @@
 }
 
 @media (max-width: 600px) {
-    .app-title {
+    .projects-title {
         font-size: 25px;
         margin-top: 22px;
         margin-left: 9px;
@@ -76,7 +81,7 @@
 }
 
 @media (max-width: 408px) {
-    .app-title {
+    .projects-title {
         font-size: 19.5px;
         margin-top: 18px;
         margin-left: 8px;
@@ -85,7 +90,7 @@
 }
 
 @media (max-width: 340px) {
-    .app-title {
+    .projects-title {
         font-size: 22px;
         margin-top: 18px;
         margin-left: 8px;

@@ -1,0 +1,22 @@
+.navBar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #111314;
+    height: 60px;
+}
+
+.navItem {
+    font-family: 'Raleway', sans-serif;
+    margin: 0 10px;
+    padding: 10px;
+    text-decoration: none;
+    color: #d1d1d1;
+    font-weight: bold;
+}
+
+.navItem:hover {
+    color: #fff;
+    background-color: #222222;
+    border-radius: 5px;
+}
