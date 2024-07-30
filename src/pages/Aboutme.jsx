@@ -49,57 +49,58 @@ export function Aboutme() {
             <h2 className="aboutme-title">Lenguajes que más uso</h2>
             <ul className="aboutme-language-container">
                 <li className="aboutme-language-item">
-                    <img className="aboutme-icon" src="/logos/javascript-logo.svg"/><label className="aboutme-language">JavaScript</label>
+                    <img className="aboutme-language-icon" src="/logos/javascript-logo.svg"/><label className="aboutme-language">JavaScript</label>
                 </li>
                 <li className="aboutme-language-item">
-                    <img className="aboutme-icon" src="/logos/typescript-logo.svg"/><label className="aboutme-language">TypeScript</label>
+                    <img className="aboutme-language-icon" src="/logos/typescript-logo.svg"/><label className="aboutme-language">TypeScript</label>
                 </li>
                 <li className="aboutme-language-item">
-                    <img className="aboutme-icon" src="/logos/java-logo.svg"/><label className="aboutme-language">Java</label>
+                    <img className="aboutme-language-icon" src="/logos/java-logo.svg"/><label className="aboutme-language">Java</label>
                 </li>
                 <li className="aboutme-language-item">
-                    <img className="aboutme-icon" src="/logos/kotlin-logo.svg"/><label className="aboutme-language">Kotlin</label>
+                    <img className="aboutme-language-icon" src="/logos/kotlin-logo.svg"/><label className="aboutme-language">Kotlin</label>
                 </li>
                 <li className="aboutme-language-item">
-                    <img className="aboutme-icon" src="/logos/c-logo.svg"/><label className="aboutme-language">C</label>
+                    <img className="aboutme-language-icon" src="/logos/c-logo.svg"/><label className="aboutme-language">C</label>
                 </li>
                 <li className="aboutme-language-item">
-                    <img className="aboutme-icon" src="/logos/cpp-logo.svg"/><label className="aboutme-language">C++</label>
+                    <img className="aboutme-language-icon" src="/logos/cpp-logo.svg"/><label className="aboutme-language">C++</label>
                 </li>
                 <li className="aboutme-language-item">
-                    <img className="aboutme-icon" src="/logos/csharp-logo.svg"/><label className="aboutme-language">C#</label>
+                    <img className="aboutme-language-icon" src="/logos/csharp-logo.svg"/><label className="aboutme-language">C#</label>
                 </li>
                 <li className="aboutme-language-item">
-                    <img className="aboutme-icon" src="/logos/python-logo.svg"/><label className="aboutme-language">Python</label>
+                    <img className="aboutme-language-icon" src="/logos/python-logo.svg"/><label className="aboutme-language">Python</label>
                 </li>
             </ul>
 
             <h2 className="aboutme-title">Tecnologías más usadas en mis distintos proyectos</h2>
             <ul className="aboutme-technology-container">
                 <li className="aboutme-technology-item">
-                    <img className="aboutme-icon" src="/logos/react-logo.svg"/><label className="aboutme-technology">React</label>
+                    <img className="aboutme-technology-icon" src="/logos/react-logo.svg"/><label className="aboutme-technology">React</label>
                 </li>
                 <li className="aboutme-technology-item">
-                    <img className="aboutme-icon" src="/logos/nodejs-logo.svg"/><label className="aboutme-technology">Node.js</label>
+                    <img className="aboutme-technology-icon" src="/logos/nodejs-logo.svg"/><label className="aboutme-technology">Node.js</label>
                 </li>
                 <li className="aboutme-technology-item">
-                    <img className="aboutme-icon" src="/logos/express-logo.svg"/><label className="aboutme-technology">Express</label>
+                    <img className="aboutme-technology-icon" src="/logos/express-logo.svg"/><label className="aboutme-technology">Express</label>
                 </li>
                 <li className="aboutme-technology-item">
-                    <img className="aboutme-icon" src="/logos/mysql-logo.svg"/><label className="aboutme-technology">MySQL</label>
+                    <img className="aboutme-technology-icon" src="/logos/mysql-logo.svg"/><label className="aboutme-technology">MySQL</label>
                 </li>
                 <li className="aboutme-technology-item">
-                    <img className="aboutme-icon" src="/logos/websockets-logo.svg"/><label className="aboutme-technology">WebSockets</label>
+                    <img className="aboutme-technology-icon" src="/logos/websockets-logo.svg"/><label className="aboutme-technology">WebSockets</label>
                 </li>
             </ul>
 
-            <h2 className="aboutme-title">Enlaces de interés</h2>
+            <hr className="aboutme-line"/>
+            
             <ul className="aboutme-link-container">
                 <li className="aboutme-link-item" onClick={() => handleLink("https://github.com/Sauleteh")}>
-                    <img className="aboutme-icon" src="/logos/github-mark-white.svg"/><label className="aboutme-link">Cuenta principal</label>
+                    <img className="aboutme-link-icon" src="/logos/github-mark-white.svg"/><label className="aboutme-link">Cuenta principal</label>
                 </li>
                 <li className="aboutme-link-item" onClick={() => handleLink("https://github.com/UO279176")}>
-                    <img className="aboutme-icon" src="/logos/github-mark-white.svg"/><label className="aboutme-link">Cuenta universitaria</label>
+                    <img className="aboutme-link-icon" src="/logos/github-mark-white.svg"/><label className="aboutme-link">Cuenta universitaria</label>
                 </li>
             </ul>
         </div>
