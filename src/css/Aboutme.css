@@ -1,0 +1,161 @@
+.aboutme-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+h1.aboutme-title {
+    font-family: 'Raleway', sans-serif;
+    color: white;
+    font-size: 50px;
+    margin: 80px 0px 0px 0px;
+    animation: showAnimation 3s, rainbowShadow 3s infinite linear;
+    letter-spacing: 2px;
+}
+
+h2.aboutme-title {
+    font-family: 'Raleway', sans-serif;
+    color: white;
+    font-size: 25px;
+    margin: 40px 0px 0px 0px;
+    animation: showAnimation 3s;
+    letter-spacing: 1px;
+}
+
+.aboutme-image {
+    width: 200px;
+    border-radius: 50%;
+    animation: showAnimation 3s;
+    margin: 40px 0px;
+}
+
+.aboutme-text {
+    font-family: 'Raleway', monospace;
+    color: rgb(156, 156, 156);
+    font-size: 18px;
+    max-width: 1000px;
+    margin: 0px 20px;
+}
+
+.aboutme-link-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin: 20px 0px;
+}
+
+.aboutme-link-item {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    backface-visibility: hidden;
+    transform-origin: bottom;
+    background-color: transparent;
+    border-radius: 30px;
+    padding: 5px 10px 5px 5px;
+    transform: scale(1, 1);
+    transition: all 0.1s;
+}
+
+.aboutme-link-item:hover {
+    transform: scale(1.1, 1.1);
+    background-color: #ffffff0f;
+}
+
+.aboutme-link-item:hover .aboutme-link {
+    color: #ffffff;
+}
+
+.aboutme-link-item + .aboutme-link-item {
+    margin-left: 40px;
+}
+
+.aboutme-link {
+    font-family: 'Raleway', sans-serif;
+    color: #d1d1d1;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.aboutme-icon {
+    width: 25px;
+    height: 25px;
+    margin-right: 10px;
+}
+
+.aboutme-language-container, .aboutme-technology-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    margin: 20px 0px 0px 0px;
+}
+
+.aboutme-language-item, .aboutme-technology-item {
+    display: flex;
+    align-items: center;
+    backface-visibility: hidden;
+    transform-origin: bottom;
+    transform: scale(1, 1);
+    transition: all 0.1s;
+    border-radius: 4px;
+    padding: 2px 5px;
+    overflow: hidden;
+}
+
+.aboutme-language-item:hover, .aboutme-technology-item:hover {
+    transform: scale(1.02, 1.02);
+}
+
+.aboutme-language-item + .aboutme-language-item, .aboutme-technology-item + .aboutme-technology-item {
+    margin-left: 20px;
+}
+
+.aboutme-language, .aboutme-technology {
+    font-family: 'Raleway', monospace;
+    color: #d1d1d1;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+@keyframes showAnimation {
+    from { opacity: 0; visisibility: hidden; }
+    to { opacity: 1; visibility: visible; }
+}
+
+@keyframes rainbowShadow {
+    0% { text-shadow: 0 0 6px #04AA6D; }
+    12% { text-shadow: 0 0 6px #0797a1; }
+    24% { text-shadow: 0 0 6px #064bb3; }
+    36% { text-shadow: 0 0 6px #4309c9; }
+    48% { text-shadow: 0 0 6px #b60b7d; }
+    60% { text-shadow: 0 0 6px #b90b0b; }
+    72% { text-shadow: 0 0 6px #b4870a; }
+    84% { text-shadow: 0 0 6px #a5b60b; }
+    96% { text-shadow: 0 0 6px #11ad26; }
+    100% { text-shadow: 0 0 6px #04AA6D; }
+}
+
+.aboutme-language-item::before, .aboutme-technology-item::before {
+    content: "";
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background-color: white;
+    top: -100%;
+    left: -120%;
+    transform: rotate(45deg);
+    opacity: 0;
+    transition: all 0s ease;
+}
+
+.aboutme-language-item:hover::before, .aboutme-technology-item:hover::before {
+    left: 100%;
+    opacity: 0.7;
+    transition: all 0.5s ease;
+}

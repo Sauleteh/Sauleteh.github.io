@@ -1,5 +1,5 @@
 import PropTypes from "prop-types"
-import placeholder from "/assets/placeholder.webp"
+import placeholder from "/project-images/placeholder.webp"
 import { Popup } from "./Popup.jsx"
 import { useRef } from "react";
 import "../css/Project.css";

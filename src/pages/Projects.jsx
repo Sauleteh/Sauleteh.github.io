@@ -1,7 +1,7 @@
 import "../css/Projects.css"
 import { Project } from "../components/Project.jsx"
 import projectData from "../projects.json"
-import minecraftBotMod from "/assets/minecraftBotMod.webp"
+import minecraftBotMod from "/project-images/minecraftBotMod.webp"
 
 export function Projects() {
     return (
