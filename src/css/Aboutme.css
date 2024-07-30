@@ -170,17 +170,16 @@ h2.aboutme-title:hover::before {
     backface-visibility: hidden;
     transform-origin: bottom;
     transform: scale(1, 1);
-    transition: all 0.1s;
+    transition: all 0.2s;
     border-radius: 4px;
     padding: 5px 5px;
     overflow: hidden;
     opacity: 0;
-    animation: showAnimation 2s, rightArrowAnimation 2s ease-in-out;
-    animation-fill-mode: forwards;
+    animation: showAnimation 2s forwards, rightArrowAnimation 2s ease-in-out;
 }
 
 .aboutme-language-item:hover, .aboutme-technology-item:hover {
-    transform: scale(1.02, 1.02);
+    transform: scale(1.05, 1.05);
 }
 
 .aboutme-language, .aboutme-technology {
@@ -234,6 +233,11 @@ h2.aboutme-title:hover::before {
 .aboutme-link-item:hover {
     transform: scale(1.1, 1.1);
     background-color: #ffffff0f;
+}
+
+.aboutme-link-item:active {
+    transform: scale(1.05, 1.05);
+    background-color: #ffffff1f;
 }
 
 .aboutme-link-item:hover .aboutme-link {
