@@ -5,6 +5,24 @@ export function Aboutme() {
     const textAnimated = useRef(false);
     let currentSection = 0;
 
+    const languages = [
+        { name: "JavaScript", icon: "/logos/javascript-logo.svg" },
+        { name: "TypeScript", icon: "/logos/typescript-logo.svg" },
+        { name: "Java", icon: "/logos/java-logo.svg" },
+        { name: "Kotlin", icon: "/logos/kotlin-logo.svg" },
+        { name: "C", icon: "/logos/c-logo.svg" },
+        { name: "C++", icon: "/logos/cpp-logo.svg" },
+        { name: "C#", icon: "/logos/csharp-logo.svg" },
+        { name: "Python", icon: "/logos/python-logo.svg" }
+    ];
+    const technologies = [
+        { name: "React", icon: "/logos/react-logo.svg" },
+        { name: "Node.js", icon: "/logos/nodejs-logo.svg" },
+        { name: "Express", icon: "/logos/express-logo.svg" },
+        { name: "MySQL", icon: "/logos/mysql-logo.svg" },
+        { name: "WebSockets", icon: "/logos/websockets-logo.svg" }
+    ];
+
     function handleLink(link) {
         window.open(link, "_blank");
     }
@@ -77,51 +95,22 @@ export function Aboutme() {
                 <div className="aboutme-section aboutme-section-active">
                     <h2 className="aboutme-title">Lenguajes que más uso</h2>
                     <ul className="aboutme-language-container">
-                        <li className="aboutme-language-item">
-                            <img className="aboutme-language-icon" src="/logos/javascript-logo.svg"/><label className="aboutme-language">JavaScript</label>
-                        </li>
-                        <li className="aboutme-language-item">
-                            <img className="aboutme-language-icon" src="/logos/typescript-logo.svg"/><label className="aboutme-language">TypeScript</label>
-                        </li>
-                        <li className="aboutme-language-item">
-                            <img className="aboutme-language-icon" src="/logos/java-logo.svg"/><label className="aboutme-language">Java</label>
-                        </li>
-                        <li className="aboutme-language-item">
-                            <img className="aboutme-language-icon" src="/logos/kotlin-logo.svg"/><label className="aboutme-language">Kotlin</label>
-                        </li>
-                        <li className="aboutme-language-item">
-                            <img className="aboutme-language-icon" src="/logos/c-logo.svg"/><label className="aboutme-language">C</label>
-                        </li>
-                        <li className="aboutme-language-item">
-                            <img className="aboutme-language-icon" src="/logos/cpp-logo.svg"/><label className="aboutme-language">C++</label>
-                        </li>
-                        <li className="aboutme-language-item">
-                            <img className="aboutme-language-icon" src="/logos/csharp-logo.svg"/><label className="aboutme-language">C#</label>
-                        </li>
-                        <li className="aboutme-language-item">
-                            <img className="aboutme-language-icon" src="/logos/python-logo.svg"/><label className="aboutme-language">Python</label>
-                        </li>
+                        {languages.map((language, index) => (
+                            <li key={index} className="aboutme-language-item">
+                                <img className="aboutme-language-icon" src={language.icon}/><label className="aboutme-language">{language.name}</label>
+                            </li>
+                        ))}
                     </ul>
                 </div>
 
                 <div className="aboutme-section">
                     <h2 className="aboutme-title">Tecnologías más usadas en mis distintos proyectos</h2>
                     <ul className="aboutme-technology-container">
-                        <li className="aboutme-technology-item">
-                            <img className="aboutme-technology-icon" src="/logos/react-logo.svg"/><label className="aboutme-technology">React</label>
-                        </li>
-                        <li className="aboutme-technology-item">
-                            <img className="aboutme-technology-icon" src="/logos/nodejs-logo.svg"/><label className="aboutme-technology">Node.js</label>
-                        </li>
-                        <li className="aboutme-technology-item">
-                            <img className="aboutme-technology-icon" src="/logos/express-logo.svg"/><label className="aboutme-technology">Express</label>
-                        </li>
-                        <li className="aboutme-technology-item">
-                            <img className="aboutme-technology-icon" src="/logos/mysql-logo.svg"/><label className="aboutme-technology">MySQL</label>
-                        </li>
-                        <li className="aboutme-technology-item">
-                            <img className="aboutme-technology-icon" src="/logos/websockets-logo.svg"/><label className="aboutme-technology">WebSockets</label>
-                        </li>
+                        {technologies.map((technology, index) => (
+                            <li key={index} className="aboutme-technology-item">
+                                <img className="aboutme-technology-icon" src={technology.icon}/><label className="aboutme-technology">{technology.name}</label>
+                            </li>
+                        ))}
                     </ul>
                 </div>
             </div>
