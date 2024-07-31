@@ -1,11 +1,24 @@
 import "../css/Projects.css"
 import { Project } from "../components/Project.jsx"
+import { SearchBar } from "../components/SearchBar.jsx"
+import { FilterBar } from "../components/FilterBar.jsx"
 import projectData from "../projects.json"
 import minecraftBotMod from "/project-images/minecraftBotMod.webp"
 
 export function Projects() {
+    // La búsqueda se hace sobre todos los proyectos y el filtro se hace sobre los proyectos obtenidos de la búsqueda (es decir, primero se busca y luego se filtra sobre la búsqueda)
+    function handleSearchBarChange(data) {
+        console.log(data)
+    }
+
+    function handleFilterBarChange(data) {
+        console.log(data)
+    }
+
     return (
         <>
+        <SearchBar sendData={handleSearchBarChange}/>
+        <FilterBar sendData={handleFilterBarChange}/>
         <div className="projects-section">
             <h1 className="projects-title projects-completed">Proyectos finalizados</h1>
             <div className="projects-container">
