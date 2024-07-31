@@ -6,7 +6,8 @@
         "thumbnail": "/project-images/valorantLineupsOrganizer.webp",
         "link": "https://github.com/Sauleteh/valorant-sova-lineups-organizer",
         "linkToPopup": false,
-        "tag": "new"
+        "tag": "new",
+        "theme": "Programas para/sobre juegos"
     },
     {
         "title": "Ajedrez online",
@@ -15,7 +16,8 @@
         "thumbnail": "/project-images/chessOnline.webp",
         "link": "https://sauleteh.gayofo.com/chess/home",
         "linkToPopup": false,
-        "tag": "new"
+        "tag": "new",
+        "theme": "Videojuegos"
     },
     {
         "title": "Visualizador de horarios de UniOvi",
@@ -24,7 +26,8 @@
         "thumbnail": "/project-images/visualizadorHorariosUniOvi.webp",
         "link": "https://github.com/Sauleteh/visualizador-de-conflictos-horarios-uniovi",
         "linkToPopup": false,
-        "tag": ""
+        "tag": "",
+        "theme": "Utilidades uniovi"
     },
     {
         "title": "Circle Dodger",
@@ -33,7 +36,8 @@
         "thumbnail": "/project-images/circleDodgerJS.webp",
         "link": "./projects/circle-dodger/dodger.html",
         "linkToPopup": false,
-        "tag": ""
+        "tag": "",
+        "theme": "Videojuegos"
     },
     {
         "title": "Buscaminas",
@@ -42,7 +46,8 @@
         "thumbnail": "/project-images/minesweeperJS.webp",
         "link": "./projects/minesweeper/minesweeper.html",
         "linkToPopup": false,
-        "tag": ""
+        "tag": "",
+        "theme": "Videojuegos"
     },
     {
         "title": "Tetris",
@@ -51,7 +56,8 @@
         "thumbnail": "/project-images/tetrisJS.webp",
         "link": "./projects/tetris/tetris.html",
         "linkToPopup": false,
-        "tag": ""
+        "tag": "",
+        "theme": "Videojuegos"
     },
     {
         "title": "Pokédex App",
@@ -60,7 +66,8 @@
         "thumbnail": "/project-images/pokedexApp.webp",
         "link": "Todo el proyecto está subido a GitHub pero no puedo proporcionar acceso al repositorio por temas de copyright con Nintendo. La app tampoco se encuentra en la Play Store por la razón anterior.",
         "linkToPopup": true,
-        "tag": ""
+        "tag": "",
+        "theme": "Programas para/sobre juegos"
     },
     {
         "title": "Mi virus",
@@ -69,7 +76,8 @@
         "thumbnail": "/project-images/miVirus.webp",
         "link": "Por temas de seguridad no puedo subir el código fuente a GitHub. No es que GitHub no deje subirlo, es que simplemente prefiero no meterme en problemas de ningún tipo. Puedo enseñar el código a quien quiera pero solo en persona y con gente de confianza.",
         "linkToPopup": true,
-        "tag": ""
+        "tag": "",
+        "theme": "Seguridad informática"
     },
     {
         "title": "Rocket League: Speed Control (Plugin)",
@@ -78,7 +86,8 @@
         "thumbnail": "/project-images/speedControl.webp",
         "link": "https://github.com/Sauleteh/speed-control",
         "linkToPopup": false,
-        "tag": ""
+        "tag": "",
+        "theme": "Programas para/sobre juegos"
     },
     {
         "title": "Test: Juego de puntería",
@@ -87,7 +96,8 @@
         "thumbnail": "/project-images/pruebaPunteria.webp",
         "link": "./projects/punteria/punteria.html",
         "linkToPopup": false,
-        "tag": ""
+        "tag": "",
+        "theme": "Videojuegos"
     },
     {
         "title": "Calculadora de subnetting",
@@ -96,7 +106,8 @@
         "thumbnail": "/project-images/redesSubnetting.webp",
         "link": "./projects/redes/redes.html",
         "linkToPopup": false,
-        "tag": ""
+        "tag": "",
+        "theme": "Utilidades uniovi"
     },
     {
         "title": "Ajedrez (Antiguo)",
@@ -105,7 +116,8 @@
         "thumbnail": "/project-images/ajedrez.webp",
         "link": "./projects/ajedrez/ajedrez.html",
         "linkToPopup": false,
-        "tag": "progress"
+        "tag": "progress",
+        "theme": "Videojuegos"
     },
     {
         "title": "Genshin Impact: Simulador de artefactos",
@@ -114,7 +126,8 @@
         "thumbnail": "/project-images/genshinArtifactSimulador.webp",
         "link": "https://github.com/Sauleteh/genshin-impact-simulador-artefactos",
         "linkToPopup": false,
-        "tag": ""
+        "tag": "",
+        "theme": "Programas para/sobre juegos"
     },
     {
         "title": "Rocket League: Visualizador de inventario con detector de repetidos",
@@ -123,7 +136,8 @@
         "thumbnail": "/project-images/rocketLeagueDetectorInventario.webp",
         "link": "https://github.com/Sauleteh/rocket-league-visualizador-inventario-y-repetidos",
         "linkToPopup": false,
-        "tag": ""
+        "tag": "",
+        "theme": "Programas para/sobre juegos"
     },
     {
         "title": "Color Tiles",
@@ -132,7 +146,8 @@
         "thumbnail": "/project-images/colorTiles.webp",
         "link": "https://github.com/Sauleteh/color-tiles",
         "linkToPopup": false,
-        "tag": ""
+        "tag": "",
+        "theme": "Videojuegos"
     },
     {
         "title": "Juego de combate por turnos",
@@ -141,7 +156,8 @@
         "thumbnail": "/project-images/combatePorTurnos.webp",
         "link": "https://github.com/Sauleteh/trabajo-cpm-combate",
         "linkToPopup": false,
-        "tag": ""
+        "tag": "",
+        "theme": "Videojuegos"
     },
     {
         "title": "Genshin Impact: Saltador de texto automático",
@@ -150,7 +166,8 @@
         "thumbnail": "/project-images/genshinAutoSkipper.webp",
         "link": "https://github.com/Sauleteh/genshin-impact-saltador-texto",
         "linkToPopup": false,
-        "tag": ""
+        "tag": "",
+        "theme": "Programas para/sobre juegos"
     },
     {
         "title": "Valorant: Controlador de música automático",
@@ -159,7 +176,8 @@
         "thumbnail": "/project-images/valorantAutoMusica.webp",
         "link": "https://github.com/Sauleteh/valorant-auto-musica",
         "linkToPopup": false,
-        "tag": "progress"
+        "tag": "progress",
+        "theme": "Programas para/sobre juegos"
     },
     {
         "title": "Obtención automática de nombres de episodios para su renombrado",
@@ -168,7 +186,8 @@
         "thumbnail": "/project-images/renombradorEpisodios.webp",
         "link": "https://github.com/Sauleteh/obtenedor-nombres-episodios-para-renombrado",
         "linkToPopup": false,
-        "tag": "pending"
+        "tag": "pending",
+        "theme": "Programas útiles"
     },
     {
         "title": "Calculadora matemática de cadenas de texto",
@@ -177,7 +196,8 @@
         "thumbnail": "/project-images/calculadoraString.webp",
         "link": "https://github.com/Sauleteh/calculadora-matematica-string",
         "linkToPopup": false,
-        "tag": ""
+        "tag": "",
+        "theme": "Programas útiles"
     },
     {
         "title": "Estadística: Calculadora de sucesos",
@@ -186,7 +206,8 @@
         "thumbnail": "/project-images/estadisticaSucesos.webp",
         "link": "https://github.com/Sauleteh/calculos-estadisticos",
         "linkToPopup": false,
-        "tag": ""
+        "tag": "",
+        "theme": "Programas útiles"
     },
     {
         "title": "Minecraft: Pack de programas LUA para OpenComputers",
@@ -195,7 +216,8 @@
         "thumbnail": "/project-images/programasOpenComputers.webp",
         "link": "https://github.com/Sauleteh/opencomputers-programas",
         "linkToPopup": false,
-        "tag": "intermittent"
+        "tag": "intermittent",
+        "theme": "Programas para/sobre juegos"
     },
     {
         "title": "Adivina el Pokémon",
@@ -204,7 +226,8 @@
         "thumbnail": "/project-images/adivinaElPokemon.webp",
         "link": "https://github.com/Sauleteh/adivina-el-pokemon",
         "linkToPopup": false,
-        "tag": ""
+        "tag": "",
+        "theme": "Videojuegos"
     },
     {
         "title": "Pack de CSS para páginas web",
@@ -213,7 +236,8 @@
         "thumbnail": "/project-images/packCss.webp",
         "link": "https://github.com/Sauleteh/pack-css",
         "linkToPopup": false,
-        "tag": "intermittent"
+        "tag": "intermittent",
+        "theme": "Otros"
     },
     {
         "title": "IA para Pokémon Showdown",
@@ -222,7 +246,8 @@
         "thumbnail": "/project-images/pokemonShowdownIA.webp",
         "link": "https://github.com/Sauleteh/pokemon-showdown-ia",
         "linkToPopup": false,
-        "tag": ""
+        "tag": "",
+        "theme": "Programas para/sobre juegos"
     },
     {
         "title": "Wallpaper Engine: Mis fondos animados",
@@ -231,7 +256,8 @@
         "thumbnail": "/project-images/wallpapersEngine.webp",
         "link": "https://github.com/Sauleteh/wallpaper-engine-wallpapers",
         "linkToPopup": false,
-        "tag": "intermittent"
+        "tag": "intermittent",
+        "theme": "Otros"
     },
     {
         "title": "Sudoku dibujando a mano",
@@ -240,7 +266,8 @@
         "thumbnail": "/project-images/sudokuUnity.webp",
         "link": "https://github.com/Sauleteh/unity-sudoku-handwritten",
         "linkToPopup": false,
-        "tag": ""
+        "tag": "",
+        "theme": "Videojuegos"
     },
     {
         "title": "Bingo con detección de voz",
@@ -249,7 +276,8 @@
         "thumbnail": "/project-images/autoBingo.webp",
         "link": "https://github.com/Sauleteh/android-bingo-audio-recognition",
         "linkToPopup": false,
-        "tag": ""
+        "tag": "",
+        "theme": "Programas para/sobre juegos"
     },
     {
         "title": "Página web Pokémon",
@@ -258,7 +286,8 @@
         "thumbnail": "/project-images/paginaPokemon.webp",
         "link": "Este proyecto contiene varias imágenes y videos de la franquicia de Pokémon por lo que me es imposible subirlo al GitHub sin infringir derechos de autor. Si algún día me aburro y me da por rehacer las imágenes a mano, lo subiré (menos los videos).",
         "linkToPopup": true,
-        "tag": ""
+        "tag": "",
+        "theme": "Programas para/sobre juegos"
     },
     {
         "title": "Encriptador y desencriptador de archivos .keyx",
@@ -267,7 +296,8 @@
         "thumbnail": "/project-images/des-encriptador.webp",
         "link": "No está subido en GitHub por el hecho de que el programa es de clave única con algoritmos privados y hacerlo open source haría el programa inseguro. Si por alguna razón algún día me piden este programa, lo subiré a GitHub pero sin su código fuente. Hacerle ingeniería inversa a este programa no me preocupa pues es demasiado difícil sabiendo cómo está hecho por dentro el código y dudo de que alguien se moleste en hacer eso a un programa que solo uso yo y que probablemente lo usen unas pocas personas más en el futuro.",
         "linkToPopup": true,
-        "tag": ""
+        "tag": "",
+        "theme": "Seguridad informática"
     },
     {
         "title": "Snake Terminal",
@@ -276,6 +306,7 @@
         "thumbnail": "/project-images/snakeTerminal.webp",
         "link": "https://github.com/Sauleteh/snake-terminal",
         "linkToPopup": false,
-        "tag": ""
+        "tag": "",
+        "theme": "Videojuegos"
     }
 ]

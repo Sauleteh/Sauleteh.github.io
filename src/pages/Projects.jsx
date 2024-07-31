@@ -13,7 +13,6 @@ export function Projects() {
 
     // La búsqueda se hace sobre todos los proyectos y el filtro se hace sobre los proyectos obtenidos de la búsqueda (es decir, primero se busca y luego se filtra sobre la búsqueda)
     function handleSearchBarChange(text) {
-        console.log(text);
         if (text.length !== 0) searchedProjects = projectData.filter(project => project.title.toLowerCase().includes(text.toLowerCase()) || project.description.toLowerCase().includes(text.toLowerCase()));
         else {
             // Si no hay texto en la barra de búsqueda, se resetea la lista de proyectos buscados para mostrarlos todos
@@ -24,7 +23,6 @@ export function Projects() {
     }
 
     function handleFilterBarChange(filter) {
-        console.log(filter)
         lastFilter = filter;
         if (filter === "all") setFilteredProjects(searchedProjects);
         else setFilteredProjects(searchedProjects.filter(project => project.theme === filter));

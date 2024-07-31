@@ -1,18 +1,21 @@
 export function FilterBar({ sendData }) {
     function handleChange(event) {
-        sendData(event.target.id)
+        sendData(event.target.value);
     }
 
     return (
-        <div className="filter-bar">
-            <div className="filter-bar-item">
-                <input type="checkbox" id="filter-completed" name="filter-completed" onChange={handleChange}/>
-                <label htmlFor="filter-completed">Proyectos finalizados</label>
-            </div>
-            <div className="filter-bar-item">
-                <input type="checkbox" id="filter-wip" name="filter-wip" onChange={handleChange}/>
-                <label htmlFor="filter-wip">Proyectos en desarrollo / pausados</label>
-            </div>
-        </div>
+        <select onChange={handleChange}>
+            <option value="all">Sin filtrado</option>
+            <optgroup label="Tema">
+                <option value="option4">Option 4</option>
+                <option value="option5">Option 5</option>
+                <option value="option6">Option 6</option>
+            </optgroup>
+            <optgroup label="Plataforma">
+                <option value="option7">Option 7</option>
+                <option value="option8">Option 8</option>
+                <option value="option9">Option 9</option>
+            </optgroup>
+        </select>
     )
 }
