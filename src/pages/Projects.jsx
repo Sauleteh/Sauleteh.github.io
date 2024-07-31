@@ -1,4 +1,5 @@
 import "../css/Projects.css"
+import { useState } from "react"
 import { Project } from "../components/Project.jsx"
 import { SearchBar } from "../components/SearchBar.jsx"
 import { FilterBar } from "../components/FilterBar.jsx"
@@ -6,13 +7,27 @@ import projectData from "../projects.json"
 import minecraftBotMod from "/project-images/minecraftBotMod.webp"
 
 export function Projects() {
+    let searchedProjects = [...projectData];
+    const [filteredProjects, setFilteredProjects] = useState(projectData);
+    let lastFilter = "all";
+
     // La búsqueda se hace sobre todos los proyectos y el filtro se hace sobre los proyectos obtenidos de la búsqueda (es decir, primero se busca y luego se filtra sobre la búsqueda)
-    function handleSearchBarChange(data) {
-        console.log(data)
+    function handleSearchBarChange(text) {
+        console.log(text);
+        if (text.length !== 0) searchedProjects = projectData.filter(project => project.title.toLowerCase().includes(text.toLowerCase()) || project.description.toLowerCase().includes(text.toLowerCase()));
+        else {
+            // Si no hay texto en la barra de búsqueda, se resetea la lista de proyectos buscados para mostrarlos todos
+            searchedProjects = [];
+            searchedProjects = [...projectData];
+        }
+        handleFilterBarChange(lastFilter); // Se vuelve a aplicar el filtro para que se aplique la nueva búsqueda
     }
 
-    function handleFilterBarChange(data) {
-        console.log(data)
+    function handleFilterBarChange(filter) {
+        console.log(filter)
+        lastFilter = filter;
+        if (filter === "all") setFilteredProjects(searchedProjects);
+        else setFilteredProjects(searchedProjects.filter(project => project.theme === filter));
     }
 
     return (
@@ -22,7 +37,7 @@ export function Projects() {
         <div className="projects-section">
             <h1 className="projects-title projects-completed">Proyectos finalizados</h1>
             <div className="projects-container">
-                {projectData.map((project, index) => (
+                {filteredProjects.map((project, index) => (
                     <Project
                         key={index}
                         title={project.title}
