@@ -23,10 +23,6 @@ export function Aboutme() {
         { name: "WebSockets", icon: "/logos/websockets-logo.svg" }
     ];
 
-    function handleLink(link) {
-        window.open(link, "_blank");
-    }
-
     function animateText() {
         if (textAnimated.current) return;
         textAnimated.current = true;

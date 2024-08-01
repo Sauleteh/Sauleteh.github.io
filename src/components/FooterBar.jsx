@@ -1,6 +1,10 @@
 import "../css/components/FooterBar.css"
 
 export function FooterBar() {
+    function handleLink(link) {
+        window.open(link, "_blank");
+    }
+    
     return (
         <div className="footerbar-body">
             <hr className="footerbar-line"/>
