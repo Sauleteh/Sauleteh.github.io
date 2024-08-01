@@ -1,3 +1,7 @@
+.footerbar-body {
+    margin-top: auto;
+}
+
 .footerbar-link-container {
     display: flex;
     flex-direction: row;
