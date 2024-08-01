@@ -1,5 +1,5 @@
 import "../css/Projects.css"
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Project } from "../components/Project.jsx"
 import { SearchBar } from "../components/SearchBar.jsx"
 import { FilterBar } from "../components/FilterBar.jsx"
@@ -7,31 +7,35 @@ import projectData from "../projects.json"
 import minecraftBotMod from "/project-images/minecraftBotMod.webp"
 
 export function Projects() {
-    let searchedProjects = [...projectData];
+    let searchedProjects = useRef([...projectData]);
     const [filteredProjects, setFilteredProjects] = useState(projectData);
-    let lastFilter = "all";
+    let lastFilter = useRef("all");
+    let lastFilterType = useRef("all");
 
     // La búsqueda se hace sobre todos los proyectos y el filtro se hace sobre los proyectos obtenidos de la búsqueda (es decir, primero se busca y luego se filtra sobre la búsqueda)
     function handleSearchBarChange(text) {
-        if (text.length !== 0) searchedProjects = projectData.filter(project => project.title.toLowerCase().includes(text.toLowerCase()) || project.description.toLowerCase().includes(text.toLowerCase()));
+        if (text.length !== 0) searchedProjects.current = projectData.filter(project => project.title.toLowerCase().includes(text.toLowerCase()) || project.description.toLowerCase().includes(text.toLowerCase()));
         else {
             // Si no hay texto en la barra de búsqueda, se resetea la lista de proyectos buscados para mostrarlos todos
-            searchedProjects = [];
-            searchedProjects = [...projectData];
+            searchedProjects.current = [];
+            searchedProjects.current = [...projectData];
         }
-        handleFilterBarChange(lastFilter); // Se vuelve a aplicar el filtro para que se aplique la nueva búsqueda
+        handleFilterBarChange(lastFilterType.current, lastFilter.current); // Se vuelve a aplicar el filtro para que se aplique la nueva búsqueda
     }
 
-    function handleFilterBarChange(filter) {
-        lastFilter = filter;
-        if (filter === "all") setFilteredProjects(searchedProjects);
-        else setFilteredProjects(searchedProjects.filter(project => project.theme === filter));
+    function handleFilterBarChange(filterType, filter) {
+        lastFilter.current = filter;
+        lastFilterType.current = filterType;
+
+        if (filterType === "all") setFilteredProjects(searchedProjects.current);
+        else if (filterType === "theme") setFilteredProjects(searchedProjects.current.filter(project => project.theme.toLowerCase() === filter.toLowerCase()));
+        else if (filterType === "platform") setFilteredProjects(searchedProjects.current.filter(project => project.platform.split(" | ")[0].toLowerCase() === filter.toLowerCase()));
     }
 
     return (
         <>
         <SearchBar sendData={handleSearchBarChange}/>
-        <FilterBar sendData={handleFilterBarChange}/>
+        <FilterBar sendData={handleFilterBarChange} projectData={projectData}/>
         <div className="projects-section">
             <h1 className="projects-title projects-completed">Proyectos finalizados</h1>
             <div className="projects-container">

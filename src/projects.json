@@ -32,7 +32,7 @@
     {
         "title": "Circle Dodger",
         "platform": "Web | HTML, CSS y JS (frontend), Node.js y express (backend)",
-        "description": "Un pequeño juego donde eres un círculo y cuyo objetivo es esquivar otras figuras que se encuentren en el tablero de juego. Cuanto más tiempo sobrevivas, mayor será la dificultad.",
+        "description": "Un pequeño juego donde eres un círculo y cuyo objetivo es esquivar otras figuras que se encuentren en el tablero de juego. Cuanto más tiempo sobrevivas, mayor será la dificultad. Cuenta con un scoreboard online para competir con tus amigos.",
         "thumbnail": "/project-images/circleDodgerJS.webp",
         "link": "./projects/circle-dodger/dodger.html",
         "linkToPopup": false,
