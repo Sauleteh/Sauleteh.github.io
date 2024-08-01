@@ -30,7 +30,7 @@
     outline: none;
     border-radius: 0px 30px 30px 0px;
     color: #b1b1b1;
-    background-color: #1b1d29;
+    background-color: #111314;
     font-size: 14px;
     cursor: pointer;
     appearance: none;
@@ -39,7 +39,7 @@
 }
 
 .filterbar-select:hover, .filterbar-select:focus {
-    background-color: #252733;
+    background-color: #1e2224;
     color: #fff;
 }
 
@@ -49,7 +49,7 @@
 
 .filterbar-option {
     font-family: 'Railway', sans-serif;
-    background-color: #1b1d29;
+    background-color: #111314;
     color: #b1b1b1;
     font-size: 13px;
 }
