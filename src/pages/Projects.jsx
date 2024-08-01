@@ -33,11 +33,12 @@ export function Projects() {
     }
 
     return (
-        <>
-        <SearchBar sendData={handleSearchBarChange}/>
-        <FilterBar sendData={handleFilterBarChange} projectData={projectData}/>
-        <div className="projects-section">
-            <h1 className="projects-title projects-completed">Proyectos finalizados</h1>
+        <div className="projects-body">
+            <h1 className="projects-title">Proyectos personales</h1>
+            <div className="projects-bar">
+                <SearchBar sendData={handleSearchBarChange}/>
+                <FilterBar sendData={handleFilterBarChange} projectData={projectData}/>
+            </div>
             <div className="projects-container">
                 {filteredProjects.map((project, index) => (
                     <Project
@@ -52,30 +53,5 @@ export function Projects() {
                 ))}
             </div>
         </div>
-        <br/>
-        <hr className="projects-line"/>
-        <div className="projects-section">
-            <h1 className="projects-title projects-wip">Proyectos en desarrollo / pausados</h1>
-            <div className="projects-container">
-                <Project
-                    title="Juego de flecha que va muy rápido"
-                    platform="Windows | C#"
-                    description="Hecho en Unity. Mueves a una flecha lateralmente mientras avanza automáticamente
-                                por un plano 3D teniendo que esquivar obstáculos."
-                >paused</Project>
-
-                <Project
-                    title="Minecraft Bot Mod"
-                    platform="Windows | Java"
-                    description="Un mod creado para el juego Minecraft que permite automatizar acciones relativas
-                                al movimiento del personaje y movimiento y presionado del ratón. Mod hecho totalmente
-                                client-side por lo que es usable hasta en servidores vanilla."
-                    thumbnail={minecraftBotMod}
-                    link="https://github.com/Sauleteh/Minecraft-Bot-Mod"
-                ></Project>
-            </div>
-        </div>
-        <br/>
-        </>
     )
 }
