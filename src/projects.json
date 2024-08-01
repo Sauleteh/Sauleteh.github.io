@@ -308,5 +308,25 @@
         "linkToPopup": false,
         "tag": "",
         "theme": "Videojuegos"
+    },
+    {
+        "title": "Juego de flecha que va muy rápido",
+        "platform": "Windows | C#",
+        "description": "Hecho en Unity. Mueves a una flecha lateralmente mientras avanza automáticamente por un plano 3D teniendo que esquivar obstáculos.",
+        "thumbnail": "/project-images/placeholder.webp",
+        "link": "Sin terminar",
+        "linkToPopup": true,
+        "tag": "paused",
+        "theme": "Sin terminar (WIP)"
+    },
+    {
+        "title": "Minecraft Bot Mod",
+        "platform": "Windows | Java",
+        "description": "Un mod creado para el juego Minecraft que permite automatizar acciones relativas al movimiento del personaje y movimiento y presionado del ratón. Mod hecho totalmente client-side por lo que es usable hasta en servidores vanilla.",
+        "thumbnail": "/project-images/minecraftBotMod.webp",
+        "link": "https://github.com/Sauleteh/Minecraft-Bot-Mod",
+        "linkToPopup": false,
+        "tag": "paused",
+        "theme": "Sin terminar (WIP)"
     }
 ]
