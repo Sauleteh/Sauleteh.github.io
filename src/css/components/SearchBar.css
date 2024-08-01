@@ -10,3 +10,39 @@
     color: #b1b1b1;
     background-color: #1b1d29;
 }
+
+@media (max-width: 882px) {
+    .searchbar-input {
+        width: 190px;
+        height: 46px;
+        padding: 0 18px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 600px) {
+    .searchbar-input {
+        width: 160px;
+        height: 40px;
+        padding: 0 14px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 408px) {
+    .searchbar-input {
+        width: 130px;
+        height: 36px;
+        padding: 0 12px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 340px) {
+    .searchbar-input {
+        width: 100px;
+        height: 32px;
+        padding: 0 10px;
+        font-size: 10px;
+    }
+}

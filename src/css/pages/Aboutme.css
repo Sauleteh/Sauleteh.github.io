@@ -105,6 +105,7 @@ h1.aboutme-title {
 h2.aboutme-title {
     position: relative;
     font-family: 'Raleway', sans-serif;
+    text-align: center;
     color: white;
     font-size: 25px;
     margin: 0;

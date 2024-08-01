@@ -53,3 +53,83 @@
     color: #b1b1b1;
     font-size: 13px;
 }
+
+@media (max-width: 882px) {
+    .filterbar-container::after {
+        width: 11px;
+        height: 10px;
+        top: calc(50% - 5px);
+        right: 14px;
+    }
+
+    .filterbar-select {
+        width: 220px;
+        height: 48px;
+        padding: 0px 18px 0px 10px;
+        font-size: 13px;
+    }
+
+    .filterbar-option {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 600px) {
+    .filterbar-container::after {
+        width: 10px;
+        height: 9px;
+        top: calc(50% - 4.5px);
+        right: 13px;
+    }
+
+    .filterbar-select {
+        width: 200px;
+        height: 42px;
+        padding: 0px 16px 0px 9px;
+        font-size: 12px;
+    }
+
+    .filterbar-option {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 408px) {
+    .filterbar-container::after {
+        width: 9px;
+        height: 8px;
+        top: calc(50% - 4px);
+        right: 12px;
+    }
+
+    .filterbar-select {
+        width: 180px;
+        height: 38px;
+        padding: 0px 14px 0px 8px;
+        font-size: 11px;
+    }
+
+    .filterbar-option {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 340px) {
+    .filterbar-container::after {
+        width: 8px;
+        height: 7px;
+        top: calc(50% - 3.5px);
+        right: 10px;
+    }
+
+    .filterbar-select {
+        width: 160px;
+        height: 34px;
+        padding: 0px 12px 0px 4px;
+        font-size: 10px;
+    }
+
+    .filterbar-option {
+        font-size: 9px;
+    }
+}
