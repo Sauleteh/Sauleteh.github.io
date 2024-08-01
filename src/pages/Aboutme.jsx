@@ -114,17 +114,6 @@ export function Aboutme() {
                     </ul>
                 </div>
             </div>
-
-            <hr className="aboutme-line"/>
-
-            <ul className="aboutme-link-container">
-                <li className="aboutme-link-item" onClick={() => handleLink("https://github.com/Sauleteh")}>
-                    <img className="aboutme-link-icon" src="/logos/github-mark-white.svg"/><label className="aboutme-link">Cuenta principal</label>
-                </li>
-                <li className="aboutme-link-item" onClick={() => handleLink("https://github.com/UO279176")}>
-                    <img className="aboutme-link-icon" src="/logos/github-mark-white.svg"/><label className="aboutme-link">Cuenta universitaria</label>
-                </li>
-            </ul>
         </div>
     )
 }

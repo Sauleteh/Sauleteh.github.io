@@ -1,4 +1,4 @@
-.navBar {
+.navbar-nav {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -6,7 +6,7 @@
     height: 60px;
 }
 
-.navItem {
+.navbar-item {
     font-family: 'Raleway', sans-serif;
     margin: 0 10px;
     padding: 10px;
@@ -15,8 +15,27 @@
     font-weight: bold;
 }
 
-.navItem:hover {
+.navbar-item:hover {
     color: #fff;
     background-color: #222222;
     border-radius: 5px;
+}
+
+.navbar-line {
+    width: 100%;
+    animation: boxRainbowShadow 3s infinite linear;
+    margin: 0;
+}
+
+@keyframes boxRainbowShadow {
+    0% { box-shadow: 0 0 6px #04AA6D; }
+    12% { box-shadow: 0 0 6px #0797a1; }
+    24% { box-shadow: 0 0 6px #064bb3; }
+    36% { box-shadow: 0 0 6px #4309c9; }
+    48% { box-shadow: 0 0 6px #b60b7d; }
+    60% { box-shadow: 0 0 6px #b90b0b; }
+    72% { box-shadow: 0 0 6px #b4870a; }
+    84% { box-shadow: 0 0 6px #a5b60b; }
+    96% { box-shadow: 0 0 6px #11ad26; }
+    100% { box-shadow: 0 0 6px #04AA6D; }
 }

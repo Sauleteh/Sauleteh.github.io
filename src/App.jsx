@@ -4,6 +4,7 @@ import { Projects } from "./pages/Projects"
 import { Shop } from "./pages/Shop"
 import { NoPage } from "./pages/NoPage"
 import { NavigationBar } from "./components/NavigationBar.jsx"
+import { FooterBar } from "./components/FooterBar.jsx"
 
 export function App() {
     return (
@@ -17,6 +18,7 @@ export function App() {
                 <Route path="*" element={<NoPage/>} />
             </Routes>
         </BrowserRouter>
+        <FooterBar/>
         </>
     )
 }
