@@ -1,3 +1,5 @@
+import "../css/components/SearchBar.css";
+
 export function SearchBar({ sendData }) {
     function handleChange(event) {
         sendData(event.target.value)

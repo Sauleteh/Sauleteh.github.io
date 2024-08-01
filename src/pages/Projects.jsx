@@ -1,4 +1,4 @@
-import "../css/Projects.css"
+import "../css/pages/Projects.css"
 import { useState, useRef } from "react"
 import { Project } from "../components/Project.jsx"
 import { SearchBar } from "../components/SearchBar.jsx"

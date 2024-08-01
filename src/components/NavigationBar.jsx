@@ -1,4 +1,4 @@
-import "../css/NavigationBar.css"
+import "../css/components/NavigationBar.css"
 
 export function NavigationBar() {
     return (

@@ -2,7 +2,7 @@ import PropTypes from "prop-types"
 import placeholder from "/project-images/placeholder.webp"
 import { Popup } from "./Popup.jsx"
 import { useRef } from "react";
-import "../css/Project.css";
+import "../css/components/Project.css";
 
 export function Project({thumbnail = placeholder, title = "Sin título", platform = "N/A", description = "Sin descripción", link = "../404.html", linkToPopup = false, children = ""})
 {

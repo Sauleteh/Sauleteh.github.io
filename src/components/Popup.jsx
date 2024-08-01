@@ -1,6 +1,6 @@
 import PropTypes from "prop-types"
 import { useImperativeHandle, useState, forwardRef } from "react";
-import "../css/Popup.css";
+import "../css/components/Popup.css";
 
 export const Popup = forwardRef((props, childRef) => {
     const [clase, setClase] = useState("popup-hide");

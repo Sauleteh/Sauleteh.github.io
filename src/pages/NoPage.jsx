@@ -1,4 +1,4 @@
-import "../css/NoPage.css"
+import "../css/pages/NoPage.css"
 import { useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 

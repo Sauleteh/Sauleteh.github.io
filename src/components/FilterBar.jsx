@@ -1,3 +1,5 @@
+import "../css/components/FilterBar.css";
+
 export function FilterBar({ sendData, projectData }) {
     const themes = [...new Set(projectData.map(project => project.theme))];
     const platforms = [...new Set(projectData.map(project => project.platform.split(" | ")[0]))]; // platform: <plataforma> | <lenguaje>
@@ -8,7 +10,7 @@ export function FilterBar({ sendData, projectData }) {
     }
 
     return (
-        <select onChange={handleChange}>
+        <select className="filterbar-select" onChange={handleChange}>
             <option value="all" data-type="all">Sin filtrado</option>
             <optgroup label="Tema">
                 {

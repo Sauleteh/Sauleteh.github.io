@@ -1,4 +1,4 @@
-import "../css/Aboutme.css";
+import "../css/pages/Aboutme.css";
 import { useEffect, useRef } from "react";
 
 export function Aboutme() {
