@@ -1,0 +1,55 @@
+.filterbar-container {
+    display: inline-block;
+    position: relative;
+}
+
+.filterbar-container::after {
+    position: absolute;
+    content: "";
+    width: 13px;
+    height: 11px;
+    background-color: #b1b1b1;
+    clip-path: polygon(100% 0%, 0 0%, 50% 100%);
+    top: calc(50% - 5.5px);
+    right: 15px;
+    transition: background-color 0.8s;
+}
+
+.filterbar-container:hover::after {
+    background-color: #ffffff;
+}
+
+.filterbar-select {
+    font-family: 'Railway', sans-serif;
+    width: 230px;
+    height: 52px;
+    padding: 0px 20px 0px 10px;
+    border: 1px solid #ffffff;
+    border-left: none;
+    margin: 0;
+    outline: none;
+    border-radius: 0px 30px 30px 0px;
+    color: #b1b1b1;
+    background-color: #1b1d29;
+    font-size: 14px;
+    cursor: pointer;
+    appearance: none;
+    text-overflow: ellipsis;
+    transition: color 0.2s;
+}
+
+.filterbar-select:hover, .filterbar-select:focus {
+    background-color: #252733;
+    color: #fff;
+}
+
+.filterbar-optgroup {
+    color: #fff;
+}
+
+.filterbar-option {
+    font-family: 'Railway', sans-serif;
+    background-color: #1b1d29;
+    color: #b1b1b1;
+    font-size: 13px;
+}

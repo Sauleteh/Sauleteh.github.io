@@ -1,0 +1,12 @@
+.searchbar-input {
+    font-family: 'Railway', sans-serif;
+    width: 200px;
+    height: 50px;
+    padding: 0 20px;
+    border: 1px solid #ffffff;
+    outline: none;
+    border-radius: 30px 0px 0px 30px;
+    font-size: 14px;
+    color: #b1b1b1;
+    background-color: #1b1d29;
+}
