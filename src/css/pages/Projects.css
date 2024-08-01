@@ -50,7 +50,7 @@
     flex-wrap: wrap;
     justify-content: center;
     visibility: hidden;
-    margin: 40px 0px 0px 0px;
+    margin: 40px 0px 40px 0px;
 }
 
 /* Con esto se consigue que la propiedad hover de los proyectos no sea activada si el ratón está fuera del proyecto */
