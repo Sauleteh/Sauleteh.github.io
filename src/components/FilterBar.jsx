@@ -1,4 +1,5 @@
 import "../css/components/FilterBar.css";
+import PropTypes from "prop-types";
 
 export function FilterBar({ sendData, projectData }) {
     const themes = [...new Set(projectData.map(project => project.theme))];
@@ -32,4 +33,9 @@ export function FilterBar({ sendData, projectData }) {
             </select>
         </div>
     )
+}
+
+FilterBar.propTypes = {
+    sendData: PropTypes.func.isRequired,
+    projectData: PropTypes.array.isRequired
 }
