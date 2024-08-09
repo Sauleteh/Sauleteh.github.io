@@ -9,19 +9,33 @@
     justify-content: space-between;
     align-items: center;
     background-color: #363636;
-    box-shadow: 0px 0px 6px 1px #000000af;
     padding: 8px;
     border-radius: 10px;
     cursor: pointer;
     user-select: none;
     z-index: 1;
-    transition: border-radius 0.5s;
+    transition: border-radius 0.5s, border 0s;
     transition-delay: 0.5s;
-}
+    border: #ffffff 1px solid;
+    animation: boxRainbowShadow 3s infinite linear;
 
-.upgrade-item-container-active {
-    border-radius: 10px 10px 0px 0px;
-    transition: border-radius 0s;
+    &:hover {
+        background-color: #464646;
+    }
+
+    &:active {
+        background-color: #565656;
+    }
+
+    &.upgrade-item-container-active {
+        border-radius: 10px 10px 0px 0px;
+        transition: border-radius 0s;
+        border-bottom: none;
+    }
+
+    &.upgrade-item-container-bought {
+        border-color: #04AA6D;
+    }
 }
 
 .upgrade-item-title {
@@ -31,7 +45,6 @@
     font-size: 18px;
     font-style: normal;
     margin: 0px 0px 0px 10px;
-    animation: textRainbowShadow 3s infinite linear;
     pointer-events: none;
 }
 
@@ -41,8 +54,6 @@
     justify-content: center;
     align-items: center;
     gap: 5px;
-    background-color: #0f5c40;
-    border-radius: 5px;
     margin: 0px 10px 0px 0px;
     pointer-events: none;
 }
@@ -54,14 +65,19 @@
     font-size: 16px;
     font-style: normal;
     margin: 0px 0px 0px 0px;
-    animation: textRainbowShadow 3s infinite linear;
+
+    &.upgrade-item-price-label-bought {
+        text-decoration: line-through;
+        text-decoration-thickness: 2px;
+        font-style: italic;
+        color: #d1d1d1;
+    }
 }
 
 .upgrade-item-image {
-    width: 25px;
-    background-color: red;
+    width: 20px;
     image-rendering: pixelated;
-    border-radius: 5px;
+    border-radius: 2px;
     aspect-ratio: 1/1;
 }
 
@@ -71,20 +87,26 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: #0f5c40;
-    height: 0px;
-    transform: scaleY(0);    
-    transform-origin: top;
+    background-color: #272727;
     overflow: hidden;
-    transition: transform 0.5s;
+    max-height: 0px;
+    box-shadow: none;
+    border: white 0px solid;
+    transition: all 0.5s ease-out;
     border-radius: 0px 0px 10px 10px;
     z-index: 0;
-}
 
-.upgrade-item-details-container-active {
-    height: auto;
-    transform: scaleY(1);
-    box-shadow: 0px 0px 6px 1px #000000af;
+    &.upgrade-item-details-container-active {
+        max-height: 210px;
+        transition: all 0.5s ease-in;
+        border: white 1px solid;
+        border-top: none;
+        animation: boxRainbowShadow 3s infinite linear;
+    }
+
+    &.upgrade-item-details-container-bought {
+        border-color: #04AA6D;
+    }
 }
 
 .upgrade-item-description {
@@ -93,8 +115,7 @@
     color: white;
     font-size: 13px;
     font-style: normal;
-    margin: 10px 10px 0px 10px;
-    animation: textRainbowShadow 3s infinite linear;
+    margin: 15px 20px 0px 20px;
 }
 
 .upgrade-item-buy-button {
@@ -103,13 +124,62 @@
     color: white;
     font-size: 16px;
     font-style: normal;
-    background-color: #0f5c40;
-    border: 1px solid white;
+    background-color: #363636;
+    border: 1px solid #d1d1d1;
     border-radius: 5px;
     padding: 5px 10px;
     cursor: pointer;
-    margin: 10px;
+    margin: 15px 20px 15px 20px;
+    animation: boxRainbowShadow 3s infinite linear;
 
-    &:hover { background-color: #04AA6D; }
-    &:active { background-color: #0f5c40; }
+    &:hover {
+        background-color: #464646;
+    }
+
+    &.upgrade-item-buy-button-affordable:active {
+        background-color: #04AA6D;
+    }
+
+    &.upgrade-item-buy-button-unaffordable:active {
+        background-color: #b90b0b;
+    }
+
+    &.upgrade-item-bought-button {
+        cursor: not-allowed;
+        animation: backgroundRainbow 3s infinite linear;
+    }
+}
+
+.upgrade-item-bought-text {
+    font-family: 'Raleway', sans-serif;
+    color: #d1d1d1;
+    font-size: 12px;
+    font-style: normal;
+    margin: 0px 20px 15px 20px;
+}
+
+@keyframes boxRainbowShadow {
+    0% { box-shadow: 0 0 6px #04AA6D; }
+    12% { box-shadow: 0 0 6px #0797a1; }
+    24% { box-shadow: 0 0 6px #064bb3; }
+    36% { box-shadow: 0 0 6px #4309c9; }
+    48% { box-shadow: 0 0 6px #b60b7d; }
+    60% { box-shadow: 0 0 6px #b90b0b; }
+    72% { box-shadow: 0 0 6px #b4870a; }
+    84% { box-shadow: 0 0 6px #a5b60b; }
+    96% { box-shadow: 0 0 6px #11ad26; }
+    100% { box-shadow: 0 0 6px #04AA6D; }
+}
+
+@keyframes backgroundRainbow {
+    0% { background-color: #04AA6D; }
+    12% { background-color: #0797a1; }
+    24% { background-color: #064bb3; }
+    36% { background-color: #4309c9; }
+    48% { background-color: #b60b7d; }
+    60% { background-color: #b90b0b; }
+    72% { background-color: #b4870a; }
+    84% { background-color: #a5b60b; }
+    96% { background-color: #11ad26; }
+    100% { background-color: #04AA6D; }
 }

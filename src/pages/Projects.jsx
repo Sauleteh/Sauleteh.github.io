@@ -4,7 +4,6 @@ import { Project } from "../components/Project.jsx"
 import { SearchBar } from "../components/SearchBar.jsx"
 import { FilterBar } from "../components/FilterBar.jsx"
 import projectData from "../projects.json"
-import minecraftBotMod from "/project-images/minecraftBotMod.webp"
 
 export function Projects() {
     let searchedProjects = useRef([...projectData]);
