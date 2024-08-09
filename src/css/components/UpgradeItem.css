@@ -1,0 +1,115 @@
+.upgrade-item-body {
+    width: 49%;
+}
+
+.upgrade-item-container {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #363636;
+    box-shadow: 0px 0px 6px 1px #000000af;
+    padding: 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+    z-index: 1;
+    transition: border-radius 0.5s;
+    transition-delay: 0.5s;
+}
+
+.upgrade-item-container-active {
+    border-radius: 10px 10px 0px 0px;
+    transition: border-radius 0s;
+}
+
+.upgrade-item-title {
+    font-family: 'Raleway', sans-serif;
+    font-weight: bold;
+    color: white;
+    font-size: 18px;
+    font-style: normal;
+    margin: 0px 0px 0px 10px;
+    animation: textRainbowShadow 3s infinite linear;
+    pointer-events: none;
+}
+
+.upgrade-item-price-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    background-color: #0f5c40;
+    border-radius: 5px;
+    margin: 0px 10px 0px 0px;
+    pointer-events: none;
+}
+
+.upgrade-item-price-label {
+    font-family: 'Raleway', sans-serif;
+    font-weight: bold;
+    color: white;
+    font-size: 16px;
+    font-style: normal;
+    margin: 0px 0px 0px 0px;
+    animation: textRainbowShadow 3s infinite linear;
+}
+
+.upgrade-item-image {
+    width: 25px;
+    background-color: red;
+    image-rendering: pixelated;
+    border-radius: 5px;
+    aspect-ratio: 1/1;
+}
+
+.upgrade-item-details-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #0f5c40;
+    height: 0px;
+    transform: scaleY(0);    
+    transform-origin: top;
+    overflow: hidden;
+    transition: transform 0.5s;
+    border-radius: 0px 0px 10px 10px;
+    z-index: 0;
+}
+
+.upgrade-item-details-container-active {
+    height: auto;
+    transform: scaleY(1);
+    box-shadow: 0px 0px 6px 1px #000000af;
+}
+
+.upgrade-item-description {
+    font-family: 'Raleway', sans-serif;
+    font-weight: bold;
+    color: white;
+    font-size: 13px;
+    font-style: normal;
+    margin: 10px 10px 0px 10px;
+    animation: textRainbowShadow 3s infinite linear;
+}
+
+.upgrade-item-buy-button {
+    font-family: 'Raleway', sans-serif;
+    font-weight: bold;
+    color: white;
+    font-size: 16px;
+    font-style: normal;
+    background-color: #0f5c40;
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin: 10px;
+
+    &:hover { background-color: #04AA6D; }
+    &:active { background-color: #0f5c40; }
+}

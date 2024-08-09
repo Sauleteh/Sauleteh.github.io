@@ -1,18 +1,10 @@
-.projects-body {
+.shop-body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
 }
 
-.projects-bar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 40px 0px 0px 0px;
-}
-
-.projects-title {
+.shop-title {
     font-family: 'Raleway', monospace;
     position: relative;
     text-transform: uppercase;
@@ -26,7 +18,7 @@
     transform: skewX(-10deg);
 }
 
-.projects-title::before {
+.shop-title::before {
     content: '';
     position: absolute;
     width: 100%;
@@ -40,22 +32,71 @@
     transition: transform 0.2s ease-in-out;
 }
 
-.projects-title:hover::before {
+.shop-title:hover::before {
     transform-origin: center;
     transform: scaleX(1);
 }
 
-.projects-container {
+.shop-subtitle {
+    font-family: 'Raleway', sans-serif;
+    font-weight: bold;
+    color: white;
+    font-size: 16px;
+    font-style: normal;
+    margin: 5px 0px 0px 0px;
+    opacity: 0;
+    animation: showAnimation 3s, textRainbowShadow 3s infinite linear;
+    animation-fill-mode: forwards;
+    transition: opacity 0.5s ease-in-out;
+    letter-spacing: 1px;
+    transform: skewX(-10deg);
+    animation-delay: 0.25s;
+}
+
+.shop-coins-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    visibility: hidden;
-    margin: 40px 0px 40px 0px;
+    align-items: center;
+    gap: 10px;
+    margin: 40px 0px 0px 0px;
 }
 
-/* Con esto se consigue que la propiedad hover de los proyectos no sea activada si el ratón está fuera del proyecto */
-.projects-container > * {
-    visibility: visible;
+.shop-coin-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #04AA6D;
+    padding: 6px;
+    border: 1px solid white;
+    border-radius: 10px;
+}
+
+.shop-coin-image {
+    width: 50px;
+    background-color: red;
+    image-rendering: pixelated;
+    border-radius: 5px;
+    aspect-ratio: 1/1;
+}
+
+.shop-coin-count {
+    font-family: 'Raleway', sans-serif;
+    font-weight: bold;
+    color: white;
+    font-size: 14px;
+    font-style: normal;
+    margin: 5px 0px 0px 0px;
+    animation: textRainbowShadow 3s infinite linear;
+}
+
+.shop-upgrades-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 40px 3% 0px 3%;
 }
 
 @keyframes showAnimation {
@@ -87,40 +128,4 @@
     84% { box-shadow: 0 0 6px #a5b60b; }
     96% { box-shadow: 0 0 6px #11ad26; }
     100% { box-shadow: 0 0 6px #04AA6D; }
-}
-
-@media (max-width: 882px) {
-    .projects-title {
-        font-size: 35px;
-        margin-top: 30px;
-        margin-left: 10px;
-        margin-right: 10px;
-    }
-}
-
-@media (max-width: 600px) {
-    .projects-title {
-        font-size: 25px;
-        margin-top: 22px;
-        margin-left: 9px;
-        margin-right: 9px;
-    }
-}
-
-@media (max-width: 408px) {
-    .projects-title {
-        font-size: 19.5px;
-        margin-top: 18px;
-        margin-left: 8px;
-        margin-right: 8px;
-    }
-}
-
-@media (max-width: 340px) {
-    .projects-title {
-        font-size: 22px;
-        margin-top: 18px;
-        margin-left: 8px;
-        margin-right: 8px;
-    }
 }
