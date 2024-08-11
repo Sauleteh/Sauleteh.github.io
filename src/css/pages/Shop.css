@@ -76,6 +76,10 @@
     &:hover {
         background-color: #2e3335;
     }
+
+    &:active {
+        background-color: #3e4345;
+    }
 }
 
 .shop-coin-image {
@@ -93,6 +97,41 @@
     font-style: normal;
     margin: 5px 0px 0px 0px;
     user-select: none;
+}
+
+.shop-coin-help-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 40px 20px 0px 20px;
+    background-color: #1e2224;
+    padding: 12px;
+    border-radius: 10px;
+    border: #ffffff 1px solid;
+    animation: boxRainbowShadow 3s infinite linear;
+    max-width: 360px;
+
+    &:hover {
+        background-color: #0e1114;
+    }
+}
+
+.shop-coin-help-image {
+    width: 25px;
+    image-rendering: pixelated;
+    border-radius: 2px;
+    aspect-ratio: 1/1;
+}
+
+.shop-coin-help-text {
+    font-family: 'Raleway', sans-serif;
+    color: white;
+    font-size: 14px;
+    font-style: normal;
+    user-select: none;
+    margin: 0px;
 }
 
 .shop-upgrades-container {
