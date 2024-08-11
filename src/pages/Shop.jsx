@@ -91,3 +91,10 @@ export function Shop() {
         </div>
     )
 }
+
+/**
+ * TODO list:
+ * [ ] Implementar obtención del plátano (CPS counter)
+ * [ ] Implementar obtención de la bandera del buscaminas
+ * [ ] Implementar obtención de la pieza del Tetris
+ */

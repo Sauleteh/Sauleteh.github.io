@@ -1,0 +1,36 @@
+.banana-clicker-body {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin: 40px 0px;
+}
+
+.banana-clicker-image {
+    width: 200px;
+    animation: showAnimation 3s;
+}
+
+.banana-clicker-text-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 200px;
+    opacity: 0;
+    transition: opacity 1s;
+}
+
+.banana-clicker-text-container-active {
+    opacity: 1;
+}
+
+.banana-clicker-text {
+    font-family: 'Raleway', sans-serif;
+    font-weight: bold;
+    color: white;
+    font-size: 24px;
+    font-style: normal;
+    margin: 0px;
+    pointer-events: none;
+}

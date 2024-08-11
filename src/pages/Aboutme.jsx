@@ -1,4 +1,5 @@
 import "../css/pages/Aboutme.css";
+import { BananaClicker } from "../components/BananaClicker";
 import { useEffect, useRef } from "react";
 
 export function Aboutme() {
@@ -74,8 +75,8 @@ export function Aboutme() {
     return (
         <div className="aboutme-body">
             <h1 className="aboutme-title">¡Hola!</h1>
-            <img className="aboutme-image" src="/banana-rotating.webp"/>
-
+            <BananaClicker/>
+            
             <p className="aboutme-text">
                 Mi nombre es Saúl y soy un friki que actualmente se encuentra cursando Ingeniería Informática en la Universidad de Oviedo.
                 La función de esta página es mantener una lista actualizada con (casi) todos mis proyectos informáticos realizados hasta la fecha.
