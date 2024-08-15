@@ -14,18 +14,18 @@ export function UpgradeItem({ title, description, price, coin, textWhenBought, i
     // Las mejoras tienen dos estados: compradas (1) o no compradas (0)
     function isUpgradeBought() {
         const upgrade = localStorage.getItem(upgradeId);
-        return upgrade !== null && upgrade !== "" && upgrade > 0;
+        return upgrade !== null && upgrade !== "" && parseInt(upgrade) > 0;
     }
 
     function isUpgradeAffordable() {
         const coins = localStorage.getItem(coin.id);
-        return coins !== null && coins !== "" && coins >= price;
+        return coins !== null && coins !== "" && parseInt(coins) >= price;
     }
 
     function handleBuyButton() {
         if (isUpgradeBought() || !isUpgradeAffordable()) return;
 
-        const coins = localStorage.getItem(coin.id);
+        const coins = parseInt(localStorage.getItem(coin.id));
         localStorage.setItem(coin.id, coins - price);
         localStorage.setItem(upgradeId, 1);
         window.location.reload();

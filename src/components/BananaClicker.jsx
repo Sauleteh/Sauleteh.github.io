@@ -50,7 +50,7 @@ export function BananaClicker() {
     }
 
     useEffect(() => {
-        bananaCoins.current = localStorage.getItem("coin_banana") === null || localStorage.getItem("coin_banana") === "" ? 0 : localStorage.getItem("coin_banana");
+        bananaCoins.current = localStorage.getItem("coin_banana") === null || localStorage.getItem("coin_banana") === "" ? 0 : parseInt(localStorage.getItem("coin_banana"));
 
         const interval = setInterval(() => {
             calculateSCPS();

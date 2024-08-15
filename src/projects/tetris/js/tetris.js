@@ -215,6 +215,11 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         });
     }
 
+    function addShopCoins(number) {
+        const lastCoins = localStorage.getItem("coin_tetris_piece") === null || localStorage.getItem("coin_tetris_piece") === "" ? 0 : parseInt(localStorage.getItem("coin_tetris_piece"));
+        localStorage.setItem("coin_tetris_piece", lastCoins + number);
+    }
+
     function cleanCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctxHold.clearRect(0, 0, canvasHold.width, canvasHold.height);
@@ -473,6 +478,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
                 // Limpiar la línea completada
                 for (let j = 0; j < board[i].length; j++) {
+                    if (board[i][j].color === Constants.COLORS.CYAN) addShopCoins(1); // Por cada cuadrado de palo en la línea, se obtiene una moneda
                     board[i][j] = null;
                 }
 

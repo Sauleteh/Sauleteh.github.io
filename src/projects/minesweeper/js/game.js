@@ -43,6 +43,11 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     let isSubmittingScore = false; // ¿Se está subiendo la puntuación al servidor?
     let isGameWon = false; // ¿Se ha ganado la partida?
 
+    function addShopCoins(number) {
+        const lastCoins = localStorage.getItem("coin_ms_flag") === null || localStorage.getItem("coin_ms_flag") === "" ? 0 : parseInt(localStorage.getItem("coin_ms_flag"));
+        localStorage.setItem("coin_ms_flag", lastCoins + number);
+    }
+
     function initializeBoard() {
         console.log("Initializing board...");
         // console.log(boardWidth, boardHeight, numOfMines)
@@ -544,6 +549,15 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         const minutes = chronoObj.zeroPad(Math.floor(msTime / 1000 / 60), 2);
         chronoText.textContent = `${minutes}:${seconds}.${miliseconds}`;
 
+        // Hacemos un análisis del tablero
+        let correctFlags = 0;
+        for (let i = 0; i < boardHeight; i++) {
+            for (let j = 0; j < boardWidth; j++) {
+                if (board[i][j].flagged && board[i][j].content === Constants.MINE_ID) correctFlags++; // Contamos las banderas correctamente colocadas
+            }
+        }
+        addShopCoins(correctFlags);
+
         if (isGameWon) {
             console.log("Game won");
             isSubmittingScore = true;
@@ -623,7 +637,3 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
     onDifficultySelected(selDifficulty.value); // Aquí se inicializa y dibuja el tablero, además de la carga de eventos
     getScoreboard();
 });
-
-/** TODO: list
- * - Mostrar todas las minas sin revelar si se pierde
- */
