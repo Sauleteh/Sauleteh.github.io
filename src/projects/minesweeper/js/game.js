@@ -554,6 +554,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
         for (let i = 0; i < boardHeight; i++) {
             for (let j = 0; j < boardWidth; j++) {
                 if (board[i][j].flagged && board[i][j].content === Constants.MINE_ID) correctFlags++; // Contamos las banderas correctamente colocadas
+                if (board[i][j].content === Constants.MINE_ID && !board[i][j].flagged) board[i][j].revealed = true; // Revelamos todas las minas no reveladas
             }
         }
         addShopCoins(correctFlags);
