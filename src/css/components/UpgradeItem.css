@@ -44,7 +44,7 @@
     color: white;
     font-size: 18px;
     font-style: normal;
-    margin: 0px 0px 0px 10px;
+    margin: 0px 10px 0px 10px;
     pointer-events: none;
 }
 
@@ -182,4 +182,18 @@
     84% { background-color: #a5b60b; }
     96% { background-color: #11ad26; }
     100% { background-color: #04AA6D; }
+}
+
+@media (max-width: 1136px) {
+    .upgrade-item-details-container {
+        &.upgrade-item-details-container-active {
+            max-height: 100%;
+        }
+    }
+}
+
+@media (max-width: 770px) {
+    .upgrade-item-body {
+        width: 100%;
+    }
 }

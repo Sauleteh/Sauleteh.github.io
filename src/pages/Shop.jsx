@@ -50,7 +50,7 @@ export function Shop() {
     ];
 
     function setLightTheme() {
-        console.log("holas");
+        console.log("TODO:");
     }
 
     function handleHelpClick(howToObtain) {
