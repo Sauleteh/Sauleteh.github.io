@@ -36,7 +36,7 @@ export function BananaClicker() {
              *      Cada 250ms se guarda el CPS en un array de 4 elementos.
              *      Si el array está lleno, la próxima inserción se hace en la primera posición y el CPS pasa a ser la suma de los valores del array.
              *      Si el CPS es mayor que el máximo, el máximo se actualiza.
-             * [ ] Prevenir clicks derechos o dragging
+             * [X] Prevenir clicks derechos o dragging
              * [X] Si el CPS es 3 o menor después de unos segundos, desactivar y ocultar el contador
              */
         }
@@ -61,7 +61,11 @@ export function BananaClicker() {
                 <p className="banana-clicker-text">Actual</p>
                 <p className="banana-clicker-text">{actualCPS} CPS</p>
             </div>
-            <img className="banana-clicker-image" src="/banana-rotating.webp" onClick={handleBananaClick}/>
+            <img className="banana-clicker-image" src="/banana-rotating.webp"
+                onClick={handleBananaClick}
+                onContextMenu={(event) => {event.preventDefault()}}
+                onDragStart={(event) => {event.preventDefault()}}>
+            </img>
             <div className="banana-clicker-text-container">
                 <p className="banana-clicker-text">Máximo</p>
                 <p className="banana-clicker-text">{maxCPS} CPS</p>
