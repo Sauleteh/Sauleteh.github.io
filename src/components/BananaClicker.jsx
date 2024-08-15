@@ -9,9 +9,11 @@ export function BananaClicker() {
     const [actualCPS, setActualCPS] = useState(0);
     const [maxCPS, setMaxCPS] = useState(0);
     let currentSCPS = 0; // Current Section Clicks Per Second (Un segundo está dividido en secciones)
+    let bananaCoins = useRef(0); // Para no tener que estar invocando localStorage todo el rato, lo guardamos en una variable
 
     function handleBananaClick() {
         currentSCPS++;
+        localStorage.setItem("coin_banana", ++bananaCoins.current);
     }
 
     function calculateSCPS() {
@@ -25,20 +27,20 @@ export function BananaClicker() {
         if (actualCPS > maxCPS) setMaxCPS(actualCPS);
 
         if (actualCPS > minimumCPSThreshold) {
+            // Calcular variables para el texto
+            let textColor = "white";
+            let textShakeDuration = 0;
+
+            if (actualCPS >= minimumCPSThreshold + 12) { textColor = "purple"; textShakeDuration = 0.1; }
+            else if (actualCPS >= minimumCPSThreshold + 9) { textColor = "red"; textShakeDuration = 0.25; }
+            else if (actualCPS >= minimumCPSThreshold + 6) { textColor = "orange"; textShakeDuration = 0.5; }
+            else if (actualCPS >= minimumCPSThreshold + 3) { textColor = "yellow"; textShakeDuration = 1; }
+
             document.querySelectorAll(".banana-clicker-text-container").forEach((container) => {
                 container.classList.add("banana-clicker-text-container-active");
+                container.style.setProperty("--banana-clicker-text-color", textColor);
+                container.style.setProperty("--banana-clicker-text-animation-duration", textShakeDuration + "s");
             });
-            /**
-             * TODO list:
-             * [ ] Cuando se hace click, los números hacen un pequeño efecto de temblor que se incrementa cuanto mayor sea el número
-             * [ ] Cuanto más alto es el CPS, los números cambian de color
-             * [X] Hacer correctamente el CPS:
-             *      Cada 250ms se guarda el CPS en un array de 4 elementos.
-             *      Si el array está lleno, la próxima inserción se hace en la primera posición y el CPS pasa a ser la suma de los valores del array.
-             *      Si el CPS es mayor que el máximo, el máximo se actualiza.
-             * [X] Prevenir clicks derechos o dragging
-             * [X] Si el CPS es 3 o menor después de unos segundos, desactivar y ocultar el contador
-             */
         }
         else {
             document.querySelectorAll(".banana-clicker-text-container").forEach((container) => {
@@ -48,6 +50,8 @@ export function BananaClicker() {
     }
 
     useEffect(() => {
+        bananaCoins.current = localStorage.getItem("coin_banana") === null || localStorage.getItem("coin_banana") === "" ? 0 : localStorage.getItem("coin_banana");
+
         const interval = setInterval(() => {
             calculateSCPS();
         }, 1000 / calcsPerSecond);
@@ -59,7 +63,7 @@ export function BananaClicker() {
         <div className="banana-clicker-body">
             <div className="banana-clicker-text-container">
                 <p className="banana-clicker-text">Actual</p>
-                <p className="banana-clicker-text">{actualCPS} CPS</p>
+                <p className="banana-clicker-text banana-clicker-text-number">{actualCPS} CPS</p>
             </div>
             <img className="banana-clicker-image" src="/banana-rotating.webp"
                 onClick={handleBananaClick}
@@ -68,7 +72,7 @@ export function BananaClicker() {
             </img>
             <div className="banana-clicker-text-container">
                 <p className="banana-clicker-text">Máximo</p>
-                <p className="banana-clicker-text">{maxCPS} CPS</p>
+                <p className="banana-clicker-text banana-clicker-text-number">{maxCPS} CPS</p>
             </div>
         </div>
     );
