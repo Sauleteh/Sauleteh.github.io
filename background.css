@@ -4,9 +4,23 @@ html {
 }
 
 body {
-    background: linear-gradient(45deg, #111314, #28292b, #292d31, #161718, #232324, #111314);
+    background: linear-gradient(
+        45deg,
+        var(--ld-all-background-1),
+        var(--ld-all-background-2),
+        var(--ld-all-background-3),
+        var(--ld-all-background-4),
+        var(--ld-all-background-5),
+        var(--ld-all-background-1)
+    );
     background-repeat: no-repeat;
     background-attachment: scroll;
     background-size: 800% 800%;
     animation: gradientAnimation 60s ease infinite;
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
