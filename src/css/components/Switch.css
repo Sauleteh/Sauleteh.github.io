@@ -17,8 +17,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #252627;
-    border: 1px solid #3d3d47;
+    background-color: var(--ld-switch-background-secondary);
+    border: 1px solid var(--ld-switch-background-tertiary);
     -webkit-transition: .4s;
     transition: .4s;
 }
@@ -29,21 +29,21 @@
     width: 11px;
     left: 2px;
     bottom: 2px;
-    background-color: white;
+    background-color: var(--ld-switch-text);
     -webkit-transition: .4s;
     transition: .4s;
 }
 .switch-input:checked + .switch-slider {
-    background-color: rgb(220, 242, 255);
+    background-color: var(--ld-switch-text);
 }
 .switch-input:focus + .switch-slider {
-    box-shadow: 0 0 1px black;
+    box-shadow: 0 0 1px var(--ld-switch-background-primary);
 }
 .switch-input:checked + .switch-slider:before {
     -webkit-transform: translateX(13px);
     -ms-transform: translateX(13px);
     transform: translateX(13px);
-    background-color: black;
+    background-color: var(--ld-switch-background-primary);
 }
 .switch-slider.switch-round {
     border-radius: 17px;
@@ -52,10 +52,10 @@
     border-radius: 50%;
 }
 .switch-input:disabled + .slider {
-    background-color: #252627;
+    background-color: var(--ld-switch-background-secondary);
 }
 .switch-input:disabled + .slider:before {
-    background-color: #3d3d47;
+    background-color: var(--ld-switch-background-tertiary);
 }
 /* Fin checkbox redondeado */
 
@@ -65,7 +65,7 @@
 
 .switch-text {
     font-family: 'Raleway', sans-serif;
-    color: white;
+    color: var(--ld-switch-text);
     font-weight: bold;
     font-size: 14px;
     font-style: normal;

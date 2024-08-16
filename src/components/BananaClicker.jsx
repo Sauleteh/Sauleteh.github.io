@@ -28,7 +28,7 @@ export function BananaClicker() {
 
         if (actualCPS > minimumCPSThreshold) {
             // Calcular variables para el texto
-            let textColor = "white";
+            let textColor = document.documentElement.style.getPropertyValue("--ld-bananaclicker-text");
             let textShakeDuration = 0;
 
             if (actualCPS >= minimumCPSThreshold + 12) { textColor = "purple"; textShakeDuration = 0.1; }

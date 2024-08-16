@@ -18,8 +18,8 @@
     align-items: center;
     width: 50px;
     height: 50px;
-    color: white;
-    background-color: #ffffff0f;
+    color: var(--ld-aboutme-text-primary);
+    background-color: var(--ld-aboutme-background-primary);
     border: none;
     object-fit: cover;
     border-radius: 50%;
@@ -28,11 +28,11 @@
 }
 
 .aboutme-button:hover {
-    background-color: #00ffff2f;
+    background-color: var(--ld-aboutme-background-secondary);
 }
 
 .aboutme-button:active {
-    background-color: #00ffff6f;
+    background-color: var(--ld-aboutme-background-tertiary);
 }
 
 .aboutme-button + .aboutme-button {
@@ -91,7 +91,7 @@ h1.aboutme-title {
     position: relative;
     text-transform: uppercase;
     font-weight: bold;
-    color: white;
+    color: var(--ld-aboutme-text-primary);
     font-size: 50px;
     font-style: normal;
     margin: 60px 0px 0px 0px;
@@ -105,7 +105,7 @@ h1.aboutme-title::before {
     position: absolute;
     width: 100%;
     height: 5px;
-    background-color: white;
+    background-color: var(--ld-aboutme-text-primary);
     animation: boxRainbowShadow 3s infinite linear;
     bottom: -4px;
     left: 0px;
@@ -123,7 +123,7 @@ h2.aboutme-title {
     position: relative;
     font-family: 'Raleway', sans-serif;
     text-align: center;
-    color: white;
+    color: var(--ld-aboutme-text-primary);
     font-size: 25px;
     margin: 0;
     animation: showAnimation 3s;
@@ -137,7 +137,7 @@ h2.aboutme-title::before {
     position: absolute;
     width: 100%;
     height: 3px;
-    background-color: white;
+    background-color: var(--ld-aboutme-text-primary);
     box-shadow: 0 0 6px #00ffff;
     bottom: -3px;
     left: 0px;
@@ -153,7 +153,7 @@ h2.aboutme-title:hover::before {
 
 .aboutme-text {
     font-family: 'Raleway', monospace;
-    color: rgb(156, 156, 156);
+    color: var(--ld-aboutme-text-secondary);
     font-size: 18px;
     max-width: 1000px;
     margin: 0px 20px;
@@ -163,7 +163,7 @@ h2.aboutme-title:hover::before {
     width: 25px;
     height: 25px;
     margin-right: 10px;
-    background-color: #ffffff0f;
+    background-color: var(--ld-aboutme-background-primary);
     border-radius: 5px;
 }
 
@@ -199,7 +199,7 @@ h2.aboutme-title:hover::before {
 
 .aboutme-language, .aboutme-technology {
     font-family: 'Raleway', sans-serif;
-    color: #c1d6d5;
+    color: var(--ld-aboutme-text-tertiary);
     font-weight: bold;
     font-size: 14px;
 }
@@ -209,7 +209,7 @@ h2.aboutme-title:hover::before {
     position: absolute;
     width: 200%;
     height: 200%;
-    background-color: white;
+    background-color: var(--ld-aboutme-text-primary);
     top: -100%;
     left: -120%;
     transform: rotate(45deg);

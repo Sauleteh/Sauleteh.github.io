@@ -8,7 +8,7 @@
     text-align: center;
     font-size: 1.5em;
     margin-top: 2em;
-    color: #fff;
+    color: var(--ld-nopage-text);
 }
 
 .nopage-warning {

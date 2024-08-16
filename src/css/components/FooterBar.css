@@ -9,7 +9,7 @@
     list-style: none;
     padding: 20px 0px;
     margin: 0;
-    background-color: #111314;
+    background-color: var(--ld-footerbar-background-primary);
 }
 
 .footerbar-link-item {
@@ -27,12 +27,12 @@
 
 .footerbar-link-item:hover {
     transform: scale(1.1, 1.1);
-    background-color: #ffffff0f;
+    background-color: var(--ld-footerbar-background-secondary);
 }
 
 .footerbar-link-item:active {
     transform: scale(1.05, 1.05);
-    background-color: #ffffff1f;
+    background-color: var(--ld-footerbar-background-tertiary);
 }
 
 .footerbar-link-item + .footerbar-link-item {
@@ -40,12 +40,12 @@
 }
 
 .footerbar-link-item:hover .footerbar-link {
-    color: #ffffff;
+    color: var(--ld-footerbar-text-primary);
 }
 
 .footerbar-link {
     font-family: 'Raleway', sans-serif;
-    color: #d1d1d1;
+    color: var(--ld-footerbar-text-secondary);
     font-weight: bold;
     font-size: 14px;
     cursor: pointer;

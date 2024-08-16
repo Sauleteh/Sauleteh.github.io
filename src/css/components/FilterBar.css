@@ -8,7 +8,7 @@
     content: "";
     width: 13px;
     height: 11px;
-    background-color: #b1b1b1;
+    background-color: var(--ld-filterbar-text-secondary);
     clip-path: polygon(100% 0%, 0 0%, 50% 100%);
     top: calc(50% - 5.5px);
     right: 15px;
@@ -16,7 +16,7 @@
 }
 
 .filterbar-container:hover::after {
-    background-color: #ffffff;
+    background-color: var(--ld-filterbar-text-primary);
 }
 
 .filterbar-select {
@@ -24,13 +24,13 @@
     width: 230px;
     height: 52px;
     padding: 0px 20px 0px 10px;
-    border: 1px solid #ffffff;
+    border: 1px solid var(--ld-filterbar-text-primary);
     border-left: none;
     margin: 0;
     outline: none;
     border-radius: 0px 30px 30px 0px;
-    color: #b1b1b1;
-    background-color: #111314;
+    color: var(--ld-filterbar-text-secondary);
+    background-color: var(--ld-filterbar-background-primary);
     font-size: 14px;
     cursor: pointer;
     appearance: none;
@@ -39,18 +39,18 @@
 }
 
 .filterbar-select:hover, .filterbar-select:focus {
-    background-color: #1e2224;
-    color: #fff;
+    background-color: var(--ld-filterbar-background-secondary);
+    color: var(--ld-filterbar-text-primary);
 }
 
 .filterbar-optgroup {
-    color: #fff;
+    color: var(--ld-filterbar-text-primary);
 }
 
 .filterbar-option {
     font-family: 'Railway', sans-serif;
-    background-color: #111314;
-    color: #b1b1b1;
+    background-color: var(--ld-filterbar-background-primary);
+    color: var(--ld-filterbar-text-secondary);
     font-size: 13px;
 }
 

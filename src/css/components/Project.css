@@ -1,5 +1,3 @@
-.project-thumbnail { animation: projectBoxRainbowShadow 3s infinite linear; }
-
 .project-thumbnail {
     position: absolute;
     left: 0px;
@@ -12,15 +10,16 @@
     z-index: -1;
     opacity: 0.11;
     filter: blur(1.75px);
+    animation: projectBoxRainbowShadow 3s infinite linear;
 }
 
 .project-div:hover > .project-thumbnail {
-    box-shadow: 0 0px 20px 2px rgba(0, 0, 0, 1);
+    box-shadow: 0 0px 20px 2px var(--ld-project-background-primary);
     animation: none;
 }
 
 .project-show-thumbnail:hover + .project-thumbnail {
-    box-shadow: 0 0px 20px 2px rgba(0, 0, 0, 1);
+    box-shadow: 0 0px 20px 2px var(--ld-project-background-primary);
     animation: none;
     opacity: 1;
     z-index: 1;
@@ -33,7 +32,7 @@
     top: 10px;
     width: 30px;
     z-index: 2;
-    box-shadow: 0px 0px 2px 1px rgba(255, 255, 255, 1);
+    box-shadow: 0px 0px 2px 1px var(--ld-project-text-primary);
     border-radius: 5px;
 }
 
@@ -45,14 +44,14 @@
     text-transform: uppercase;
     letter-spacing: 2px;
     font-weight: bold;
-    text-shadow: 0 0 2px #ffffff;
-    color: white;
+    text-shadow: 0 0 2px var(--ld-project-text-primary);
+    color: var(--ld-project-text-primary);
     font-style: italic;
 }
 
 .project-div {
     position: relative;
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: var(--ld-project-background-tertiary);
     display: flex;
     flex-basis: 30%;
     align-items: center;
@@ -66,7 +65,7 @@
     min-height: 360px;
     max-height: 360px;
     cursor: pointer;
-    border: #ffffff 1px solid;
+    border: var(--ld-project-text-primary) 1px solid;
 }
 
 .project-div:hover {
@@ -84,12 +83,12 @@
     transform: scale(1);
     filter: blur(0px);
     opacity: 1;
-    box-shadow: 0 8px 20px 0px rgba(0, 0, 0, 0.125);
+    box-shadow: 0 8px 20px 0px var(--ld-project-background-secondary);
 }
 
 .project-description {
     font-family: 'Raleway', sans-serif;
-    color: white;
+    color: var(--ld-project-text-primary);
     text-align: justify;
     margin: 20px;
     font-size: 15px;
@@ -97,7 +96,7 @@
 
 .project-platform {
     font-family: 'Raleway', sans-serif;
-    color: #b3b3b3;
+    color: var(--ld-project-text-secondary);
     font-size: 11px;
     margin: 20px;
 }
@@ -118,9 +117,9 @@
 .new::after {
     font-weight: 900;
     font-style: normal;
-    text-shadow: 0 0 8px rgb(255, 255, 0);
+    text-shadow: 0 0 8px #ffff00;
     content: 'Nuevo';
-    background: linear-gradient(to right, yellow, white, yellow, white, rgb(255, 94, 0), yellow, white, yellow, white, yellow, white);
+    background: linear-gradient(to right, yellow, white, yellow, white, #ff5e00, yellow, white, yellow, white, yellow, white);
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
@@ -154,7 +153,7 @@
 
 @keyframes gradientAnimationNew {
     0% { background-position: 0% 50%; text-shadow: 0 0 8px yellow; }
-    5% { background-position: 65% 50%; text-shadow: 0 0 15px rgb(255, 180, 0); }
+    5% { background-position: 65% 50%; text-shadow: 0 0 15px #ffb400; }
     100% { background-position: 100% 50%; text-shadow: 0 0 8px yellow; }
 }
 

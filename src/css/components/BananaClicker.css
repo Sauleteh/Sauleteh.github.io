@@ -19,7 +19,7 @@
     width: 200px;
     opacity: 0;
     transition: opacity 1s;
-    color: white;
+    color: var(--ld-bananaclicker-text);
 }
 
 .banana-clicker-text-container-active {
@@ -38,7 +38,7 @@
 }
 
 .banana-clicker-text-number {
-    color: var(--banana-clicker-text-color, white);
+    color: var(--banana-clicker-text-color, var(--ld-bananaclicker-text));
 }
 
 /* Animación shake: https://www.dayaweb.com/blog/css-text-animation-shake/ */

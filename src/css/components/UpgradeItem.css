@@ -8,7 +8,7 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    background-color: #363636;
+    background-color: var(--ld-upgradeitem-background-primary);
     padding: 8px;
     border-radius: 10px;
     cursor: pointer;
@@ -16,15 +16,15 @@
     z-index: 1;
     transition: border-radius 0.5s, border 0s;
     transition-delay: 0.5s;
-    border: #ffffff 1px solid;
+    border: var(--ld-upgradeitem-text-primary) 1px solid;
     animation: boxRainbowShadow 3s infinite linear;
 
     &:hover {
-        background-color: #464646;
+        background-color: var(--ld-upgradeitem-background-secondary);
     }
 
     &:active {
-        background-color: #565656;
+        background-color: var(--ld-upgradeitem-background-tertiary);
     }
 
     &.upgrade-item-container-active {
@@ -41,7 +41,7 @@
 .upgrade-item-title {
     font-family: 'Raleway', sans-serif;
     font-weight: bold;
-    color: white;
+    color: var(--ld-upgradeitem-text-primary);
     font-size: 18px;
     font-style: normal;
     margin: 0px 10px 0px 10px;
@@ -61,7 +61,7 @@
 .upgrade-item-price-label {
     font-family: 'Raleway', sans-serif;
     font-weight: bold;
-    color: white;
+    color: var(--ld-upgradeitem-text-primary);
     font-size: 16px;
     font-style: normal;
     margin: 0px 0px 0px 0px;
@@ -70,7 +70,7 @@
         text-decoration: line-through;
         text-decoration-thickness: 2px;
         font-style: italic;
-        color: #d1d1d1;
+        color: var(--ld-upgradeitem-text-secondary);
     }
 }
 
@@ -87,11 +87,11 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: #272727;
+    background-color: var(--ld-upgradeitem-button-primary);
     overflow: hidden;
     max-height: 0px;
     box-shadow: none;
-    border: white 0px solid;
+    border: var(--ld-upgradeitem-text-primary) 0px solid;
     transition: all 0.5s ease-out;
     border-radius: 0px 0px 10px 10px;
     z-index: 0;
@@ -99,7 +99,7 @@
     &.upgrade-item-details-container-active {
         max-height: 210px;
         transition: all 0.5s ease-in;
-        border: white 1px solid;
+        border: var(--ld-upgradeitem-text-primary) 1px solid;
         border-top: none;
         animation: boxRainbowShadow 3s infinite linear;
     }
@@ -112,7 +112,7 @@
 .upgrade-item-description {
     font-family: 'Raleway', sans-serif;
     font-weight: bold;
-    color: white;
+    color: var(--ld-upgradeitem-text-primary);
     font-size: 13px;
     font-style: normal;
     margin: 15px 20px 0px 20px;
@@ -121,11 +121,11 @@
 .upgrade-item-buy-button {
     font-family: 'Raleway', sans-serif;
     font-weight: bold;
-    color: white;
+    color: var(--ld-upgradeitem-text-primary);
     font-size: 16px;
     font-style: normal;
-    background-color: #363636;
-    border: 1px solid #d1d1d1;
+    background-color: var(--ld-upgradeitem-background-primary);
+    border: 1px solid var(--ld-upgradeitem-text-secondary);
     border-radius: 5px;
     padding: 5px 10px;
     cursor: pointer;
@@ -133,7 +133,7 @@
     animation: boxRainbowShadow 3s infinite linear;
 
     &:hover {
-        background-color: #464646;
+        background-color: var(--ld-upgradeitem-background-secondary);
     }
 
     &.upgrade-item-buy-button-affordable:active {
@@ -152,7 +152,7 @@
 
 .upgrade-item-bought-text {
     font-family: 'Raleway', sans-serif;
-    color: #d1d1d1;
+    color: var(--ld-upgradeitem-text-secondary);
     font-size: 12px;
     font-style: normal;
     margin: 0px 20px 15px 20px;

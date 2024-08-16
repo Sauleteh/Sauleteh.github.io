@@ -3,17 +3,17 @@
     width: 200px;
     height: 50px;
     padding: 0 20px;
-    border: 1px solid #ffffff;
+    border: 1px solid var(--ld-searchbar-text-primary);
     outline: none;
     border-radius: 30px 0px 0px 30px;
     font-size: 14px;
-    color: #b1b1b1;
-    background-color: #111314;
+    color: var(--ld-searchbar-text-secondary);
+    background-color: var(--ld-searchbar-background-primary);
 }
 
 .searchbar-input:hover, .searchbar-input:focus {
-    background-color: #1e2224;
-    color: #fff;
+    background-color: var(--ld-searchbar-background-secondary);
+    color: var(--ld-searchbar-text-primary);
 }
 
 @media (max-width: 882px) {

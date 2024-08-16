@@ -17,7 +17,7 @@
     position: relative;
     text-transform: uppercase;
     font-weight: bold;
-    color: white;
+    color: var(--ld-projects-text);
     font-size: 50px;
     font-style: normal;
     margin: 60px 0px 0px 0px;
@@ -31,7 +31,7 @@
     position: absolute;
     width: 100%;
     height: 5px;
-    background-color: white;
+    background-color: var(--ld-projects-text);
     animation: boxRainbowShadow 3s infinite linear;
     bottom: 0px;
     left: 0px;

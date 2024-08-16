@@ -9,7 +9,15 @@
     left: 0px;
     width: 100%;
     height: 100%;
-    background: linear-gradient(45deg, #2c3133, #28292b, #292d31, #282a2c, #212124, #242a2c);
+    background: linear-gradient(
+        45deg,
+        var(--ld-popup-background-1),
+        var(--ld-popup-background-2),
+        var(--ld-popup-background-3),
+        var(--ld-popup-background-4),
+        var(--ld-popup-background-5),
+        var(--ld-popup-background-6)
+    );
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
@@ -33,7 +41,7 @@
     display: flex;
     flex: 50%;
     font-family: 'Raleway', sans-serif;
-    color: white;
+    color: var(--ld-popup-text);
     font-size: 20px;
     justify-content: center;
     align-items: center;
@@ -48,7 +56,7 @@
     height: 50px;
     background-position: center;
     border: 0px solid transparent;
-    border-left: 1px solid #3d3d47;
+    border-left: 1px solid var(--ld-popup-background-primary);
     border-top-right-radius: 3px;
     cursor: pointer;
 }
@@ -56,14 +64,14 @@
 .popup-line {
     box-shadow: none;
     margin: 0px;
-    background-color: #3d3d47;
+    background-color: var(--ld-popup-background-primary);
     height: 1px;
     border: none;
 }
 
 .popup-text {
     font-family: 'Raleway', sans-serif;
-    color: white;
+    color: var(--ld-popup-text);
     font-size: 15px;
     margin: 30px;
 }
