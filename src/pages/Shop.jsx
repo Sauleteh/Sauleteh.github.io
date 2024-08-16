@@ -1,4 +1,5 @@
 import "../css/pages/Shop.css";
+import { useEffect } from "react";
 import { UpgradeItem } from "../components/UpgradeItem";
 
 export function Shop() {
@@ -49,14 +50,21 @@ export function Shop() {
         }
     ];
 
-    function setLightTheme() {
-        console.log("TODO:");
+    function setLightTheme(event) {
+        localStorage.setItem("page_light_theme", event.target.checked);
+
+        if (event.target.checked) document.documentElement.setAttribute("data-theme", "light");
+        else document.documentElement.removeAttribute("data-theme");
     }
 
     function handleHelpClick(howToObtain) {
         const helpText = document.querySelector(".shop-coin-help-text");
         helpText.textContent = howToObtain;
     }
+
+    useEffect(() => {
+        if (localStorage.getItem("page_light_theme") === "true") document.querySelector(".upgrade-item-body[data-upgrade-id='upgrade_light_theme'] .switch-input").checked = true;
+    });
 
     return (
         <div className="shop-body">

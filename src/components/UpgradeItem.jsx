@@ -32,7 +32,7 @@ export function UpgradeItem({ title, description, price, coin, textWhenBought, i
     }
 
     return (
-        <div className="upgrade-item-body">
+        <div className="upgrade-item-body" data-upgrade-id={upgradeId}>
             <div className={`upgrade-item-container ${isUpgradeBought() ? "upgrade-item-container-bought" : ""}`} onClick={handleDetailsHeight}>
                 <p className="upgrade-item-title">{title}</p>
                 <div className="upgrade-item-price-container">
