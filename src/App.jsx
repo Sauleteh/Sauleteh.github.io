@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { createHashRouter, RouterProvider, Outlet } from "react-router-dom"
 import { useEffect } from "react"
 import { Aboutme } from "./pages/Aboutme"
 import { Projects } from "./pages/Projects"
@@ -8,6 +8,35 @@ import { NavigationBar } from "./components/NavigationBar.jsx"
 import { FooterBar } from "./components/FooterBar.jsx"
 
 export function App() {
+    const Layout = () => { return (
+        <>
+        <NavigationBar/>
+        <Outlet/>
+        <FooterBar/>
+        </>
+    )};
+
+    const router = createHashRouter([{
+        path: "/",
+        element: <Layout/>,
+        children: [{
+            path: "",
+            element: <Projects/>
+        }, {
+            path: "/aboutme",
+            element: <Aboutme/>
+        }, {
+            path: "/projects",
+            element: <Projects/>
+        }, {
+            path: "/shop",
+            element: <Shop/>
+        }, {
+            path: "*",
+            element: <NoPage/>
+        }]
+    }]);
+
     useEffect(() => {
         // Control del modo claro/oscuro
         if (localStorage.getItem("page_light_theme") === "true") document.documentElement.setAttribute("data-theme", "light");
@@ -15,17 +44,6 @@ export function App() {
     });
     
     return (
-        <>
-        <NavigationBar/>
-        <BrowserRouter>
-            <Routes>
-                <Route path="/aboutme" element={<Aboutme/>} />
-                <Route path="/projects" element={<Projects/>} />
-                <Route path="/shop" element={<Shop/>} />
-                <Route path="*" element={<NoPage/>} />
-            </Routes>
-        </BrowserRouter>
-        <FooterBar/>
-        </>
+        <RouterProvider router={router} />
     )
 }
