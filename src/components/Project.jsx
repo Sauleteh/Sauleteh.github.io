@@ -1,15 +1,20 @@
+import "../css/components/Project.css";
 import PropTypes from "prop-types"
 import placeholder from "/project-images/placeholder.webp"
 import { Popup } from "./Popup.jsx"
 import { useRef } from "react";
-import "../css/components/Project.css";
+import { useNavigate } from "react-router-dom";
 
 export function Project({thumbnail = placeholder, title = "Sin título", platform = "N/A", description = "Sin descripción", link = "../404.html", linkToPopup = false, children = ""})
 {
     const childRef = useRef();
+    const navigate = useNavigate();
     
     const handleClick = (event) => {
-        if (!linkToPopup) { window.location.href = link; }
+        if (!linkToPopup) {
+            if (link.startsWith("/")) navigate(link); // Si es una ruta interna, navegar a ella con el router
+            else window.open(link, "_blank"); // En caso contrario, es una URL externa (abrir en pestaña nueva)
+        }
         else if (event.target.className !== "popup-button") {
             childRef.current.nuevaClase("popup-show");
             childRef.current.nuevoEstilo({display: "block"});

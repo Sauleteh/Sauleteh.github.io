@@ -34,7 +34,7 @@
         "platform": "Web | HTML, CSS y JS (frontend), Node.js y express (backend)",
         "description": "Un pequeño juego donde eres un círculo y cuyo objetivo es esquivar otras figuras que se encuentren en el tablero de juego. Cuanto más tiempo sobrevivas, mayor será la dificultad. Cuenta con un scoreboard online para competir con tus amigos.",
         "thumbnail": "/project-images/circleDodgerJS.webp",
-        "link": "./projects/circle-dodger/dodger.html",
+        "link": "/projects/circle-dodger",
         "linkToPopup": false,
         "tag": "",
         "theme": "Videojuegos"
@@ -44,7 +44,7 @@
         "platform": "Web | HTML, CSS y JS (frontend), Node.js y express (backend)",
         "description": "El buscaminas clásico. Al igual que el tetris, este juego también cuenta con un scoreboard online pero separado en tres niveles de dificultad. También puedes jugar en modo offline con dimensiones personalizadas.",
         "thumbnail": "/project-images/minesweeperJS.webp",
-        "link": "./projects/minesweeper/minesweeper.html",
+        "link": "/projects/minesweeper",
         "linkToPopup": false,
         "tag": "",
         "theme": "Videojuegos"
@@ -54,7 +54,7 @@
         "platform": "Web | HTML, CSS y JS (frontend), Node.js y express (backend)",
         "description": "El clásico juego del Tetris hecho para el navegador. A diferencia de otros proyectos que tengo hechos en JavaScript, este es el primero en el que uso canvas y objetos. He intentado hacerlo lo más parecido posible al Tetris original. Además, he añadido un scoreboard online para que puedas competir con tus amigos.",
         "thumbnail": "/project-images/tetrisJS.webp",
-        "link": "./projects/tetris/tetris.html",
+        "link": "/projects/tetris",
         "linkToPopup": false,
         "tag": "",
         "theme": "Videojuegos"
@@ -94,7 +94,7 @@
         "platform": "Web | HTML, CSS y JS",
         "description": "Un pequeño proyecto para practicar JavaScript. Se trata de una página donde un cubo de tamaño variable irá moviéndose de forma senoidal a una velocidad creciente a medida que subas de nivel manteniendo el ratón encima de él.",
         "thumbnail": "/project-images/pruebaPunteria.webp",
-        "link": "./projects/punteria/punteria.html",
+        "link": "/projects/punteria",
         "linkToPopup": false,
         "tag": "",
         "theme": "Videojuegos"
@@ -104,7 +104,7 @@
         "platform": "Web | HTML, CSS y JS",
         "description": "Una página creada para crear de forma sencilla subredes dando como entradas la IP inicial y su máscara, además de los hosts que se quiere para cada subred.",
         "thumbnail": "/project-images/redesSubnetting.webp",
-        "link": "./projects/redes/redes.html",
+        "link": "/projects/calculadora-subnetting",
         "linkToPopup": false,
         "tag": "",
         "theme": "Utilidades uniovi"
@@ -114,7 +114,7 @@
         "platform": "Web | HTML, CSS y JS",
         "description": "El juego clásico del ajedrez hecho en HTML, CSS y JS. Para mover las piezas hay que hacer click en una y luego en la casilla a la que se quiera mover. Modos de juego: Multijugador local, jugador contra máquina o máquina contra máquina.",
         "thumbnail": "/project-images/ajedrez.webp",
-        "link": "./projects/ajedrez/ajedrez.html",
+        "link": "/projects/chess",
         "linkToPopup": false,
         "tag": "progress",
         "theme": "Videojuegos"
