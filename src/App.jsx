@@ -6,6 +6,7 @@ import { Shop } from "./pages/Shop"
 import { NoPage } from "./pages/NoPage"
 import { NavigationBar } from "./components/NavigationBar.jsx"
 import { FooterBar } from "./components/FooterBar.jsx"
+import { HtmlProject } from "./pages/HtmlProject.jsx"
 
 export function App() {
     const Layout = () => { return (
@@ -15,6 +16,26 @@ export function App() {
         <FooterBar/>
         </>
     )};
+
+    const htmlProjects = [{
+        path: "/projects/tetris",
+        element: <HtmlProject url="./projects/tetris/tetris.html"/>
+    }, {
+        path: "/projects/minesweeper",
+        element: <HtmlProject url="./projects/minesweeper/minesweeper.html"/>
+    }, {
+        path: "/projects/circle-dodger",
+        element: <HtmlProject url="./projects/circle-dodger/dodger.html"/>
+    }, {
+        path: "/projects/punteria",
+        element: <HtmlProject url="./projects/punteria/punteria.html"/>
+    }, {
+        path: "/projects/calculadora-subnetting",
+        element: <HtmlProject url="./projects/redes/redes.html"/>
+    }, {
+        path: "/projects/chess",
+        element: <HtmlProject url="./projects/ajedrez/ajedrez.html"/>
+    }];
 
     const router = createHashRouter([{
         path: "/",
@@ -34,7 +55,9 @@ export function App() {
         }, {
             path: "*",
             element: <NoPage/>
-        }]
+        },
+            ...htmlProjects
+        ]
     }]);
 
     useEffect(() => {
