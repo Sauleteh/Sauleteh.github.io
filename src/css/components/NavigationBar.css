@@ -25,6 +25,8 @@
     width: 100%;
     animation: boxRainbowShadow 3s infinite linear;
     margin: 0;
+    border-right: 0;
+    border-left: 0;
 }
 
 @keyframes boxRainbowShadow {

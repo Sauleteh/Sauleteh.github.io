@@ -7,8 +7,11 @@
 }
 
 .banana-clicker-image {
-    width: 200px;
+    width: 50%;
+    max-width: 200px;
+    height: auto;
     animation: showAnimation 3s;
+    margin: 0px 60px;
 }
 
 .banana-clicker-text-container {
@@ -16,7 +19,6 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 200px;
     opacity: 0;
     transition: opacity 1s;
     color: var(--ld-bananaclicker-text);
@@ -54,4 +56,34 @@
     80% { transform: translate(-1px, -1px) rotate(1deg); }
     90% { transform: translate(1px, 2px) rotate(0deg); }
     100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+@media (max-width: 500px) {
+    .banana-clicker-text {
+        font-size: 21px;
+    }
+
+    .banana-clicker-image {
+        margin: 0px 25px;
+    }
+}
+
+@media (max-width: 425px) {
+    .banana-clicker-text {
+        font-size: 20px;
+    }
+
+    .banana-clicker-image {
+        margin: 0px 15px;
+    }
+}
+
+@media (max-width: 375px) {
+    .banana-clicker-text {
+        font-size: 18px;
+    }
+
+    .banana-clicker-image {
+        margin: 0px 10px;
+    }
 }
