@@ -7,13 +7,21 @@
     position: absolute;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(45deg, #2c3133, #28292b, #292d31, #282a2c, #212124, #242a2c);
+    background: linear-gradient(
+        45deg,
+        var(--ld-popup-background-1),
+        var(--ld-popup-background-2),
+        var(--ld-popup-background-3),
+        var(--ld-popup-background-4),
+        var(--ld-popup-background-5),
+        var(--ld-popup-background-6)
+    );
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
     background-size: 600% 600%;
     animation: gradientAnimation 18s ease infinite;
-    border: 1px solid #3d3d47;
+    border: 1px solid var(--ld-project-minesweeper-color-1);
     border-radius: 3px;
     text-align: center;
     align-items: center;
@@ -58,7 +66,12 @@
     border: 0;
     height: 1px;
     margin: 0;
-    background-image: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0));
+    background-image: linear-gradient(
+        to right, 
+        var(--ld-project-minesweeper-gradient-line-1), 
+        var(--ld-project-minesweeper-gradient-line-2), 
+        var(--ld-project-minesweeper-gradient-line-1)
+    );
 }
 
 .fwdiv ul, .fwdiv ol {
@@ -68,7 +81,7 @@
 
 .fwdiv li {
     font-family: 'MineSweeper', sans-serif;
-    color: white;
+    color: var(--ld-project-minesweeper-text);
     list-style-type: none;
     font-size: 8px;
     text-align: left;
@@ -82,16 +95,16 @@
 }
 
 #optionsdiv select option, #optionsdiv select, #optionsdiv input {
-    background: rgb(41, 41, 41);
-    color: #fff;
-    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+    background: var(--ld-project-minesweeper-background-primary);
+    color: var(--ld-project-minesweeper-text);
+    text-shadow: 0 1px 0 var(--ld-project-minesweeper-shadow);
     margin-left: 10px;
 }
 
 #optionsdiv input:disabled {
-    background: rgb(41, 41, 41);
-    color: #808182;
-    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+    background: var(--ld-project-minesweeper-background-primary);
+    color: var(--ld-project-minesweeper-color-2);
+    text-shadow: 0 1px 0 var(--ld-project-minesweeper-shadow);
 }
 
 .fwdiv li+li {
@@ -100,7 +113,7 @@
 
 .fwtitle {
     font-family: 'MineSweeper', sans-serif;
-    color: white;
+    color: var(--ld-project-minesweeper-text);
     font-size: 13px;
     cursor: move;
 }
@@ -118,7 +131,7 @@
 #scoreboarddiv label.credits, #scoreboarddiv label.status {
     font-family: 'MineSweeper', sans-serif;
     font-size: 7px;
-    color: white;
+    color: var(--ld-project-minesweeper-text);
     max-width: 260px;
     text-align: center;
 
@@ -130,25 +143,25 @@
 #scoreboarddiv label.scoreboardDifficulty {
     font-family: 'MineSweeper', sans-serif;
     font-size: 10px;
-    color: white;
+    color: var(--ld-project-minesweeper-text);
     text-align: center;
     margin-top: 10px;
     border-radius: 5px;
-    background-color: #3d3d47;
+    background-color: var(--ld-project-minesweeper-color-1);
     padding: 5px;
-    border: 1px solid white;
+    border: 1px solid var(--ld-project-minesweeper-text);
     user-select: none;
 }
 
 #scoreboarddiv label.scoreboardDifficulty:hover {
-    color: rgb(192, 255, 255);
-    background-color: #252627;
-    border: 1px solid rgb(192, 255, 255);
+    color: var(--ld-project-minesweeper-text-accent);
+    background-color: var(--ld-project-minesweeper-background-secondary);
+    border: 1px solid var(--ld-project-minesweeper-text-accent);
 }
 
 #scoreboarddiv label.scoreboardDifficulty:active {
     color: cyan;
-    background-color: #1b1c1d;
+    background-color: var(--ld-project-minesweeper-background-tertiary);
     border: 1px solid cyan;
 }
 
@@ -242,8 +255,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #252627;
-    border: 1px solid #3d3d47;
+    background-color: var(--ld-project-minesweeper-background-secondary);
+    border: 1px solid var(--ld-project-minesweeper-color-1);
     -webkit-transition: .4s;
     transition: .4s;
 }
@@ -254,21 +267,21 @@
     width: 11px;
     left: 2px;
     bottom: 2px;
-    background-color: white;
+    background-color: var(--ld-project-minesweeper-text);
     -webkit-transition: .4s;
     transition: .4s;
 }
 input:checked + .slider {
-    background-color: rgb(220, 242, 255);
+    background-color: var(--ld-project-minesweeper-text);
 }
 input:focus + .slider {
-    box-shadow: 0 0 1px black;
+    box-shadow: 0 0 1px var(--ld-project-minesweeper-text-invert);
 }
 input:checked + .slider:before {
     -webkit-transform: translateX(13px);
     -ms-transform: translateX(13px);
     transform: translateX(13px);
-    background-color: black;
+    background-color: var(--ld-project-minesweeper-text-invert);
 }
 .slider.round {
     border-radius: 17px;
@@ -277,10 +290,10 @@ input:checked + .slider:before {
     border-radius: 50%;
 }
 input:disabled + .slider {
-    background-color: #252627;
+    background-color: var(--ld-project-minesweeper-background-secondary);
 }
 input:disabled + .slider:before {
-    background-color: #3d3d47;
+    background-color: var(--ld-project-minesweeper-color-1);
 }
 /* Fin checkbox redondeado */
 
@@ -346,10 +359,10 @@ input:disabled + .slider:before {
 }
 
 img#passHelp {
-    border: 1px solid white;
+    border: 1px solid var(--ld-project-minesweeper-text);
     border-radius: 50%;
     padding: 1.5%;
-    background-color: #3d3d47;
+    background-color: var(--ld-project-minesweeper-color-1);
     cursor: help;
     margin-right: 38%;
     transition: 1s;
@@ -357,5 +370,5 @@ img#passHelp {
 
 img#passHelp:hover {
     border: 1px solid cyan;
-    background-color: #212124;
+    background-color: var(--ld-project-minesweeper-background-quaternary);
 }

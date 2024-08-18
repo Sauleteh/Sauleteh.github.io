@@ -21,8 +21,8 @@ div.game {
 }
 
 canvas {
-    border: 2px solid white;
-    background-color: #808080;
+    border: 2px solid var(--ld-project-minesweeper-text);
+    background-color: var(--ld-project-minesweeper-background);
     margin: 0 auto;
     image-rendering: pixelated;
 }
@@ -30,7 +30,7 @@ canvas {
 h1 {
     font-family: 'MineSweeper', sans-serif;
     font-size: 32px;
-    color: white;
+    color: var(--ld-project-minesweeper-text);
 }
 
 footer {
@@ -39,7 +39,7 @@ footer {
     align-items: center;
     gap: 10px;
     margin: 10px;
-    color: white;
+    color: var(--ld-project-minesweeper-text);
     font-family: 'Arial', sans-serif;
     font-size: 10px;
     clear: both;
@@ -50,7 +50,7 @@ footer {
 label {
     font-family: 'Arial', sans-serif;
     font-size: 14px;
-    color: white;
+    color: var(--ld-project-minesweeper-text);
 }
 
 .specialColor {

@@ -11,7 +11,7 @@ td {
 
 h1, td, label {
     font-family: 'Raleway', monospace;
-    color: white;
+    color: var(--ld-project-chess-text);
 }
 
 table {
@@ -20,20 +20,20 @@ table {
 }
 
 tr:first-of-type > td:not(:first-child) {
-    border-top: rgb(255, 255, 255) 1px solid;
+    border-top: var(--ld-project-chess-text) 1px solid;
 }
 tr:not(:last-child) > td:last-child {
-    border-right: rgb(255, 255, 255) 1px solid;
+    border-right: var(--ld-project-chess-text) 1px solid;
 }
 tr:last-of-type > td:not(:first-child) {
-    border-top: rgb(255, 255, 255) 1px solid;
+    border-top: var(--ld-project-chess-text) 1px solid;
     text-align: center;
     vertical-align: top;
     font-weight: bold;
     font-size: 13pt;
 }
 tr:not(:last-child) > td:first-child {
-    border-right: rgb(255, 255, 255) 1px solid;
+    border-right: var(--ld-project-chess-text) 1px solid;
     text-align: end;
     font-weight: bold;
     font-size: 13pt;

@@ -4,13 +4,6 @@ html {
 }
 
 body {
-    /* Workaround mientras no se implemente los proyectos en la propia página */
-    --ld-all-background-1: #111314;
-    --ld-all-background-2: #28292b;
-    --ld-all-background-3: #292d31;
-    --ld-all-background-4: #161718;
-    --ld-all-background-5: #232324;
-
     background: linear-gradient(
         45deg,
         var(--ld-all-background-1),
