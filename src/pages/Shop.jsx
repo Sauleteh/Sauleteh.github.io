@@ -34,7 +34,7 @@ export function Shop() {
         }, {
             title: "Tetris: Efecto especial tetris",
             description: "En mi juego del Tetris he añadido dos easter egg: uno relacionado con hacer un tetris (romper cuatro líneas con una pieza) y otro relacionado con la música. Compra este item para saber cómo activar los easter egg.",
-            price: 180,
+            price: 240,
             coin: coinsData.tetrisPiece,
             textWhenBought: "Realiza el código Konami en la página del Tetris y aparecerá una opción 'Opción experimental'. Actívala y los easter egg estarán activados.",
             isSwitch: false,
@@ -42,7 +42,7 @@ export function Shop() {
         }, {
             title: "Buscaminas: Modo discoteca",
             description: "Si te pasas una dificultad con este modo especial y haces un buen tiempo, tu nombre aparecerá con color de fuego en el scoreboard. Ten en cuenta que este modo es más difícil que el buscaminas normal, compra este item para saber cómo activar este easter egg y sabrás a qué me refiero.",
-            price: 260,
+            price: 280,
             coin: coinsData.msFlag,
             textWhenBought: "Realiza el código Konami en la página del Buscaminas y aparecerá una opción '???'. Para activarla, primero mantén la tecla 'Control' izquierdo, luego mantén la tecla 'º' y haz click sobre la opción para activarla (No dejes de mantener ninguna de las teclas hasta que hagas click).",
             isSwitch: false,
