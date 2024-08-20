@@ -1,9 +1,10 @@
 import "../css/pages/Aboutme.css";
 import { BananaClicker } from "../components/BananaClicker";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 export function Aboutme() {
     const textAnimated = useRef(false);
+    const [sectionDots, setSectionDots] = useState([]);
     let currentSection = 0;
 
     const languages = [
@@ -61,16 +62,27 @@ export function Aboutme() {
 
     function handleCarousel(direction) {
         const sections = document.querySelectorAll(".aboutme-section");
+        const dots = document.querySelectorAll(".aboutme-section-dot");
         
         sections[currentSection].classList.remove("aboutme-section-active");
+        dots[currentSection].classList.remove("aboutme-section-dot-active");
         currentSection = (currentSection + direction + sections.length) % sections.length;
         sections[currentSection].classList.add("aboutme-section-active");
+        dots[currentSection].classList.add("aboutme-section-dot-active");
     }
+
+    const createSectionDots = useCallback(() => {
+        const dots = [...document.querySelectorAll(".aboutme-section")].map((section, index) => (
+            <span key={index} className={`aboutme-section-dot ${section.classList.contains("aboutme-section-active") ? "aboutme-section-dot-active" : ""}`} />
+        ));
+        setSectionDots(dots);
+    }, []);
 
     useEffect(() => {
         animateText();
         delayAnimations();
-    });
+        createSectionDots();
+    }, [createSectionDots]);
 
     return (
         <div className="aboutme-body">
@@ -86,6 +98,10 @@ export function Aboutme() {
             <div className="aboutme-button-container">
                 <button className="aboutme-button aboutme-button-left" onClick={() => handleCarousel(-1)}><img className="aboutme-button-icon" src="/right-arrow.svg"/></button>
                 <button className="aboutme-button aboutme-button-right" onClick={() => handleCarousel(1)}><img className="aboutme-button-icon" src="/right-arrow.svg"/></button>
+            </div>
+
+            <div className="aboutme-section-dots">
+                {sectionDots}
             </div>
 
             <div className="aboutme-section-container">

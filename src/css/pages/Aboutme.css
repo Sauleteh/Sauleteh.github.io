@@ -223,6 +223,27 @@ h2.aboutme-title:hover::before {
     transition: all 0.5s ease;
 }
 
+.aboutme-section-dots {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 5px;
+    margin: 10px 0px 0px 0px;
+    animation: showAnimation 6s;
+}
+
+.aboutme-section-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--ld-aboutme-background-primary);
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.aboutme-section-dot-active {
+    background-color: var(--ld-aboutme-text-primary);
+}
+
 @keyframes showAnimation {
     from { opacity: 0; visibility: hidden; }
     to { opacity: 1; visibility: visible; }
