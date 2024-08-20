@@ -13,6 +13,7 @@
     top: calc(50% - 5.5px);
     right: 15px;
     transition: background-color 0.8s;
+    pointer-events: none;
 }
 
 .filterbar-container:hover::after {
