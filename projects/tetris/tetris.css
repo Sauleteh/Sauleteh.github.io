@@ -21,7 +21,7 @@ div.game {
 }
 
 canvas {
-    border: 2px solid white;
+    border: 2px solid var(--ld-project-tetris-text);
     background-color: black;
     margin: 0 auto;
     image-rendering: pixelated;
@@ -30,7 +30,7 @@ canvas {
 h1 {
     font-family: 'PressStart2P', sans-serif;
     font-size: 32px;
-    color: white;
+    color: var(--ld-project-tetris-text);
 }
 
 @keyframes gradientAnimation {

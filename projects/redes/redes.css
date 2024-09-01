@@ -1,11 +1,11 @@
 h1 {
     font-family: 'Raleway', sans-serif;
-    color: white;
+    color: var(--ld-project-redes-text);
 }
 
 p, td, span {
     font-family: 'Raleway', monospace;
-    color: white;
+    color: var(--ld-project-redes-text);
 }
 
 @keyframes gradientAnimation {

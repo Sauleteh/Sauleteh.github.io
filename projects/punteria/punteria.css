@@ -3,7 +3,7 @@
 }
 
 * {
-    color: white;
+    color: var(--ld-project-punteria-text);
 }
 
 #cuadrao {
@@ -12,7 +12,7 @@
     height: var(--dimCuadrado);
     left: 300px;
     top: 450px;
-    background-color: white;
+    background-color: var(--ld-project-punteria-text);
 }
 
 #cuadrao:hover {
@@ -47,7 +47,7 @@ label {
 }
 
 .vl1 {
-    border-left: 2px solid white;
+    border-left: 2px solid var(--ld-project-punteria-text);
     height: 500px;
     position: absolute;
     left: 300px;
@@ -55,7 +55,7 @@ label {
 }
 
 .vl2 {
-    border-left: 2px solid white;
+    border-left: 2px solid var(--ld-project-punteria-text);
     height: 500px;
     position: absolute;
     left: calc(1000px + var(--dimCuadrado));
