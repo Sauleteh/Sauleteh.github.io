@@ -124,8 +124,8 @@ export function Aboutme() {
             </p>
 
             <div className="aboutme-button-container">
-                <button className="aboutme-button aboutme-button-left" onClick={() => handleCarousel(-1)}><img className="aboutme-button-icon" src="/right-arrow.svg"/></button>
-                <button className="aboutme-button aboutme-button-right" onClick={() => handleCarousel(1)}><img className="aboutme-button-icon" src="/right-arrow.svg"/></button>
+                <button className="aboutme-button aboutme-button-left" onClick={() => handleCarousel(-1)}><img className="aboutme-button-icon" src="/right-arrow.svg" alt="Botón anterior apartado"/></button>
+                <button className="aboutme-button aboutme-button-right" onClick={() => handleCarousel(1)}><img className="aboutme-button-icon" src="/right-arrow.svg" alt="Botón siguiente apartado"/></button>
             </div>
 
             <div className="aboutme-section-dots">
@@ -140,14 +140,14 @@ export function Aboutme() {
                             <ul className="aboutme-item-container">
                                 {section.items.slice(0, Math.ceil(section.items.length / 2)).map((item, index) => (
                                     <li key={index} className="aboutme-item">
-                                        <img className="aboutme-icon" src={item.icon}/><label className="aboutme-item-label">{item.name}</label>
+                                        <img className="aboutme-icon" src={item.icon} alt="Icono"/><label className="aboutme-item-label">{item.name}</label>
                                     </li>
                                 ))}
                             </ul>
                             <ul className="aboutme-item-container">
                                 {section.items.slice(Math.ceil(section.items.length / 2), section.items.length).map((item, index) => (
                                     <li key={index} className="aboutme-item">
-                                        <img className="aboutme-icon" src={item.icon}/><label className="aboutme-item-label">{item.name}</label>
+                                        <img className="aboutme-icon" src={item.icon} alt="Icono"/><label className="aboutme-item-label">{item.name}</label>
                                     </li>
                                 ))}
                             </ul>

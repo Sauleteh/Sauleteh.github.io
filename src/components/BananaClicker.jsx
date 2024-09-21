@@ -65,7 +65,7 @@ export function BananaClicker() {
                 <p className="banana-clicker-text">Actual</p>
                 <p className="banana-clicker-text banana-clicker-text-number">{actualCPS} CPS</p>
             </div>
-            <img className="banana-clicker-image" src="/banana-rotating.webp"
+            <img className="banana-clicker-image" src="/banana-rotating.webp" alt="Banana rotatoria"
                 onClick={handleBananaClick}
                 onContextMenu={(event) => {event.preventDefault()}}
                 onDragStart={(event) => {event.preventDefault()}}>

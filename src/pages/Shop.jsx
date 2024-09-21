@@ -5,16 +5,19 @@ import { UpgradeItem } from "../components/UpgradeItem";
 export function Shop() {
     const coinsData = {
         banana: {
+            name: "Banana",
             image: "/coin-banana.gif",
             id: "coin_banana",
             howToObtain: "¿Has encontrado algún plátano por la página?"
         },
         msFlag: {
+            name: "Bandera de buscaminas",
             image: "/coin-minesweeper.png",
             id: "coin_ms_flag",
             howToObtain: "Cada vez que termines una partida del buscaminas (excepto modo personalizado), por cada bandera puesta correctamente obtendrás este objeto"
         },
         tetrisPiece: {
+            name: "Pieza de Tetris cian",
             image: "/coin-tetris.png",
             id: "coin_tetris_piece",
             howToObtain: "En el Tetris, cada vez que rompas una línea que tenga un cuadrado perteneciente a un palo (pieza cian) obtendrás este objeto tantas veces como cuadrados cian haya en la línea"
@@ -73,13 +76,13 @@ export function Shop() {
             <div className="shop-coins-container">
                 {Object.values(coinsData).map((coin, index) => (
                     <div key={index} className="shop-coin-container" onClick={() => handleHelpClick(coin.howToObtain)}>
-                        <img className="shop-coin-image" src={coin.image}/>
+                        <img className="shop-coin-image" src={coin.image} alt={coin.name}/>
                         <p className="shop-coin-count">{localStorage.getItem(coin.id) === null || localStorage.getItem(coin.id) === "" ? 0 : localStorage.getItem(coin.id)}</p>
                     </div>
                 ))}
             </div>
             <div className="shop-coin-help-container">
-                <img className="shop-coin-help-image" src="/question-mark.png"/>
+                <img className="shop-coin-help-image" src="/question-mark.png" alt="Icono interrogacón cerrada"/>
                 <p className="shop-coin-help-text">Selecciona un objeto para saber cómo obtenerlo</p>
             </div>
             <div className="shop-upgrades-container">

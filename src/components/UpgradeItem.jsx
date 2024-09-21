@@ -37,7 +37,7 @@ export function UpgradeItem({ title, description, price, coin, textWhenBought, i
                 <p className="upgrade-item-title">{title}</p>
                 <div className="upgrade-item-price-container">
                     <p className={`upgrade-item-price-label ${isUpgradeBought() ? "upgrade-item-price-label-bought" : ""}`}>{price}</p>
-                    <img className="upgrade-item-image" src={coin.image}/>
+                    <img className="upgrade-item-image" src={coin.image} alt={coin.name}/>
                 </div>
             </div>
             <div ref={detailsContainerRef} className={`upgrade-item-details-container ${isUpgradeBought() ? "upgrade-item-details-container-bought" : ""}`}>

@@ -12,7 +12,7 @@ export function FilterBar({ sendData, projectData }) {
 
     return (
         <div className="filterbar-container">
-            <select className="filterbar-select" onChange={handleChange}>
+            <select className="filterbar-select" onChange={handleChange} aria-label="Filtrado">
                 <optgroup className="filterbar-optgroup" label="Filtrar por">
                     <option className="filterbar-option" value="all" data-type="all">Sin filtrado</option>
                 </optgroup>
