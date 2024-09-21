@@ -22,7 +22,7 @@ export function Project({thumbnail = placeholder, title = "Sin título", platfor
     }
     
     return (
-        <div className={`project-div ${children}`} onClick={handleClick}>
+        <div className={`project-div${children === "" ? "" : " " + children}`} onClick={handleClick}>
             <img src="/imagen.svg" className="project-show-thumbnail" alt=""/>
             <img src={thumbnail} className="project-thumbnail" alt={title}/>
             <div className="project-content">
