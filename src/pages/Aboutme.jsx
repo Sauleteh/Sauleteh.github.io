@@ -1,64 +1,37 @@
 import "../css/pages/Aboutme.css";
 import { BananaClicker } from "../components/BananaClicker";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function Aboutme() {
     const textAnimated = useRef(false);
     const [sectionDots, setSectionDots] = useState([]);
     let currentSection = 0;
 
-    const languages = [
-        { name: "JavaScript", icon: "/logos/javascript-logo.svg" },
-        { name: "TypeScript", icon: "/logos/typescript-logo.svg" },
-        { name: "Java", icon: "/logos/java-logo.svg" },
-        { name: "Kotlin", icon: "/logos/kotlin-logo.svg" },
-        { name: "C", icon: "/logos/c-logo.svg" },
-        { name: "C++", icon: "/logos/cpp-logo.svg" },
-        { name: "C#", icon: "/logos/csharp-logo.svg" },
-        { name: "Python", icon: "/logos/python-logo.svg" }
+    const knowledge = [
+        {
+            title: "Lenguajes que más uso",
+            items: [
+                { name: "JavaScript", icon: "/logos/javascript-logo.svg" },
+                { name: "TypeScript", icon: "/logos/typescript-logo.svg" },
+                { name: "Java", icon: "/logos/java-logo.svg" },
+                { name: "Kotlin", icon: "/logos/kotlin-logo.svg" },
+                { name: "C", icon: "/logos/c-logo.svg" },
+                { name: "C++", icon: "/logos/cpp-logo.svg" },
+                { name: "C#", icon: "/logos/csharp-logo.svg" },
+                { name: "Python", icon: "/logos/python-logo.svg" }
+            ]
+        },
+        {
+            title: "Tecnologías más usadas en mis distintos proyectos",
+            items: [
+                { name: "React", icon: "/logos/react-logo.svg" },
+                { name: "Node.js", icon: "/logos/nodejs-logo.svg" },
+                { name: "Express", icon: "/logos/express-logo.svg" },
+                { name: "MySQL", icon: "/logos/mysql-logo.svg" },
+                { name: "WebSockets", icon: "/logos/websockets-logo.svg" }
+            ]
+        },
     ];
-    const technologies = [
-        { name: "React", icon: "/logos/react-logo.svg" },
-        { name: "Node.js", icon: "/logos/nodejs-logo.svg" },
-        { name: "Express", icon: "/logos/express-logo.svg" },
-        { name: "MySQL", icon: "/logos/mysql-logo.svg" },
-        { name: "WebSockets", icon: "/logos/websockets-logo.svg" }
-    ];
-
-    function animateText() {
-        if (textAnimated.current) return;
-        textAnimated.current = true;
-
-        const textElement = document.querySelector(".aboutme-text");
-        const text = textElement.innerHTML;
-        const width = textElement.offsetWidth;
-        const height = textElement.offsetHeight;
-        textElement.innerHTML = "";
-
-        textElement.style.width = `${width}px`;
-        textElement.style.height = `${height}px`;
-        let i = 0;
-        const interval = setInterval(() => {
-            textElement.innerHTML += text[i++];
-            if (i >= text.length) {
-                textElement.style.width = "auto";
-                textElement.style.height = "auto";
-                clearInterval(interval);
-            }
-        }, 20);
-    }
-
-    function delayAnimations() {
-        const languageItems = document.querySelectorAll(".aboutme-language-item");
-        for (let i = 0; i < languageItems.length; i++) {
-            languageItems[i].style.animationDelay = `${i/4}s`;
-        }
-
-        const technologyItems = document.querySelectorAll(".aboutme-technology-item");
-        for (let i = 0; i < technologyItems.length; i++) {
-            technologyItems[i].style.animationDelay = `${i/4}s`;
-        }
-    }
 
     function handleCarousel(direction) {
         const sections = document.querySelectorAll(".aboutme-section");
@@ -71,18 +44,50 @@ export function Aboutme() {
         dots[currentSection].classList.add("aboutme-section-dot-active");
     }
 
-    const createSectionDots = useCallback(() => {
-        const dots = [...document.querySelectorAll(".aboutme-section")].map((section, index) => (
-            <span key={index} className={`aboutme-section-dot ${section.classList.contains("aboutme-section-active") ? "aboutme-section-dot-active" : ""}`} />
-        ));
-        setSectionDots(dots);
-    }, []);
-
     useEffect(() => {
+        function animateText() {
+            if (textAnimated.current) return;
+            textAnimated.current = true;
+    
+            const textElement = document.querySelector(".aboutme-text");
+            const text = textElement.innerHTML;
+            const width = textElement.offsetWidth;
+            const height = textElement.offsetHeight;
+            textElement.innerHTML = "";
+    
+            textElement.style.width = `${width}px`;
+            textElement.style.height = `${height}px`;
+            let i = 0;
+            const interval = setInterval(() => {
+                textElement.innerHTML += text[i++];
+                if (i >= text.length) {
+                    textElement.style.width = "auto";
+                    textElement.style.height = "auto";
+                    clearInterval(interval);
+                }
+            }, 20);
+        }
+
+        function delayAnimations() {
+            for (let i = 0; i < knowledge.length; i++) {
+                const items = document.querySelectorAll(".aboutme-section")[i].querySelectorAll(".aboutme-item");
+                for (let i = 0; i < items.length; i++) {
+                    items[i].style.animationDelay = `${i/4}s`;
+                }
+            }
+        }
+
+        function createSectionDots() {
+            const dots = [...document.querySelectorAll(".aboutme-section")].map((section, index) => (
+                <span key={index} className={`aboutme-section-dot ${section.classList.contains("aboutme-section-active") ? "aboutme-section-dot-active" : ""}`} />
+            ));
+            setSectionDots(dots);
+        }
+
         animateText();
         delayAnimations();
         createSectionDots();
-    }, [createSectionDots]);
+    }, [knowledge.length]);
 
     return (
         <div className="aboutme-body">
@@ -105,27 +110,18 @@ export function Aboutme() {
             </div>
 
             <div className="aboutme-section-container">
-                <div className="aboutme-section aboutme-section-active">
-                    <h2 className="aboutme-title">Lenguajes que más uso</h2>
-                    <ul className="aboutme-language-container">
-                        {languages.map((language, index) => (
-                            <li key={index} className="aboutme-language-item">
-                                <img className="aboutme-language-icon" src={language.icon}/><label className="aboutme-language">{language.name}</label>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-
-                <div className="aboutme-section">
-                    <h2 className="aboutme-title">Tecnologías más usadas en mis distintos proyectos</h2>
-                    <ul className="aboutme-technology-container">
-                        {technologies.map((technology, index) => (
-                            <li key={index} className="aboutme-technology-item">
-                                <img className="aboutme-technology-icon" src={technology.icon}/><label className="aboutme-technology">{technology.name}</label>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+                {knowledge.map((section, index) => (
+                    <div key={index} className={`aboutme-section${index === 0 ? " aboutme-section-active" : ""}`}>
+                        <h2 className="aboutme-title">{section.title}</h2>
+                        <ul className="aboutme-container">
+                            {section.items.map((item, index) => (
+                                <li key={index} className="aboutme-item">
+                                    <img className="aboutme-icon" src={item.icon}/><label className="aboutme-item-label">{item.name}</label>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ))}
             </div>
         </div>
     )
