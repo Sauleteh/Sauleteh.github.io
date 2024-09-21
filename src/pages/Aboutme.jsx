@@ -12,7 +12,6 @@ export function Aboutme() {
             title: "Lenguajes que más uso",
             items: [
                 { name: "JavaScript", icon: "/logos/javascript-logo.svg" },
-                { name: "TypeScript", icon: "/logos/typescript-logo.svg" },
                 { name: "Java", icon: "/logos/java-logo.svg" },
                 { name: "Kotlin", icon: "/logos/kotlin-logo.svg" },
                 { name: "C", icon: "/logos/c-logo.svg" },
@@ -31,6 +30,27 @@ export function Aboutme() {
                 { name: "WebSockets", icon: "/logos/websockets-logo.svg" }
             ]
         },
+        {
+            title: "Lenguajes utilizados pero no tan frecuentemente",
+            items: [
+                { name: "TypeScript", icon: "/logos/typescript-logo.svg" },
+                { name: "Rust", icon: "/logos/rust-logo.svg" },
+                { name: "Lua", icon: "/logos/lua-logo.svg" },
+                { name: "Bash", icon: "/logos/bash-logo.svg" }
+            ]
+        },
+        {
+            title: "Otras tecnologías con las que he experimentado",
+            items: [
+                { name: "Android Studio", icon: "/logos/androidstudio-logo.svg" },
+                { name: "Packet Tracer", icon: "/logos/packettracer-logo.svg" },
+                { name: "Git", icon: "/logos/git-logo.svg" },
+                { name: "Docker", icon: "/logos/docker-logo.svg" },
+                { name: "Unity", icon: "/logos/unity-logo.svg" },
+                { name: "Redkanban", icon: "/logos/redkanban-logo.svg" },
+                { name: "PostgreSQL", icon: "/logos/postgresql-logo.svg" }
+            ]
+        }
     ];
 
     function handleCarousel(direction) {
