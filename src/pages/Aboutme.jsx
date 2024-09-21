@@ -91,8 +91,11 @@ export function Aboutme() {
         function delayAnimations() {
             for (let i = 0; i < knowledge.length; i++) {
                 const items = document.querySelectorAll(".aboutme-section")[i].querySelectorAll(".aboutme-item");
-                for (let i = 0; i < items.length; i++) {
-                    items[i].style.animationDelay = `${i/4}s`;
+                let delay = 0;
+                let indexes = [0, Math.ceil(items.length / 2)]; // Índices que apuntan a los elementos de cada columna
+                for (let j = 0; j < items.length; j++) {
+                    items[indexes[j % 2]++].style.animationDelay = `${delay}s`;
+                    delay += 0.25 - indexes[j % 2] / 100; // Cuantos más elementos haya, menos tiempo de espera entre ellos
                 }
             }
         }
@@ -133,13 +136,22 @@ export function Aboutme() {
                 {knowledge.map((section, index) => (
                     <div key={index} className={`aboutme-section${index === 0 ? " aboutme-section-active" : ""}`}>
                         <h2 className="aboutme-title">{section.title}</h2>
-                        <ul className="aboutme-container">
-                            {section.items.map((item, index) => (
-                                <li key={index} className="aboutme-item">
-                                    <img className="aboutme-icon" src={item.icon}/><label className="aboutme-item-label">{item.name}</label>
-                                </li>
-                            ))}
-                        </ul>
+                        <div className="aboutme-columns">
+                            <ul className="aboutme-item-container">
+                                {section.items.slice(0, Math.ceil(section.items.length / 2)).map((item, index) => (
+                                    <li key={index} className="aboutme-item">
+                                        <img className="aboutme-icon" src={item.icon}/><label className="aboutme-item-label">{item.name}</label>
+                                    </li>
+                                ))}
+                            </ul>
+                            <ul className="aboutme-item-container">
+                                {section.items.slice(Math.ceil(section.items.length / 2), section.items.length).map((item, index) => (
+                                    <li key={index} className="aboutme-item">
+                                        <img className="aboutme-icon" src={item.icon}/><label className="aboutme-item-label">{item.name}</label>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     </div>
                 ))}
             </div>
