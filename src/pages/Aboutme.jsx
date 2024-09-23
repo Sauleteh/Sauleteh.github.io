@@ -47,7 +47,7 @@ export function Aboutme() {
                 { name: "Git", icon: "/logos/git-logo.svg" },
                 { name: "Docker", icon: "/logos/docker-logo.svg" },
                 { name: "Unity", icon: "/logos/unity-logo.svg" },
-                { name: "Redkanban", icon: "/logos/redkanban-logo.svg" },
+                { name: "Kanban", icon: "/logos/redkanban-logo.svg" },
                 { name: "PostgreSQL", icon: "/logos/postgresql-logo.svg" }
             ]
         }
