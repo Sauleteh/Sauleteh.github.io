@@ -35,6 +35,9 @@ export function App() {
     }, {
         path: "/projects/chess",
         element: <HtmlProject url="./projects/ajedrez/ajedrez.html"/>
+    }, {
+        path: "/projects/drivemad",
+        element: <HtmlProject url="./projects/drivemad/drivemad.html"/>
     }];
 
     const router = createHashRouter([{
