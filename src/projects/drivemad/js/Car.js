@@ -1,7 +1,7 @@
 /**
  * Un coche es un rectángulo.
  * @param {Point} coords - Las coordenadas XY del coche.
- * @param {number} direction - La dirección del coche en grados.
+ * @param {number} direction - La dirección del coche en grados. 0 grados es la derecha, 90 grados es arriba, 180 grados es la izquierda y 270 grados es abajo.
  * @param {number} width - El ancho del coche.
  * @param {number} height - La altura del coche.
  * @param {string} color - El color del coche.
