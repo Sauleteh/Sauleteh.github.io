@@ -19,6 +19,8 @@ document.addEventListener('DOMContentLoaded', function() {
     cars.push(userCar); //* Debug
     let lastDirection = userCar.direction; // Solo para el userCar, para evitar aplicar rotación a la velocidad de forma inesperada
 
+    const airFriction = 0.1;
+
     function initEvents() {
         document.addEventListener("keydown", function(evnt) {
             const { key } = event;
@@ -51,9 +53,18 @@ document.addEventListener('DOMContentLoaded', function() {
             ctx.fillStyle = "rgb(175, 175, 175)";
             ctx.arc(car.coords.x, car.coords.y, 6, 0, 2 * Math.PI);
             ctx.fill();
+            ctx.strokeStyle = "black";
             ctx.beginPath();
             ctx.moveTo(car.coords.x, car.coords.y);
             ctx.lineTo(car.coords.x + car.speed.x * 5, car.coords.y + car.speed.y * 5);
+            ctx.closePath();
+            ctx.stroke();
+
+            ctx.strokeStyle = "blue";
+            ctx.beginPath();
+            ctx.moveTo(car.coords.x + Math.cos(car.direction * Math.PI / 180) * 20, car.coords.y + Math.sin(car.direction * Math.PI / 180) * 20);
+            ctx.lineTo(car.coords.x + Math.cos((car.direction + 10) * Math.PI / 180) * 10, car.coords.y + Math.sin((car.direction + 10) * Math.PI / 180) * 10);
+            ctx.lineTo(car.coords.x + Math.cos((car.direction - 10) * Math.PI / 180) * 10, car.coords.y + Math.sin((car.direction - 10) * Math.PI / 180) * 10);
             ctx.closePath();
             ctx.stroke();
 
@@ -107,12 +118,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function applyAirFriction() {
         cars.forEach(car => {
-            // TODO: En vez de aplicar fricción por todos lados, aplicarla solo en la dirección opuesta a la velocidad
-            if (car.speed.x > 0) car.speed.x -= 0.1;
-            else if (car.speed.x < 0) car.speed.x += 0.1;
-            
-            if (car.speed.y > 0) car.speed.y -= 0.1;
-            else if (car.speed.y < 0) car.speed.y += 0.1;
+            let negativeSpeed = new Point(-car.speed.x, -car.speed.y);
+            car.speed.x += airFriction * negativeSpeed.x
+            car.speed.y += airFriction * negativeSpeed.y
 
             // Si la velocidad es muy baja, se establece a 0 (threshold de 0.001)
             if (Math.abs(car.speed.x) < 0.001) car.speed.x = 0;
@@ -132,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
         checkCarControls();
         applySpeed();
         applyRotationToSpeed();
-        // applyAirFriction();
+        applyAirFriction();
 
         fpsController.updateLastTime(now);
     }
