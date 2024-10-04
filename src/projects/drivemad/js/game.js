@@ -17,9 +17,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const userCar = new Car(new Point(100, 100), 0, 20, 40, "red", new Point(0, 0));
     cars.push(userCar); //* Debug
-    let lastDirection = userCar.direction; // Solo para el userCar, para evitar aplicar rotación a la velocidad de forma inesperada
 
     const airFriction = 0.1;
+    const acceleratePower = 1.2;
+    const brakePower = 0.3;
+    const baseDirection = 5; // En grados
+    const maxDirectionThreshold = 4; // Velocidad a la que se alcanza la máxima torsión
 
     function initEvents() {
         document.addEventListener("keydown", function(evnt) {
@@ -68,29 +71,33 @@ document.addEventListener('DOMContentLoaded', function() {
             ctx.closePath();
             ctx.stroke();
 
-            console.log(`Pos: (${car.coords.x}, ${car.coords.y}) | Direction: ${car.direction}º | Speed: (${car.speed.x}, ${car.speed.y})`);
+            console.log(`Pos: (${car.coords.x.toFixed(3)}, ${car.coords.y.toFixed(3)}) | Direction: ${car.direction.toFixed(3)}º | Speed: (${car.speed.x.toFixed(3)}, ${car.speed.y.toFixed(3)}) [${userCar.absoluteSpeed.toFixed(3)}]`); // Debug
         });
     }
 
     function checkCarControls() {
         if (controls.keys.accelerate.isPressed) {
             let rads = userCar.direction * Math.PI / 180;
-            userCar.speed.x += Math.cos(rads);
-            userCar.speed.y += Math.sin(rads);
+            userCar.speed.x += Math.cos(rads) * acceleratePower;
+            userCar.speed.y += Math.sin(rads) * acceleratePower;
         }
         else if (controls.keys.brake.isPressed) {
             let rads = userCar.direction * Math.PI / 180;
-            userCar.speed.x -= Math.cos(rads);
-            userCar.speed.y -= Math.sin(rads);
+            userCar.speed.x -= Math.cos(rads) * brakePower;
+            userCar.speed.y -= Math.sin(rads) * brakePower;
         }
         
         if (controls.keys.left.isPressed) {
-            userCar.direction -= 5;
-            if (userCar.direction <= 0) userCar.direction += 360;
+            if (userCar.speed.x != 0 || userCar.speed.y != 0) {
+                userCar.direction -= baseDirection * (userCar.absoluteSpeed < maxDirectionThreshold ? userCar.absoluteSpeed / maxDirectionThreshold : 1);
+                if (userCar.direction <= 0) userCar.direction += 360;
+            }
         }
         else if (controls.keys.right.isPressed) {
-            userCar.direction += 5;
-            if (userCar.direction >= 360) userCar.direction -= 360;
+            if (userCar.speed.x != 0 || userCar.speed.y != 0) {
+                userCar.direction += baseDirection * (userCar.absoluteSpeed < maxDirectionThreshold ? userCar.absoluteSpeed / maxDirectionThreshold : 1);
+                if (userCar.direction >= 360) userCar.direction -= 360;
+            }
         }
     }
 
@@ -101,19 +108,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Solo para el coche del usuario
     function applyRotationToSpeed() {
-        if (lastDirection != userCar.direction) {
-            // https://matthew-brett.github.io/teaching/rotation_2d.html
-            let rads = (userCar.direction - lastDirection) * Math.PI / 180;
-            let rotationMatrix = [
-                userCar.speed.x * Math.cos(rads) - userCar.speed.y * Math.sin(rads),
-                userCar.speed.x * Math.sin(rads) + userCar.speed.y * Math.cos(rads)
-            ];
-            userCar.speed.x = rotationMatrix[0];
-            userCar.speed.y = rotationMatrix[1];
-            lastDirection = userCar.direction;
-        }
+        cars.forEach(car => {
+            if (car.lastDirection != car.direction) {
+                // https://matthew-brett.github.io/teaching/rotation_2d.html
+                let rads = (car.direction - car.lastDirection) * Math.PI / 180;
+                let rotationMatrix = [
+                    car.speed.x * Math.cos(rads) - car.speed.y * Math.sin(rads),
+                    car.speed.x * Math.sin(rads) + car.speed.y * Math.cos(rads)
+                ];
+                car.speed.x = rotationMatrix[0];
+                car.speed.y = rotationMatrix[1];
+                car.lastDirection = car.direction;
+            }
+        });
     }
 
     function applyAirFriction() {
@@ -148,3 +156,14 @@ document.addEventListener('DOMContentLoaded', function() {
     initEvents();
     draw();
 });
+
+/** TODO list:
+ * - [ ] Implementar sistema de frenado en vez de que al frenar se sume el vector de freno (que no es suficiente potencia para frenados más grandes).
+ * - [ ] Implementar el sistema de derrape.
+ *     - [ ] Se hará con el botón espacio.
+ *     - [ ] Al pulsar (no mantener) el botón, se empezará el modo derrape.
+ *     - [ ] Para dejar de derrapar, se debe estar conduciendo en línea recta sin girar durante un corto período de tiempo.
+ *     - [ ] Derrapar te permite girar más fuerte, pero cuanto más girado estás con respecto a tu dirección de la velocidad, más velocidad pierdes.
+ * - [ ] Implementar el sistema de boost.
+ *     - [ ] Se podría hacer con un botón o mediante objetos en el suelo.
+ */

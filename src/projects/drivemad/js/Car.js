@@ -16,5 +16,10 @@ export class Car
         this.height = height;
         this.color = color;
         this.speed = speed;
+        this.lastDirection = direction;
+    }
+
+    get absoluteSpeed() {
+        return Math.sqrt(Math.pow(this.speed.x, 2) + Math.pow(this.speed.y, 2));
     }
 }
