@@ -16,7 +16,10 @@ export class Car
         this.height = height;
         this.color = color;
         this.speed = speed;
+
         this.lastDirection = direction;
+        this.isDrifting = false;
+        this.driftCancelCounter = 0; // Si este contador llega a un número determinado después de tener el coche en línea recta un número de frames dado, se considera que se está dejando de derrapar
     }
 
     get absoluteSpeed() {

@@ -33,7 +33,7 @@ export class Controls
                 actionDone: false,
                 check: (key) => { return key === "ArrowDown" || key.toLowerCase() === "s"; }
             },
-            boost: {
+            drift: {
                 isPressed: false,
                 actionDone: false,
                 check: (key) => { return key === " "; }
