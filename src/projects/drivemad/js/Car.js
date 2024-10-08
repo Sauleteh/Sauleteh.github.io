@@ -20,6 +20,7 @@ export class Car
         this.lastDirection = direction;
         this.isDrifting = false;
         this.driftCancelCounter = 0; // Si este contador llega a un número determinado después de tener el coche en línea recta un número de frames dado, se considera que se está dejando de derrapar
+        this.smokeParticles = []; // Array de puntos "point" donde están localizadas las partículas del humo cuando se derrapa y con una variable "life" que indica la vida que le queda a la partícula para desaparecer
     }
 
     get absoluteSpeed() {

@@ -53,15 +53,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function drawDrifting() {
         cars.forEach(car => {
-            if (car.isDrifting) {
-                ctx.strokeStyle = "yellow";
-                ctx.beginPath();
-                ctx.moveTo(car.coords.x, car.coords.y);
-                ctx.lineTo(car.coords.x + Math.cos((car.direction + 90) * Math.PI / 180) * 20, car.coords.y + Math.sin((car.direction + 90) * Math.PI / 180) * 20);
-                ctx.moveTo(car.coords.x, car.coords.y);
-                ctx.lineTo(car.coords.x + Math.cos((car.direction - 90) * Math.PI / 180) * 20, car.coords.y + Math.sin((car.direction - 90) * Math.PI / 180) * 20);
-                ctx.closePath();
-                ctx.stroke();
+            ctx.fillStyle = "gray";
+            for (let i = 0; i < car.smokeParticles.length; i++) {
+                const smokeParticle = car.smokeParticles[i];
+                ctx.fillRect(smokeParticle.point.x, smokeParticle.point.y, 5, 5);
             }
         });
     }
@@ -109,13 +104,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (controls.keys.left.isPressed) {
             if (userCar.speed.x != 0 || userCar.speed.y != 0) {
-                userCar.direction -= (baseDirection * (userCar.isDrifting ? 2 : 1)) * (userCar.absoluteSpeed < maxDirectionThreshold ? userCar.absoluteSpeed / maxDirectionThreshold : 1);
+                userCar.direction -= (baseDirection * (userCar.isDrifting ? 1.5 : 1)) * (userCar.absoluteSpeed < maxDirectionThreshold ? userCar.absoluteSpeed / maxDirectionThreshold : 1);
                 if (userCar.direction <= 0) userCar.direction += 360;
             }
         }
         else if (controls.keys.right.isPressed) {
             if (userCar.speed.x != 0 || userCar.speed.y != 0) {
-                userCar.direction += (baseDirection * (userCar.isDrifting ? 2 : 1)) * (userCar.absoluteSpeed < maxDirectionThreshold ? userCar.absoluteSpeed / maxDirectionThreshold : 1);
+                userCar.direction += (baseDirection * (userCar.isDrifting ? 1.5 : 1)) * (userCar.absoluteSpeed < maxDirectionThreshold ? userCar.absoluteSpeed / maxDirectionThreshold : 1);
                 if (userCar.direction >= 360) userCar.direction -= 360;
             }
         }
@@ -145,11 +140,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function checkIsDrifting() {
-        if (userCar.isDrifting) {
-            if (userCar.lastDirection === userCar.direction) {
-                userCar.isDrifting = false;
+        cars.forEach(car => {
+            if (car.isDrifting) {
+                // Comprobamos si se sigue derrapando
+                if (car.lastDirection === car.direction) {
+                    car.driftCancelCounter++;
+                    if (car.driftCancelCounter >= 20) {
+                        car.isDrifting = false;
+                    }
+                }
+                else car.driftCancelCounter = 0;
             }
-        }
+        });
     }
 
     function applyAirFriction() {
@@ -161,6 +163,28 @@ document.addEventListener('DOMContentLoaded', function() {
             // Si la velocidad es muy baja, se establece a 0 (threshold de 0.001)
             if (Math.abs(car.speed.x) < 0.001) car.speed.x = 0;
             if (Math.abs(car.speed.y) < 0.001) car.speed.y = 0;
+        });
+    }
+
+    function updateSmokeParticles() {
+        cars.forEach(car => {
+            // Se actualiza la vida de cada partícula
+            for (let i = 0; i < car.smokeParticles.length; i++) {
+                car.smokeParticles[i].life--;
+                if (car.smokeParticles[i].life <= 0) car.smokeParticles.splice(i, 1);
+            }
+            
+            if (car.isDrifting) {
+                // Si se está derrapando, salen partículas de las ruedas traseras
+                car.smokeParticles.push({ // Rueda izquierda
+                    point: new Point(car.coords.x + Math.cos((car.direction + car.height) * Math.PI / 180) * -car.width/1.2, car.coords.y + Math.sin((car.direction + car.height) * Math.PI / 180) * -car.width/1.5),
+                    life: 10
+                });
+                car.smokeParticles.push({ // Rueda derecha
+                    point: new Point(car.coords.x + Math.cos((car.direction - car.height) * Math.PI / 180) * -car.width/2.1, car.coords.y + Math.sin((car.direction - car.height) * Math.PI / 180) * -car.width/1.5),
+                    life: 10
+                });
+            }
         });
     }
 
@@ -179,6 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
         applySpeed();
         applyRotationToSpeed();
         applyAirFriction();
+        updateSmokeParticles();
 
         fpsController.updateLastTime(now);
     }
