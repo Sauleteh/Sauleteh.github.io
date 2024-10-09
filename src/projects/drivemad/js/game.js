@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const brakePower = 0.3;
     const baseDirection = 5; // En grados
     const maxDirectionThreshold = 4; // Velocidad a la que se alcanza la máxima torsión
+    const smokeParticleSize = 5;
 
     function initEvents() {
         document.addEventListener("keydown", function(evnt) {
@@ -56,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
             ctx.fillStyle = "gray";
             for (let i = 0; i < car.smokeParticles.length; i++) {
                 const smokeParticle = car.smokeParticles[i];
-                ctx.fillRect(smokeParticle.point.x, smokeParticle.point.y, 5, 5);
+                ctx.fillRect(smokeParticle.point.x - smokeParticleSize/2, smokeParticle.point.y - smokeParticleSize/2, smokeParticleSize, smokeParticleSize);
             }
         });
     }
@@ -78,6 +79,13 @@ document.addEventListener('DOMContentLoaded', function() {
             ctx.moveTo(car.coords.x + Math.cos(car.direction * Math.PI / 180) * 20, car.coords.y + Math.sin(car.direction * Math.PI / 180) * 20);
             ctx.lineTo(car.coords.x + Math.cos((car.direction + 10) * Math.PI / 180) * 10, car.coords.y + Math.sin((car.direction + 10) * Math.PI / 180) * 10);
             ctx.lineTo(car.coords.x + Math.cos((car.direction - 10) * Math.PI / 180) * 10, car.coords.y + Math.sin((car.direction - 10) * Math.PI / 180) * 10);
+            ctx.closePath();
+            ctx.stroke();
+
+            ctx.strokeStyle = "green";
+            ctx.beginPath();
+            ctx.moveTo(car.coords.x + Math.cos((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2, car.coords.y + Math.sin((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2);
+            ctx.lineTo(car.coords.x + Math.cos((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2, car.coords.y + Math.sin((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2);
             ctx.closePath();
             ctx.stroke();
 
@@ -177,11 +185,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (car.isDrifting) {
                 // Si se está derrapando, salen partículas de las ruedas traseras
                 car.smokeParticles.push({ // Rueda izquierda
-                    point: new Point(car.coords.x + Math.cos((car.direction + car.height) * Math.PI / 180) * -car.width/1.2, car.coords.y + Math.sin((car.direction + car.height) * Math.PI / 180) * -car.width/1.5),
+                    point: new Point(car.coords.x + Math.cos((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2, car.coords.y + Math.sin((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2),
                     life: 10
                 });
                 car.smokeParticles.push({ // Rueda derecha
-                    point: new Point(car.coords.x + Math.cos((car.direction - car.height) * Math.PI / 180) * -car.width/2.1, car.coords.y + Math.sin((car.direction - car.height) * Math.PI / 180) * -car.width/1.5),
+                    point: new Point(car.coords.x + Math.cos((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2, car.coords.y + Math.sin((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2),
                     life: 10
                 });
             }
