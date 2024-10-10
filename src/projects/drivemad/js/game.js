@@ -89,12 +89,13 @@ document.addEventListener('DOMContentLoaded', function() {
             ctx.closePath();
             ctx.stroke();
 
-            console.log(`Pos: (${car.coords.x.toFixed(3)}, ${car.coords.y.toFixed(3)}) | Direction: ${car.direction.toFixed(3)}º | Speed: (${car.speed.x.toFixed(3)}, ${car.speed.y.toFixed(3)}) [${userCar.absoluteSpeed.toFixed(3)}] | Drifting: ${userCar.isDrifting}`); // Debug
+            console.log(`Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)}) | Direction: ${userCar.direction.toFixed(3)}º | Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) [${userCar.absoluteSpeed.toFixed(3)}] | Drifting: ${userCar.isDrifting} | NegativeSpeed: ${userCar.isSpeedNegative ? "Yes" : "No"}`); // Debug
         });
     }
 
     function checkCarControls() {
         if (controls.keys.drift.isPressed && !controls.keys.drift.actionDone) {
+            if (userCar.isSpeedNegative) return; // Si la velocidad es negativa, no se puede derrapar
             userCar.isDrifting = true;
             controls.keys.drift.actionDone = true;
         }
@@ -105,6 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
             userCar.speed.y += Math.sin(rads) * acceleratePower;
         }
         else if (controls.keys.brake.isPressed) {
+            if (userCar.isSpeedNegative) userCar.isDrifting = false; // Si la velocidad es negativa, no se puede derrapar
             let rads = userCar.direction * Math.PI / 180;
             userCar.speed.x -= Math.cos(rads) * brakePower;
             userCar.speed.y -= Math.sin(rads) * brakePower;
@@ -112,14 +114,16 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (controls.keys.left.isPressed) {
             if (userCar.speed.x != 0 || userCar.speed.y != 0) {
-                userCar.direction -= (baseDirection * (userCar.isDrifting ? 1.5 : 1)) * (userCar.absoluteSpeed < maxDirectionThreshold ? userCar.absoluteSpeed / maxDirectionThreshold : 1);
-                if (userCar.direction <= 0) userCar.direction += 360;
+                userCar.direction -= (userCar.isSpeedNegative ? -1 : 1) * (baseDirection * (userCar.isDrifting ? 1.5 : 1)) * (userCar.absoluteSpeed < maxDirectionThreshold ? userCar.absoluteSpeed / maxDirectionThreshold : 1);
+                userCar.direction = userCar.direction % 360;
+                if (userCar.direction < 0) userCar.direction += 360;
             }
         }
         else if (controls.keys.right.isPressed) {
             if (userCar.speed.x != 0 || userCar.speed.y != 0) {
-                userCar.direction += (baseDirection * (userCar.isDrifting ? 1.5 : 1)) * (userCar.absoluteSpeed < maxDirectionThreshold ? userCar.absoluteSpeed / maxDirectionThreshold : 1);
-                if (userCar.direction >= 360) userCar.direction -= 360;
+                userCar.direction += (userCar.isSpeedNegative ? -1 : 1) * (baseDirection * (userCar.isDrifting ? 1.5 : 1)) * (userCar.absoluteSpeed < maxDirectionThreshold ? userCar.absoluteSpeed / maxDirectionThreshold : 1);
+                userCar.direction = userCar.direction % 360;
+                if (userCar.direction < 0) userCar.direction += 360;
             }
         }
     }
@@ -164,9 +168,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function applyAirFriction() {
         cars.forEach(car => {
+            //if (car.isSpeedNegative) return; // Si la velocidad es negativa, no se aplica la fricción del aire
             let negativeSpeed = new Point(-car.speed.x, -car.speed.y);
-            car.speed.x += airFriction * negativeSpeed.x
-            car.speed.y += airFriction * negativeSpeed.y
+            car.speed.x += airFriction * negativeSpeed.x;
+            car.speed.y += airFriction * negativeSpeed.y;
 
             // Si la velocidad es muy baja, se establece a 0 (threshold de 0.001)
             if (Math.abs(car.speed.x) < 0.001) car.speed.x = 0;
@@ -226,7 +231,8 @@ document.addEventListener('DOMContentLoaded', function() {
  *     - [X] Se hará con el botón espacio.
  *     - [X] Al pulsar (no mantener) el botón, se empezará el modo derrape.
  *     - [X] Para dejar de derrapar, se debe estar conduciendo en línea recta sin girar durante un corto período de tiempo.
- *     - [ ] Derrapar te permite girar más fuerte, pero cuanto más girado estás con respecto a tu dirección de la velocidad, más velocidad pierdes.
+ *     - [X] Derrapar te permite girar más fuerte, pero cuanto más girado estás con respecto a tu dirección de la velocidad, más velocidad pierdes.
  * - [ ] Implementar el sistema de boost.
  *     - [ ] Se podría hacer con un botón o mediante objetos en el suelo.
+ * - [ ] BUG: Las partículas de humo hay más cantidad en la rueda izquierda que en la derecha
  */
