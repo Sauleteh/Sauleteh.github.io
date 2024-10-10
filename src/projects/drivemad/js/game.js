@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateSmokeParticles() {
         cars.forEach(car => {
             // Se actualiza la vida de cada partícula
-            for (let i = 0; i < car.smokeParticles.length; i++) {
+            for (let i = car.smokeParticles.length-1; i >= 0; i--) {
                 car.smokeParticles[i].life--;
                 if (car.smokeParticles[i].life <= 0) car.smokeParticles.splice(i, 1);
             }
@@ -226,13 +226,13 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /** TODO list:
- * - [ ] Implementar sistema de frenado en vez de que al frenar se sume el vector de freno (que no es suficiente potencia para frenados más grandes).
- * - [ ] Implementar el sistema de derrape.
+ * - [X] Implementar sistema de frenado en vez de que al frenar se sume el vector de freno (que no es suficiente potencia para frenados más grandes).
+ * - [X] Implementar el sistema de derrape.
  *     - [X] Se hará con el botón espacio.
  *     - [X] Al pulsar (no mantener) el botón, se empezará el modo derrape.
  *     - [X] Para dejar de derrapar, se debe estar conduciendo en línea recta sin girar durante un corto período de tiempo.
  *     - [X] Derrapar te permite girar más fuerte, pero cuanto más girado estás con respecto a tu dirección de la velocidad, más velocidad pierdes.
  * - [ ] Implementar el sistema de boost.
  *     - [ ] Se podría hacer con un botón o mediante objetos en el suelo.
- * - [ ] BUG: Las partículas de humo hay más cantidad en la rueda izquierda que en la derecha
+ * - [X] BUG: Las partículas de humo hay más cantidad en la rueda izquierda que en la derecha
  */
