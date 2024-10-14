@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const fpsController = new FPSControllerV2(60);
     const controls = new Controls();
+    const camera = new Point(0, 0); // La cámara tiene el mismo tamaño que el canvas y la coordenada que se especifica es su esquina superior izquierda. Su movimiento horizontal está invertido (+x => Izq.) y su movimiento vertical es igual al del canvas (+y => Abajo)
 
     const cars = [];
 
@@ -45,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cars.forEach(car => {
             ctx.save();
             ctx.fillStyle = car.color;
-            ctx.translate(car.coords.x, car.coords.y);
+            ctx.translate(car.coords.x + camera.x, car.coords.y + camera.y);
             ctx.rotate(car.direction * Math.PI / 180);
             ctx.fillRect(-car.height/2, -car.width/2, car.height, car.width); // El rectángulo se hace al revés para que aparezca mirando hacia la derecha (0 grados)
             ctx.restore();
@@ -57,39 +58,50 @@ document.addEventListener('DOMContentLoaded', function() {
             ctx.fillStyle = "gray";
             for (let i = 0; i < car.smokeParticles.length; i++) {
                 const smokeParticle = car.smokeParticles[i];
-                ctx.fillRect(smokeParticle.point.x - smokeParticleSize/2, smokeParticle.point.y - smokeParticleSize/2, smokeParticleSize, smokeParticleSize);
+                ctx.fillRect(smokeParticle.point.x - smokeParticleSize/2 + camera.x, smokeParticle.point.y - smokeParticleSize/2 + camera.y, smokeParticleSize, smokeParticleSize);
             }
         });
+    }
+
+    function drawCircuit() {
+        ctx.strokeStyle = "green";
+        for (let i = 0; i < 1000; i++) {
+            ctx.beginPath();
+            ctx.moveTo(i*20 + camera.x, 100 + camera.y);
+            ctx.lineTo(i*20+10 + camera.x, 100 + camera.y);
+            ctx.closePath();
+            ctx.stroke();
+        }
     }
 
     function drawDebug() {
         cars.forEach(car => {
             ctx.fillStyle = "rgb(175, 175, 175)";
-            ctx.arc(car.coords.x, car.coords.y, 6, 0, 2 * Math.PI);
+            ctx.arc(car.coords.x + camera.x, car.coords.y + camera.y, 6, 0, 2 * Math.PI);
             ctx.fill();
             ctx.strokeStyle = "black";
             ctx.beginPath();
-            ctx.moveTo(car.coords.x, car.coords.y);
-            ctx.lineTo(car.coords.x + car.speed.x * 5, car.coords.y + car.speed.y * 5);
+            ctx.moveTo(car.coords.x + camera.x, car.coords.y + camera.y);
+            ctx.lineTo(car.coords.x + car.speed.x * 5 + camera.x, car.coords.y + car.speed.y * 5 + camera.y);
             ctx.closePath();
             ctx.stroke();
 
             ctx.strokeStyle = "blue";
             ctx.beginPath();
-            ctx.moveTo(car.coords.x + Math.cos(car.direction * Math.PI / 180) * 20, car.coords.y + Math.sin(car.direction * Math.PI / 180) * 20);
-            ctx.lineTo(car.coords.x + Math.cos((car.direction + 10) * Math.PI / 180) * 10, car.coords.y + Math.sin((car.direction + 10) * Math.PI / 180) * 10);
-            ctx.lineTo(car.coords.x + Math.cos((car.direction - 10) * Math.PI / 180) * 10, car.coords.y + Math.sin((car.direction - 10) * Math.PI / 180) * 10);
+            ctx.moveTo(car.coords.x + Math.cos(car.direction * Math.PI / 180) * 20 + camera.x, car.coords.y + Math.sin(car.direction * Math.PI / 180) * 20 + camera.y);
+            ctx.lineTo(car.coords.x + Math.cos((car.direction + 10) * Math.PI / 180) * 10 + camera.x, car.coords.y + Math.sin((car.direction + 10) * Math.PI / 180) * 10 + camera.y);
+            ctx.lineTo(car.coords.x + Math.cos((car.direction - 10) * Math.PI / 180) * 10 + camera.x, car.coords.y + Math.sin((car.direction - 10) * Math.PI / 180) * 10 + camera.y);
             ctx.closePath();
             ctx.stroke();
 
             ctx.strokeStyle = "green";
             ctx.beginPath();
-            ctx.moveTo(car.coords.x + Math.cos((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2, car.coords.y + Math.sin((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2);
-            ctx.lineTo(car.coords.x + Math.cos((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2, car.coords.y + Math.sin((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2);
+            ctx.moveTo(car.coords.x + Math.cos((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2 + camera.x, car.coords.y + Math.sin((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2 + camera.y);
+            ctx.lineTo(car.coords.x + Math.cos((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2 + camera.x, car.coords.y + Math.sin((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2 + camera.y);
             ctx.closePath();
             ctx.stroke();
 
-            console.log(`Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)}) | Direction: ${userCar.direction.toFixed(3)}º | Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) [${userCar.absoluteSpeed.toFixed(3)}] | Drifting: ${userCar.isDrifting} | NegativeSpeed: ${userCar.isSpeedNegative ? "Yes" : "No"}`); // Debug
+            console.log(`Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)}) | Direction: ${userCar.direction.toFixed(3)}º | Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) [${userCar.absoluteSpeed.toFixed(3)}] | Drifting: ${userCar.isDrifting} | NegativeSpeed: ${userCar.isSpeedNegative ? "Yes" : "No"} | Camera: [${camera.x}, ${camera.y}]`); // Debug
         });
     }
 
@@ -201,6 +213,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // En cada frame, el coche se sitúa en el centro de la cámara
+    function updateCamera() {
+        camera.x = -userCar.coords.x + canvas.width / 2;
+        camera.y = -userCar.coords.y + canvas.height / 2;
+    }
+
     function draw(now) {
         window.requestAnimationFrame(draw);
         if (!fpsController.shouldContinue(now)) return;
@@ -209,8 +227,10 @@ document.addEventListener('DOMContentLoaded', function() {
         clearCanvas();
         drawDrifting();
         drawCars();
+        drawCircuit();
         drawDebug();
-
+        
+        updateCamera();
         checkCarControls();
         checkIsDrifting();
         applySpeed();
