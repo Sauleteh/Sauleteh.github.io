@@ -2,6 +2,7 @@ import { FPSControllerV2 } from "./FPSControllerV2.js";
 import { Car } from "./Car.js";
 import { Point } from "./Point.js";
 import { Controls } from "./Controls.js";
+import { Circuit } from "./Circuit.js";
 
 document.addEventListener('DOMContentLoaded', function() {
     const canvas = document.querySelector("canvas.game");
@@ -9,12 +10,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     canvas.width = 960;
     canvas.height = 540;
+    ctx.imageSmoothingEnabled = false;  // Desactiva el suavizado de imágenes
 
     const fpsController = new FPSControllerV2(60);
     const controls = new Controls();
     const camera = new Point(0, 0); // La cámara tiene el mismo tamaño que el canvas y la coordenada que se especifica es su esquina superior izquierda. Su movimiento horizontal está invertido (+x => Izq.) y su movimiento vertical es igual al del canvas (+y => Abajo)
 
     const cars = [];
+    const circuit = new Circuit(80);
+    circuit.setStartPoint(100, 100, 0);
+    circuit.addSegment(circuit.straightLine(300));
+    circuit.addSegment(circuit.straightLine(500));
+    // circuit.addSegment(circuit.arc(35, 90));
 
     const userCar = new Car(new Point(100, 100), 0, 20, 40, "red", new Point(0, 0));
     cars.push(userCar); //* Debug
@@ -65,13 +72,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function drawCircuit() {
         ctx.strokeStyle = "green";
-        for (let i = 0; i < 1000; i++) {
-            ctx.beginPath();
-            ctx.moveTo(i*20 + camera.x, 100 + camera.y);
-            ctx.lineTo(i*20+10 + camera.x, 100 + camera.y);
-            ctx.closePath();
-            ctx.stroke();
+        ctx.lineWidth = 16;
+        for (let i = 0; i < circuit.segments.length; i++) {
+            const segment = circuit.segments[i];
+            if (segment.type === 'straight') {
+                ctx.beginPath();
+                ctx.moveTo(segment.data.start.x - segment.data.widthSin + camera.x, segment.data.start.y + segment.data.widthCos + camera.y);
+                ctx.lineTo(segment.data.end.x - segment.data.widthSin + camera.x, segment.data.end.y + segment.data.widthCos + camera.y);
+                ctx.closePath();
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(segment.data.start.x + segment.data.widthSin + camera.x, segment.data.start.y - segment.data.widthCos + camera.y);
+                ctx.lineTo(segment.data.end.x + segment.data.widthSin + camera.x, segment.data.end.y - segment.data.widthCos + camera.y);
+                ctx.closePath();
+                ctx.stroke();
+            }
+            else if (segment.type === 'arc') {
+                ctx.beginPath();
+                ctx.arc(segment.data.coords.x + camera.x, segment.data.coords.y + camera.y, segment.data.radius, segment.data.startAngle, segment.data.endAngle);
+                ctx.closePath();
+                ctx.stroke();
+            }
         }
+        ctx.lineWidth = 1;
     }
 
     function drawDebug() {
@@ -103,6 +127,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
             console.log(`Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)}) | Direction: ${userCar.direction.toFixed(3)}º | Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) [${userCar.absoluteSpeed.toFixed(3)}] | Drifting: ${userCar.isDrifting} | NegativeSpeed: ${userCar.isSpeedNegative ? "Yes" : "No"} | Camera: [${camera.x}, ${camera.y}]`); // Debug
         });
+
+        ctx.fillStyle = "black";
+        ctx.beginPath();
+        for (let i = 0; i < circuit.segments.length; i++) {
+            ctx.arc(circuit.segments[i].ref.coords.x + camera.x, circuit.segments[i].ref.coords.y + camera.y, 6, 0, 2 * Math.PI);
+            ctx.fill();
+        }
     }
 
     function checkCarControls() {
@@ -254,5 +285,8 @@ document.addEventListener('DOMContentLoaded', function() {
  *     - [X] Derrapar te permite girar más fuerte, pero cuanto más girado estás con respecto a tu dirección de la velocidad, más velocidad pierdes.
  * - [ ] Implementar el sistema de boost.
  *     - [ ] Se podría hacer con un botón o mediante objetos en el suelo.
- * - [X] BUG: Las partículas de humo hay más cantidad en la rueda izquierda que en la derecha
+ * - [ ] Implementar un creador de circuitos.
+ *     - [ ] Se podrán crear circuitos con líneas rectas y curvas.
+ * - [ ] Mejorar el sistema de cámara haciendo que sea "empujada" por el vector de velocidad del coche.
+ * - [X] BUG: Las partículas de humo hay más cantidad en la rueda izquierda que en la derecha.
  */

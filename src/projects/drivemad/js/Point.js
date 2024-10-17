@@ -9,3 +9,12 @@ export class Point
         this.y = y;
     }
 }
+
+// Como el punto anterior, pero con una dirección en grados
+export class PointWithDirection
+{
+    constructor(x, y, direction) {
+        this.coords = new Point(x, y);
+        this.direction = direction;
+    }
+}
