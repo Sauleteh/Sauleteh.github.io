@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const baseDirection = 5; // En grados
     const maxDirectionThreshold = 4; // Velocidad a la que se alcanza la máxima torsión
     const smokeParticleSize = 5;
+    const smokeParticleRandomness = 4;
 
     function initEvents() {
         document.addEventListener("keydown", function(evnt) {
@@ -62,12 +63,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function drawDrifting() {
+    function drawDriftParticles() {
         cars.forEach(car => {
             ctx.fillStyle = "gray";
             for (let i = 0; i < car.smokeParticles.length; i++) {
                 const smokeParticle = car.smokeParticles[i];
-                ctx.fillRect(smokeParticle.point.x - smokeParticleSize/2 + camera.x, smokeParticle.point.y - smokeParticleSize/2 + camera.y, smokeParticleSize, smokeParticleSize);
+                ctx.fillRect(
+                    smokeParticle.point.x - smokeParticleSize/2 + camera.x,
+                    smokeParticle.point.y - smokeParticleSize/2 + camera.y,
+                    smokeParticleSize * smokeParticle.life / 10,
+                    smokeParticleSize * smokeParticle.life / 10
+                );
             }
         });
     }
@@ -250,11 +256,17 @@ document.addEventListener('DOMContentLoaded', function() {
             if (car.isDrifting) {
                 // Si se está derrapando, salen partículas de las ruedas traseras
                 car.smokeParticles.push({ // Rueda izquierda
-                    point: new Point(car.coords.x + Math.cos((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2, car.coords.y + Math.sin((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2),
+                    point: new Point(
+                        car.coords.x + Math.cos((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2 + Math.floor(Math.random() * smokeParticleRandomness) - smokeParticleRandomness/2,
+                        car.coords.y + Math.sin((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2 + Math.floor(Math.random() * smokeParticleRandomness) - smokeParticleRandomness/2
+                    ),
                     life: 10
                 });
                 car.smokeParticles.push({ // Rueda derecha
-                    point: new Point(car.coords.x + Math.cos((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2, car.coords.y + Math.sin((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2),
+                    point: new Point(
+                        car.coords.x + Math.cos((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2 + Math.floor(Math.random() * smokeParticleRandomness) - smokeParticleRandomness/2,
+                        car.coords.y + Math.sin((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2 + Math.floor(Math.random() * smokeParticleRandomness) - smokeParticleRandomness/2
+                    ),
                     life: 10
                 });
             }
@@ -273,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // console.log(fpsController.elapsed);
         
         clearCanvas();
-        drawDrifting();
+        drawDriftParticles();
         drawCars();
         drawCircuit();
         drawDebug();
@@ -308,4 +320,5 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [ ] Mejorar el sistema de cámara haciendo que sea "empujada" por el vector de velocidad del coche.
  * - [X] BUG: Las partículas de humo hay más cantidad en la rueda izquierda que en la derecha.
  * - [ ] La marcha atrás + derrape debería de ser más satisfactoria.
+ * - [X] Mejorar las partículas de humo.
  */
