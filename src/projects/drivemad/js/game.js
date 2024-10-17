@@ -17,11 +17,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const camera = new Point(0, 0); // La cámara tiene el mismo tamaño que el canvas y la coordenada que se especifica es su esquina superior izquierda. Su movimiento horizontal está invertido (+x => Izq.) y su movimiento vertical es igual al del canvas (+y => Abajo)
 
     const cars = [];
-    const circuit = new Circuit(80);
+    const circuit = new Circuit(120);
     circuit.setStartPoint(100, 100, 0);
-    circuit.addSegment(circuit.straightLine(300));
-    circuit.addSegment(circuit.straightLine(500));
-    // circuit.addSegment(circuit.arc(35, 90));
+    circuit.addSegment(circuit.straightLine(150));
+    circuit.addSegment(circuit.straightLine(250));
+    circuit.addSegment(circuit.arc(100, 180));
+    circuit.addSegment(circuit.straightLine(400));
+    circuit.addSegment(circuit.arc(100, 180));
 
     const userCar = new Car(new Point(100, 100), 0, 20, 40, "red", new Point(0, 0));
     cars.push(userCar); //* Debug
@@ -79,19 +81,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 ctx.beginPath();
                 ctx.moveTo(segment.data.start.x - segment.data.widthSin + camera.x, segment.data.start.y + segment.data.widthCos + camera.y);
                 ctx.lineTo(segment.data.end.x - segment.data.widthSin + camera.x, segment.data.end.y + segment.data.widthCos + camera.y);
-                ctx.closePath();
                 ctx.stroke();
 
                 ctx.beginPath();
                 ctx.moveTo(segment.data.start.x + segment.data.widthSin + camera.x, segment.data.start.y - segment.data.widthCos + camera.y);
                 ctx.lineTo(segment.data.end.x + segment.data.widthSin + camera.x, segment.data.end.y - segment.data.widthCos + camera.y);
-                ctx.closePath();
                 ctx.stroke();
             }
             else if (segment.type === 'arc') {
                 ctx.beginPath();
-                ctx.arc(segment.data.coords.x + camera.x, segment.data.coords.y + camera.y, segment.data.radius, segment.data.startAngle, segment.data.endAngle);
-                ctx.closePath();
+                ctx.arc(segment.data.arcCenter.x + camera.x, segment.data.arcCenter.y + camera.y, segment.data.radius - circuit.width / 2, segment.data.startAngle, segment.data.endAngle, !segment.data.isClockwise);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(segment.data.arcCenter.x + camera.x, segment.data.arcCenter.y + camera.y, segment.data.radius + circuit.width / 2, segment.data.startAngle, segment.data.endAngle, !segment.data.isClockwise);
                 ctx.stroke();
             }
         }
@@ -100,6 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function drawDebug() {
         cars.forEach(car => {
+            ctx.beginPath();
             ctx.fillStyle = "rgb(175, 175, 175)";
             ctx.arc(car.coords.x + camera.x, car.coords.y + camera.y, 6, 0, 2 * Math.PI);
             ctx.fill();
@@ -128,9 +132,22 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log(`Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)}) | Direction: ${userCar.direction.toFixed(3)}º | Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) [${userCar.absoluteSpeed.toFixed(3)}] | Drifting: ${userCar.isDrifting} | NegativeSpeed: ${userCar.isSpeedNegative ? "Yes" : "No"} | Camera: [${camera.x}, ${camera.y}]`); // Debug
         });
 
-        ctx.fillStyle = "black";
-        ctx.beginPath();
         for (let i = 0; i < circuit.segments.length; i++) {
+            ctx.strokeStyle = "gray";
+            ctx.beginPath();
+            if (circuit.segments[i].type === 'straight') {
+                ctx.moveTo(circuit.segments[i].data.start.x + camera.x, circuit.segments[i].data.start.y + camera.y);
+                ctx.lineTo(circuit.segments[i].data.end.x + camera.x, circuit.segments[i].data.end.y + camera.y);
+            }
+            else if (circuit.segments[i].type === 'arc') {
+                ctx.arc(circuit.segments[i].data.arcCenter.x + camera.x, circuit.segments[i].data.arcCenter.y + camera.y, circuit.segments[i].data.radius, circuit.segments[i].data.startAngle, circuit.segments[i].data.endAngle, !circuit.segments[i].data.isClockwise);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(circuit.segments[i].data.arcCenter.x + camera.x, circuit.segments[i].data.arcCenter.y + camera.y, 6, 0, 2 * Math.PI);
+            }
+            ctx.stroke();
+            ctx.fillStyle = "black";
+            ctx.beginPath();
             ctx.arc(circuit.segments[i].ref.coords.x + camera.x, circuit.segments[i].ref.coords.y + camera.y, 6, 0, 2 * Math.PI);
             ctx.fill();
         }
@@ -286,7 +303,9 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [ ] Implementar el sistema de boost.
  *     - [ ] Se podría hacer con un botón o mediante objetos en el suelo.
  * - [ ] Implementar un creador de circuitos.
- *     - [ ] Se podrán crear circuitos con líneas rectas y curvas.
+ *     - [X] Se podrán crear circuitos con líneas rectas y curvas.
+ *     - [ ] El circuito debería "unirse" entre segmentos.
  * - [ ] Mejorar el sistema de cámara haciendo que sea "empujada" por el vector de velocidad del coche.
  * - [X] BUG: Las partículas de humo hay más cantidad en la rueda izquierda que en la derecha.
+ * - [ ] La marcha atrás + derrape debería de ser más satisfactoria.
  */

@@ -67,13 +67,30 @@ export class Circuit {
 
     // Curva: radio en píxeles y ángulo en grados
     arc(radius, angle) {
+        if (this.startPoint === null) { throw new Error('No se ha indicado punto de inicio'); }
+
+        const currentPoint = this.segments.length === 0 ? this.startPoint : this.segments[this.segments.length-1].ref;
+        const angleDirection = angle > 0 ? -90 : 90;
+
+        const center = new Point(
+            currentPoint.coords.x + Math.cos((currentPoint.direction + angleDirection) * Math.PI / 180) * radius,
+            currentPoint.coords.y - Math.sin((currentPoint.direction + angleDirection) * Math.PI / 180) * radius
+        );
+
+        const reference = new Point(
+            center.x + Math.cos(((currentPoint.direction + angleDirection) + angle) * Math.PI / 180) * radius * (angle > 0 ? 1 : -1),
+            center.y + Math.sin(((currentPoint.direction + angleDirection) + angle) * Math.PI / 180) * radius * (angle > 0 ? 1 : -1)
+        );
+
         return {
             type: 'arc',
+            ref: new PointWithDirection(reference.x, reference.y, currentPoint.direction + angle), // TODO
             data: {
-                coords: new Point(0, 0),
+                arcCenter: center,
                 radius: radius,
-                startAngle: 0,
-                endAngle: angle
+                startAngle: (currentPoint.direction + angleDirection) * Math.PI / 180,
+                endAngle: ((currentPoint.direction + angleDirection) + angle) * Math.PI / 180,
+                isClockwise: angle > 0,
             }
         }
     }
