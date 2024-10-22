@@ -31,6 +31,6 @@ export class Car
         const negSpeedAngle = Math.atan2(this.speed.y, this.speed.x) * 180 / Math.PI; // De 0 a 180 y luego de -180 a 0
         const negSpeedReal = (((negSpeedAngle < 0) ? 360 : 0) + negSpeedAngle); // Transformamos el ángulo a 0-360
         const diff = this.direction - negSpeedReal;
-        return Math.abs(((diff < 0 ? 360 : 0) + diff) - 180) <= 5;
+        return Math.abs(((diff < 0 ? 360 : 0) + diff) - 180) <= 90;
     }
 }
