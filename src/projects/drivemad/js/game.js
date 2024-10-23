@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const camera = new Point(0, 0); // La cámara tiene el mismo tamaño que el canvas y la coordenada que se especifica es su esquina superior izquierda. Su movimiento horizontal está invertido (+x => Izq.) y su movimiento vertical es igual al del canvas (+y => Abajo)
 
     const cars = [];
-    const circuit = new Circuit(120);
+    const circuit = new Circuit(120, 16);
     circuit.setStartPoint(100, 100, 0);
     circuit.addSegment(circuit.straightLine(150));
     circuit.addSegment(circuit.straightLine(250));
@@ -25,7 +25,14 @@ document.addEventListener('DOMContentLoaded', function() {
     circuit.addSegment(circuit.straightLine(400));
     circuit.addSegment(circuit.arc(100, 180));
 
-    const userCar = new Car(new Point(100, 100), 0, 20, 40, "red", new Point(0, 0));
+    const userCar = new Car(
+        new Point(100, 100), // Posición (del centro del coche) inicial
+        0, // Ángulo (grados)
+        20, // Ancho
+        40, // Alto
+        "red", // Color
+        new Point(0, 0) // Velocidad inicial
+    );
     cars.push(userCar); //* Debug
 
     const airFriction = 0.1;
@@ -80,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function drawCircuit() {
         ctx.strokeStyle = "green";
-        ctx.lineWidth = 16;
+        ctx.lineWidth = circuit.lineWidth;
         for (let i = 0; i < circuit.segments.length; i++) {
             const segment = circuit.segments[i];
             if (segment.type === 'straight') {
@@ -96,11 +103,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             else if (segment.type === 'arc') {
                 ctx.beginPath();
-                ctx.arc(segment.data.arcCenter.x + camera.x, segment.data.arcCenter.y + camera.y, segment.data.radius - circuit.width / 2, segment.data.startAngle, segment.data.endAngle, !segment.data.isClockwise);
+                ctx.arc(segment.data.arcCenter.x + camera.x, segment.data.arcCenter.y + camera.y, segment.data.radius - circuit.circuitWidth / 2, segment.data.startAngle, segment.data.endAngle, !segment.data.isClockwise);
                 ctx.stroke();
 
                 ctx.beginPath();
-                ctx.arc(segment.data.arcCenter.x + camera.x, segment.data.arcCenter.y + camera.y, segment.data.radius + circuit.width / 2, segment.data.startAngle, segment.data.endAngle, !segment.data.isClockwise);
+                ctx.arc(segment.data.arcCenter.x + camera.x, segment.data.arcCenter.y + camera.y, segment.data.radius + circuit.circuitWidth / 2, segment.data.startAngle, segment.data.endAngle, !segment.data.isClockwise);
                 ctx.stroke();
             }
         }
@@ -134,8 +141,6 @@ document.addEventListener('DOMContentLoaded', function() {
             ctx.lineTo(car.coords.x + Math.cos((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2 + camera.x, car.coords.y + Math.sin((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2 + camera.y);
             ctx.closePath();
             ctx.stroke();
-
-            console.log(`Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)}) | Direction: ${userCar.direction.toFixed(3)}º | Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) [${userCar.absoluteSpeed.toFixed(3)}] | Drifting: ${userCar.isDrifting} | NegativeSpeed: ${userCar.isSpeedNegative ? "Yes" : "No"} | Camera: [${camera.x}, ${camera.y}]`); // Debug
         });
 
         for (let i = 0; i < circuit.segments.length; i++) {
@@ -157,6 +162,8 @@ document.addEventListener('DOMContentLoaded', function() {
             ctx.arc(circuit.segments[i].ref.coords.x + camera.x, circuit.segments[i].ref.coords.y + camera.y, 6, 0, 2 * Math.PI);
             ctx.fill();
         }
+
+        console.log(`Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)}) | Direction: ${userCar.direction.toFixed(3)}º | Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) [${userCar.absoluteSpeed.toFixed(3)}] | Drifting: ${userCar.isDrifting} | NegativeSpeed: ${userCar.isSpeedNegative ? "Yes" : "No"} | Camera: [${camera.x.toFixed(3)}, ${camera.y.toFixed(3)}] | IsCarInsideCircuit: ${circuit.isCarInside(userCar)}`); // Debug
     }
 
     function checkCarControls() {
@@ -198,6 +205,18 @@ document.addEventListener('DOMContentLoaded', function() {
         cars.forEach(car => {
             car.coords.x += car.speed.x;
             car.coords.y += car.speed.y;
+        });
+    }
+
+    function checkIsColliding() {
+        cars.forEach(car => {
+            for (let i = 0; i < circuit.segments.length; i++) {
+                const isInside = circuit.isCarInside(car);
+                if (!isInside) {
+                    car.color = "red";
+                }
+                else car.color = "green";
+            }
         });
     }
 
@@ -294,6 +313,7 @@ document.addEventListener('DOMContentLoaded', function() {
         checkCarControls();
         checkIsDrifting();
         applySpeed();
+        checkIsColliding();
         applyRotationToSpeed();
         applyAirFriction();
         updateSmokeParticles();
@@ -307,18 +327,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /** TODO list:
  * - [X] Implementar sistema de frenado en vez de que al frenar se sume el vector de freno (que no es suficiente potencia para frenados más grandes).
- * - [X] Implementar el sistema de derrape.
+ * - [ ] Implementar el sistema de derrape.
  *     - [X] Se hará con el botón espacio.
  *     - [X] Al pulsar (no mantener) el botón, se empezará el modo derrape.
  *     - [X] Para dejar de derrapar, se debe estar conduciendo en línea recta sin girar durante un corto período de tiempo.
  *     - [X] Derrapar te permite girar más fuerte, pero cuanto más girado estás con respecto a tu dirección de la velocidad, más velocidad pierdes.
+ *     - [ ] Dejar rastro del neumático en el suelo.
  * - [ ] Implementar el sistema de boost.
  *     - [ ] Se podría hacer con un botón o mediante objetos en el suelo.
  * - [ ] Implementar un creador de circuitos.
  *     - [X] Se podrán crear circuitos con líneas rectas y curvas.
  *     - [ ] El circuito debería "unirse" entre segmentos.
+ *     - [ ] El circuito debe poder detectar si estás dentro del mismo, ralentizando el coche en caso contrario
  * - [ ] Mejorar el sistema de cámara haciendo que sea "empujada" por el vector de velocidad del coche.
  * - [X] BUG: Las partículas de humo hay más cantidad en la rueda izquierda que en la derecha.
- * - [ ] La marcha atrás + derrape debería de ser más satisfactoria.
+ * - [X] La marcha atrás + derrape debería de ser más satisfactoria.
  * - [X] Mejorar las partículas de humo.
+ * - [ ] El derrape ahora en 180 grados detecta que se está marcha atrás.
  */

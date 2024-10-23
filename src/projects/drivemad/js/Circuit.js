@@ -8,9 +8,10 @@ import { Point, PointWithDirection } from './Point.js';
  * Muy importante que, antes de añadir segmentos, se indique punto de inicio.
 */
 export class Circuit {
-    constructor(width) {
+    constructor(circuitWidth, lineWidth) {
         this.segments = []; // Las líneas que forman el circuito
-        this.width = width; // Ancho del circuito en píxeles
+        this.circuitWidth = circuitWidth; // Ancho del circuito en píxeles
+        this.lineWidth = lineWidth; // Ancho de las líneas que delimitan el circuito
         this.startPoint = null; // Punto de inicio del circuito
     }
 
@@ -20,11 +21,34 @@ export class Circuit {
     }
 
     // Dependiendo del tipo de segmento, se debe comprobar de una forma u otra
-    isCarInside(x, y) {
+    isCarInside(car) {
         for (let i = 0; i < this.segments.length; i++) {
             const segment = this.segments[i];
             if (segment.type === 'straight') {
                 // Comprobar si el punto está dentro de la línea recta
+                const startR = new Point(
+                    segment.data.start.x - segment.data.widthSin,
+                    segment.data.start.y + segment.data.widthCos
+                );
+                const endR = new Point(
+                    segment.data.end.x - segment.data.widthSin,
+                    segment.data.end.y + segment.data.widthCos
+                );
+
+                const startL = new Point(
+                    segment.data.start.x + segment.data.widthSin,
+                    segment.data.start.y - segment.data.widthCos
+                );
+                const endL = new Point(
+                    segment.data.end.x + segment.data.widthSin,
+                    segment.data.end.y - segment.data.widthCos
+                );
+
+                if (car.coords.x >= startL.x && car.coords.y >= startL.y &&
+                    car.coords.x <= endL.x && car.coords.y >= endL.y &&
+                    car.coords.x >= startR.x && car.coords.y <= startR.y &&
+                    car.coords.x <= endR.x && car.coords.y <= endR.y)
+                        return true;
             } else if (segment.type === 'arc') {
                 // Comprobar si el punto está dentro del arco de círculo
             }
@@ -59,8 +83,8 @@ export class Circuit {
             data: {
                 start: startCoords,
                 end: endCoords,
-                widthSin: this.width * Math.sin(currentPoint.direction * Math.PI / 180) / 2,
-                widthCos: this.width * Math.cos(currentPoint.direction * Math.PI / 180) / 2
+                widthSin: this.circuitWidth * Math.sin(currentPoint.direction * Math.PI / 180) / 2,
+                widthCos: this.circuitWidth * Math.cos(currentPoint.direction * Math.PI / 180) / 2
             }
         }
     }
@@ -71,15 +95,16 @@ export class Circuit {
 
         const currentPoint = this.segments.length === 0 ? this.startPoint : this.segments[this.segments.length-1].ref;
         const angleDirection = angle > 0 ? -90 : 90;
+        const angleSign = angle > 0 ? 1 : -1;
 
         const center = new Point(
-            currentPoint.coords.x + Math.cos((currentPoint.direction + angleDirection) * Math.PI / 180) * radius,
+            currentPoint.coords.x - Math.cos((currentPoint.direction + angleDirection) * Math.PI / 180) * radius,
             currentPoint.coords.y - Math.sin((currentPoint.direction + angleDirection) * Math.PI / 180) * radius
         );
 
         const reference = new Point(
-            center.x + Math.cos(((currentPoint.direction + angleDirection) + angle) * Math.PI / 180) * radius * (angle > 0 ? 1 : -1),
-            center.y + Math.sin(((currentPoint.direction + angleDirection) + angle) * Math.PI / 180) * radius * (angle > 0 ? 1 : -1)
+            center.x + Math.cos(((currentPoint.direction + angleDirection * angleSign) + angle) * Math.PI / 180) * radius * angleSign,
+            center.y + Math.sin(((currentPoint.direction + angleDirection * angleSign) + angle) * Math.PI / 180) * radius * angleSign
         );
 
         return {
