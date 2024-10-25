@@ -31,6 +31,7 @@ export class Circuit {
                     (segment.data.start.y + segment.data.end.y) / 2
                 );
 
+                // Diferencia entre las coordenadas del coche y la del segmento
                 const translated = new Point(
                     car.coords.x - segmentCenter.x,
                     car.coords.y - segmentCenter.y
@@ -39,19 +40,35 @@ export class Circuit {
                 const cosAngle = Math.cos(-segment.ref.direction * Math.PI / 180);
                 const sinAngle = Math.sin(-segment.ref.direction * Math.PI / 180);
 
+                // Deshacemos la rotación del segmento
                 const rotated = new Point(
                     translated.x * cosAngle - translated.y * sinAngle,
                     translated.x * sinAngle + translated.y * cosAngle
                 );
 
-                return (
-                    rotated.x >= -segment.data.length / 2 && rotated.x <= segment.data.length / 2 &&
-                    rotated.y >= -this.circuitWidth / 2 && rotated.y <= this.circuitWidth / 2
-                );
+                if (rotated.x >= -segment.data.length / 2 && rotated.x <= segment.data.length / 2 && rotated.y >= -this.circuitWidth / 2 && rotated.y <= this.circuitWidth / 2) return true;
             }
             else if (segment.type === 'arc') {
                 // Comprobar si el punto está dentro del sector circular
-            
+                const dx = car.coords.x - segment.data.arcCenter.x;
+                const dy = car.coords.y - segment.data.arcCenter.y;
+                const distanceSquared = dx * dx + dy * dy;
+
+                // Si se está fuera del radio exterior o interior, ya se confirma que se está fuera
+                if (distanceSquared > (segment.data.radius + this.circuitWidth/2) * (segment.data.radius + this.circuitWidth/2)) continue;
+                else if (distanceSquared < (segment.data.radius - this.circuitWidth/2) * (segment.data.radius - this.circuitWidth/2)) continue;
+
+                // Si se está dentro, calcular si el coche está en el ángulo correcto del círculo
+                let pointAngle = Math.atan2(dy, dx);
+                if (pointAngle < 0) pointAngle += 2 * Math.PI;
+
+                const normalizedStartAngle = (segment.data.startAngle + 2 * Math.PI) % (2 * Math.PI);
+                const normalizedEndAngle = (segment.data.endAngle + 2 * Math.PI) % (2 * Math.PI);
+
+                if (normalizedStartAngle < normalizedEndAngle) { // No combinar en un solo if, así es más eficiente
+                    if (pointAngle >= normalizedStartAngle && pointAngle <= normalizedEndAngle) return true;
+                }
+                else if (pointAngle >= normalizedStartAngle || pointAngle <= normalizedEndAngle) return true; // Si cruza con el eje 0 rad
             }
         }
         return false;
@@ -115,8 +132,8 @@ export class Circuit {
             data: {
                 arcCenter: center,
                 radius: radius,
-                startAngle: (currentPoint.direction + angleDirection) * Math.PI / 180,
-                endAngle: ((currentPoint.direction + angleDirection) + angle) * Math.PI / 180,
+                startAngle: (currentPoint.direction + angleDirection) * Math.PI / 180, // En radianes
+                endAngle: ((currentPoint.direction + angleDirection) + angle) * Math.PI / 180, // En radianes
                 isClockwise: angle > 0,
             }
         }

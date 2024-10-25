@@ -18,12 +18,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const cars = [];
     const circuit = new Circuit(120, 16);
-    circuit.setStartPoint(100, 100, 0);
+    circuit.setStartPoint(100, 100, -40);
     circuit.addSegment(circuit.straightLine(150));
-    // circuit.addSegment(circuit.straightLine(250));
-    // circuit.addSegment(circuit.arc(100, 180));
-    // circuit.addSegment(circuit.straightLine(400));
-    // circuit.addSegment(circuit.arc(100, 180));
+    circuit.addSegment(circuit.straightLine(250));
+    circuit.addSegment(circuit.arc(100, 180));
+    circuit.addSegment(circuit.straightLine(400));
+    circuit.addSegment(circuit.arc(100, 180));
 
     const userCar = new Car(
         new Point(100, 100), // Posición (del centro del coche) inicial
@@ -342,7 +342,7 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [ ] Implementar un creador de circuitos.
  *     - [X] Se podrán crear circuitos con líneas rectas y curvas.
  *     - [ ] El circuito debería "unirse" entre segmentos.
- *     - [ ] El circuito debe poder detectar si estás dentro del mismo, ralentizando el coche en caso contrario
+ *     - [X] El circuito debe poder detectar si estás dentro del mismo, ralentizando el coche en caso contrario
  * - [ ] Mejorar el sistema de cámara haciendo que sea "empujada" por el vector de velocidad del coche.
  * - [X] BUG: Las partículas de humo hay más cantidad en la rueda izquierda que en la derecha.
  * - [X] La marcha atrás + derrape debería de ser más satisfactoria.
