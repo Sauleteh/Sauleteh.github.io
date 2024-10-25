@@ -51,7 +51,7 @@ export class Circuit {
             }
             else if (segment.type === 'arc') {
                 // Comprobar si el punto está dentro del sector circular
-
+            
             }
         }
         return false;
@@ -85,7 +85,8 @@ export class Circuit {
                 start: startCoords,
                 end: endCoords,
                 widthSin: this.circuitWidth * Math.sin(currentPoint.direction * Math.PI / 180) / 2,
-                widthCos: this.circuitWidth * Math.cos(currentPoint.direction * Math.PI / 180) / 2
+                widthCos: this.circuitWidth * Math.cos(currentPoint.direction * Math.PI / 180) / 2,
+                length: length
             }
         }
     }
