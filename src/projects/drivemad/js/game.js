@@ -343,9 +343,22 @@ document.addEventListener('DOMContentLoaded', function() {
  *     - [X] Se podrán crear circuitos con líneas rectas y curvas.
  *     - [ ] El circuito debería "unirse" entre segmentos.
  *     - [X] El circuito debe poder detectar si estás dentro del mismo, ralentizando el coche en caso contrario
+ *     - [ ] Salir del circuito hará que la potencia de aceleración se reduzca drásticamente.
  * - [ ] Mejorar el sistema de cámara haciendo que sea "empujada" por el vector de velocidad del coche.
  * - [X] BUG: Las partículas de humo hay más cantidad en la rueda izquierda que en la derecha.
  * - [X] La marcha atrás + derrape debería de ser más satisfactoria.
  * - [X] Mejorar las partículas de humo.
- * - [ ] El derrape ahora en 180 grados detecta que se está marcha atrás.
+ * - [ ] BUG: El derrape ahora en 180 grados detecta que se está marcha atrás.
+ * - [ ] Implementar modos de juego
+ *     - [ ] El juego será solo online, podrán unirse tantas personas como quieran en una sola sala.
+ *     - [ ] Entre juego y juego, se estará un par de minutos en la sala de espera.
+ *         - [ ] Si hay más de X personas, el contador se reducirá a un número mucho menor.
+ *         - [ ] En la sala de espera, además de conducir mientras tanto, podrás cambiar tu coche (¿modificarlo?)
+ *     - [ ] Cuando se termine el tiempo de sala de espera, empezará un modo de juego aleatorio.
+ *     - [ ] Modo de juego resistencia: Aguanta el mayor tiempo posible en un circuito proceduralmente generado donde tu coche irá cada vez más rápido.
+ *     - [ ] Modo de juego carrera: Llega antes que cualquier otro a la meta después de X vueltas.
+ *     - [ ] Modo de juego supervivencia: Sé el último en pie en el circuito empujando a tus rivales. Al completar una vuelta ganas un super empuje.
+ *     - [ ] Excepto si está expresamente indicado, los circuitos están previamente definidos (¿feedback de circuitos?).
+ * - [ ] Implementar música.
+ * - [ ] Implementar efectos de sonido.
  */
