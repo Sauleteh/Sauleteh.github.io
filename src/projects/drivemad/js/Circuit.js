@@ -26,31 +26,32 @@ export class Circuit {
             const segment = this.segments[i];
             if (segment.type === 'straight') {
                 // Comprobar si el punto está dentro de la línea recta
-                const startR = new Point(
-                    segment.data.start.x - segment.data.widthSin,
-                    segment.data.start.y + segment.data.widthCos
-                );
-                const endR = new Point(
-                    segment.data.end.x - segment.data.widthSin,
-                    segment.data.end.y + segment.data.widthCos
+                const segmentCenter = new Point(
+                    (segment.data.start.x + segment.data.end.x) / 2,
+                    (segment.data.start.y + segment.data.end.y) / 2
                 );
 
-                const startL = new Point(
-                    segment.data.start.x + segment.data.widthSin,
-                    segment.data.start.y - segment.data.widthCos
-                );
-                const endL = new Point(
-                    segment.data.end.x + segment.data.widthSin,
-                    segment.data.end.y - segment.data.widthCos
+                const translated = new Point(
+                    car.coords.x - segmentCenter.x,
+                    car.coords.y - segmentCenter.y
                 );
 
-                if (car.coords.x >= startL.x && car.coords.y >= startL.y &&
-                    car.coords.x <= endL.x && car.coords.y >= endL.y &&
-                    car.coords.x >= startR.x && car.coords.y <= startR.y &&
-                    car.coords.x <= endR.x && car.coords.y <= endR.y)
-                        return true;
-            } else if (segment.type === 'arc') {
-                // Comprobar si el punto está dentro del arco de círculo
+                const cosAngle = Math.cos(-segment.ref.direction * Math.PI / 180);
+                const sinAngle = Math.sin(-segment.ref.direction * Math.PI / 180);
+
+                const rotated = new Point(
+                    translated.x * cosAngle - translated.y * sinAngle,
+                    translated.x * sinAngle + translated.y * cosAngle
+                );
+
+                return (
+                    rotated.x >= -segment.data.length / 2 && rotated.x <= segment.data.length / 2 &&
+                    rotated.y >= -this.circuitWidth / 2 && rotated.y <= this.circuitWidth / 2
+                );
+            }
+            else if (segment.type === 'arc') {
+                // Comprobar si el punto está dentro del sector circular
+
             }
         }
         return false;
@@ -109,7 +110,7 @@ export class Circuit {
 
         return {
             type: 'arc',
-            ref: new PointWithDirection(reference.x, reference.y, currentPoint.direction + angle), // TODO
+            ref: new PointWithDirection(reference.x, reference.y, currentPoint.direction + angle),
             data: {
                 arcCenter: center,
                 radius: radius,

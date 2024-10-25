@@ -20,10 +20,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const circuit = new Circuit(120, 16);
     circuit.setStartPoint(100, 100, 0);
     circuit.addSegment(circuit.straightLine(150));
-    circuit.addSegment(circuit.straightLine(250));
-    circuit.addSegment(circuit.arc(100, 180));
-    circuit.addSegment(circuit.straightLine(400));
-    circuit.addSegment(circuit.arc(100, 180));
+    // circuit.addSegment(circuit.straightLine(250));
+    // circuit.addSegment(circuit.arc(100, 180));
+    // circuit.addSegment(circuit.straightLine(400));
+    // circuit.addSegment(circuit.arc(100, 180));
 
     const userCar = new Car(
         new Point(100, 100), // Posición (del centro del coche) inicial
@@ -149,6 +149,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (circuit.segments[i].type === 'straight') {
                 ctx.moveTo(circuit.segments[i].data.start.x + camera.x, circuit.segments[i].data.start.y + camera.y);
                 ctx.lineTo(circuit.segments[i].data.end.x + camera.x, circuit.segments[i].data.end.y + camera.y);
+                ctx.stroke();
+                ctx.strokeStyle = "rgb(0, 255, 255)";
+                ctx.beginPath();
+                ctx.arc((circuit.segments[i].data.start.x + circuit.segments[i].data.end.x)/2 + camera.x, (circuit.segments[i].data.start.y + circuit.segments[i].data.end.y)/2 + camera.y, 6, 0, 2 * Math.PI);
             }
             else if (circuit.segments[i].type === 'arc') {
                 ctx.arc(circuit.segments[i].data.arcCenter.x + camera.x, circuit.segments[i].data.arcCenter.y + camera.y, circuit.segments[i].data.radius, circuit.segments[i].data.startAngle, circuit.segments[i].data.endAngle, !circuit.segments[i].data.isClockwise);
