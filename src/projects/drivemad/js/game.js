@@ -40,8 +40,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const brakePower = 0.3;
     const baseDirection = 5; // En grados
     const maxDirectionThreshold = 4; // Velocidad a la que se alcanza la máxima torsión
+    const driftingDirectionMultiplier = 2;
     const smokeParticleSize = 5;
     const smokeParticleRandomness = 4;
+    let acceleratingOrBraking = false; // True si el coche está acelerando, false si está frenando
 
     function initEvents() {
         document.addEventListener("keydown", function(evnt) {
@@ -181,24 +183,26 @@ document.addEventListener('DOMContentLoaded', function() {
             let rads = userCar.direction * Math.PI / 180;
             userCar.speed.x += Math.cos(rads) * acceleratePower;
             userCar.speed.y += Math.sin(rads) * acceleratePower;
+            acceleratingOrBraking = true;
         }
         else if (controls.keys.brake.isPressed) {
             if (userCar.isSpeedNegative) userCar.isDrifting = false; // Si la velocidad es negativa, no se puede derrapar
             let rads = userCar.direction * Math.PI / 180;
             userCar.speed.x -= Math.cos(rads) * brakePower;
             userCar.speed.y -= Math.sin(rads) * brakePower;
+            acceleratingOrBraking = false;
         }
         
         if (controls.keys.left.isPressed) {
             if (userCar.speed.x != 0 || userCar.speed.y != 0) {
-                userCar.direction -= (userCar.isSpeedNegative ? -1 : 1) * (baseDirection * (userCar.isDrifting ? 1.5 : 1)) * (userCar.absoluteSpeed < maxDirectionThreshold ? userCar.absoluteSpeed / maxDirectionThreshold : 1);
+                userCar.direction -= (!acceleratingOrBraking && userCar.isSpeedNegative ? -1 : 1) * (baseDirection * (userCar.isDrifting ? driftingDirectionMultiplier : 1)) * (userCar.absoluteSpeed < maxDirectionThreshold ? userCar.absoluteSpeed / maxDirectionThreshold : 1);
                 userCar.direction = userCar.direction % 360;
                 if (userCar.direction < 0) userCar.direction += 360;
             }
         }
         else if (controls.keys.right.isPressed) {
             if (userCar.speed.x != 0 || userCar.speed.y != 0) {
-                userCar.direction += (userCar.isSpeedNegative ? -1 : 1) * (baseDirection * (userCar.isDrifting ? 1.5 : 1)) * (userCar.absoluteSpeed < maxDirectionThreshold ? userCar.absoluteSpeed / maxDirectionThreshold : 1);
+                userCar.direction += (!acceleratingOrBraking && userCar.isSpeedNegative ? -1 : 1) * (baseDirection * (userCar.isDrifting ? driftingDirectionMultiplier : 1)) * (userCar.absoluteSpeed < maxDirectionThreshold ? userCar.absoluteSpeed / maxDirectionThreshold : 1);
                 userCar.direction = userCar.direction % 360;
                 if (userCar.direction < 0) userCar.direction += 360;
             }
@@ -348,7 +352,7 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [X] BUG: Las partículas de humo hay más cantidad en la rueda izquierda que en la derecha.
  * - [X] La marcha atrás + derrape debería de ser más satisfactoria.
  * - [X] Mejorar las partículas de humo.
- * - [ ] BUG: El derrape ahora en 180 grados detecta que se está marcha atrás.
+ * - [X] BUG: El derrape ahora en 180 grados detecta que se está marcha atrás.
  * - [ ] Implementar modos de juego
  *     - [ ] El juego será solo online, podrán unirse tantas personas como quieran en una sola sala.
  *     - [ ] Entre juego y juego, se estará un par de minutos en la sala de espera.
