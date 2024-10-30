@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const controls = new Controls();
     const camera = new Point(0, 0); // La cámara tiene el mismo tamaño que el canvas y la coordenada que se especifica es su esquina superior izquierda. Su movimiento horizontal está invertido (+x => Izq.) y su movimiento vertical es igual al del canvas (+y => Abajo)
 
+    const airFriction = 0.1;
     const cars = [];
     const circuit = new Circuit(120, 16);
     circuit.setStartPoint(100, 100, -40);
@@ -31,22 +32,22 @@ document.addEventListener('DOMContentLoaded', function() {
         20, // Ancho
         40, // Alto
         "red", // Color
-        new Point(0, 0) // Velocidad inicial
+        new Point(0, 0), // Velocidad inicial
+        1.2, // Poder de aceleración
+        0.3, // Poder al frenar
+        5, // Fuerza de giro
+        4, // Velocidad para alcanzar la máxima fuerza de giro
+        2, // Multiplicador de giro derrapando
+        5, // Tamaño de las partículas de humo al derrapar
+        4 // Aleatoriedad de movimiento de las partículas de humo
     );
     cars.push(userCar); //* Debug
 
-    const airFriction = 0.1;
-    const acceleratePower = 1.2;
-    const brakePower = 0.3;
-    const baseDirection = 5; // En grados
-    const maxDirectionThreshold = 4; // Velocidad a la que se alcanza la máxima torsión
-    const driftingDirectionMultiplier = 2;
-    const smokeParticleSize = 5;
-    const smokeParticleRandomness = 4;
-    let acceleratingOrBraking = false; // True si el coche está acelerando, false si está frenando
+    const aiCar = new Car(new Point(200, 200), 25, 20, 40, "blue", new Point(0, 0), 1.2, 0.3, 5, 4, 2, 5, 4);
+    cars.push(aiCar); //* Debug
 
     function initEvents() {
-        document.addEventListener("keydown", function(evnt) {
+        document.addEventListener("keydown", function(event) {
             const { key } = event;
             controls.checkControls(key, "down");
         });
@@ -78,10 +79,10 @@ document.addEventListener('DOMContentLoaded', function() {
             for (let i = 0; i < car.smokeParticles.length; i++) {
                 const smokeParticle = car.smokeParticles[i];
                 ctx.fillRect(
-                    smokeParticle.point.x - smokeParticleSize/2 + camera.x,
-                    smokeParticle.point.y - smokeParticleSize/2 + camera.y,
-                    smokeParticleSize * smokeParticle.life / 10,
-                    smokeParticleSize * smokeParticle.life / 10
+                    smokeParticle.point.x - car.smokeParticleSize / 2 + camera.x,
+                    smokeParticle.point.y - car.smokeParticleSize / 2 + camera.y,
+                    car.smokeParticleSize * smokeParticle.life / 10,
+                    car.smokeParticleSize * smokeParticle.life / 10
                 );
             }
         });
@@ -181,28 +182,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (controls.keys.accelerate.isPressed) {
             let rads = userCar.direction * Math.PI / 180;
-            userCar.speed.x += Math.cos(rads) * acceleratePower;
-            userCar.speed.y += Math.sin(rads) * acceleratePower;
-            acceleratingOrBraking = true;
+            userCar.speed.x += Math.cos(rads) * userCar.accelerationPower;
+            userCar.speed.y += Math.sin(rads) * userCar.accelerationPower;
+            userCar.isAccelerating = true;
         }
         else if (controls.keys.brake.isPressed) {
             if (userCar.isSpeedNegative) userCar.isDrifting = false; // Si la velocidad es negativa, no se puede derrapar
             let rads = userCar.direction * Math.PI / 180;
-            userCar.speed.x -= Math.cos(rads) * brakePower;
-            userCar.speed.y -= Math.sin(rads) * brakePower;
-            acceleratingOrBraking = false;
+            userCar.speed.x -= Math.cos(rads) * userCar.brakingPower;
+            userCar.speed.y -= Math.sin(rads) * userCar.brakingPower;
+            userCar.isAccelerating = false;
         }
         
         if (controls.keys.left.isPressed) {
             if (userCar.speed.x != 0 || userCar.speed.y != 0) {
-                userCar.direction -= (!acceleratingOrBraking && userCar.isSpeedNegative ? -1 : 1) * (baseDirection * (userCar.isDrifting ? driftingDirectionMultiplier : 1)) * (userCar.absoluteSpeed < maxDirectionThreshold ? userCar.absoluteSpeed / maxDirectionThreshold : 1);
+                userCar.direction -= (!userCar.isAccelerating && userCar.isSpeedNegative ? -1 : 1) * (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * (userCar.absoluteSpeed < userCar.turnForceThreshold ? userCar.absoluteSpeed / userCar.turnForceThreshold : 1);
                 userCar.direction = userCar.direction % 360;
                 if (userCar.direction < 0) userCar.direction += 360;
             }
         }
         else if (controls.keys.right.isPressed) {
             if (userCar.speed.x != 0 || userCar.speed.y != 0) {
-                userCar.direction += (!acceleratingOrBraking && userCar.isSpeedNegative ? -1 : 1) * (baseDirection * (userCar.isDrifting ? driftingDirectionMultiplier : 1)) * (userCar.absoluteSpeed < maxDirectionThreshold ? userCar.absoluteSpeed / maxDirectionThreshold : 1);
+                userCar.direction += (!userCar.isAccelerating && userCar.isSpeedNegative ? -1 : 1) * (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * (userCar.absoluteSpeed < userCar.turnForceThreshold ? userCar.absoluteSpeed / userCar.turnForceThreshold : 1);
                 userCar.direction = userCar.direction % 360;
                 if (userCar.direction < 0) userCar.direction += 360;
             }
@@ -217,15 +218,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function checkIsColliding() {
-        cars.forEach(car => {
-            for (let i = 0; i < circuit.segments.length; i++) {
-                const isInside = circuit.isCarInside(car);
-                if (!isInside) {
-                    car.color = "red";
-                }
-                else car.color = "green";
+        for (let i = 0; i < circuit.segments.length; i++) {
+            const isInside = circuit.isCarInside(userCar);
+            if (!isInside) {
+                userCar.color = "red";
             }
-        });
+            else userCar.color = "green";
+        }
     }
 
     function applyRotationToSpeed() {
@@ -284,15 +283,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Si se está derrapando, salen partículas de las ruedas traseras
                 car.smokeParticles.push({ // Rueda izquierda
                     point: new Point(
-                        car.coords.x + Math.cos((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2 + Math.floor(Math.random() * smokeParticleRandomness) - smokeParticleRandomness/2,
-                        car.coords.y + Math.sin((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2 + Math.floor(Math.random() * smokeParticleRandomness) - smokeParticleRandomness/2
+                        car.coords.x + Math.cos((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2 + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2,
+                        car.coords.y + Math.sin((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2 + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2
                     ),
                     life: 10
                 });
                 car.smokeParticles.push({ // Rueda derecha
                     point: new Point(
-                        car.coords.x + Math.cos((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2 + Math.floor(Math.random() * smokeParticleRandomness) - smokeParticleRandomness/2,
-                        car.coords.y + Math.sin((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2 + Math.floor(Math.random() * smokeParticleRandomness) - smokeParticleRandomness/2
+                        car.coords.x + Math.cos((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2 + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2,
+                        car.coords.y + Math.sin((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2 + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2
                     ),
                     life: 10
                 });
@@ -317,6 +316,15 @@ document.addEventListener('DOMContentLoaded', function() {
         drawCircuit();
         drawDebug();
         
+        let rads = aiCar.direction * Math.PI / 180; //* Debug
+        aiCar.speed.x += Math.cos(rads) * aiCar.accelerationPower;
+        aiCar.speed.y += Math.sin(rads) * aiCar.accelerationPower;
+        if (aiCar.speed.x != 0 || aiCar.speed.y != 0) {
+            aiCar.direction -= (aiCar.isSpeedNegative ? -1 : 1) * (aiCar.turnForce * (aiCar.isDrifting ? aiCar.driftingTurnMultiplier : 1)) * (aiCar.absoluteSpeed < aiCar.turnForceThreshold ? aiCar.absoluteSpeed / aiCar.turnForceThreshold : 1);
+            aiCar.direction = aiCar.direction % 360;
+            if (aiCar.direction < 0) aiCar.direction += 360;
+        }
+
         updateCamera();
         checkCarControls();
         checkIsDrifting();
