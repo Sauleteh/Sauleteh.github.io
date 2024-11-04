@@ -65,10 +65,18 @@ export class Circuit {
                 const normalizedStartAngle = (segment.data.startAngle + 2 * Math.PI) % (2 * Math.PI);
                 const normalizedEndAngle = (segment.data.endAngle + 2 * Math.PI) % (2 * Math.PI);
 
-                if (normalizedStartAngle < normalizedEndAngle) { // No combinar en un solo if, así es más eficiente
-                    if (pointAngle >= normalizedStartAngle && pointAngle <= normalizedEndAngle) return true;
+                if (segment.data.isClockwise) {
+                    if (normalizedStartAngle < normalizedEndAngle) {
+                        if (pointAngle >= normalizedStartAngle && pointAngle <= normalizedEndAngle) return true;
+                    }
+                    else if (pointAngle >= normalizedStartAngle || pointAngle <= normalizedEndAngle) return true;
                 }
-                else if (pointAngle >= normalizedStartAngle || pointAngle <= normalizedEndAngle) return true; // Si cruza con el eje 0 rad
+                else {
+                    if (normalizedStartAngle < normalizedEndAngle) {
+                        if (pointAngle <= normalizedStartAngle || pointAngle >= normalizedEndAngle) return true;
+                    }
+                    else if (pointAngle <= normalizedStartAngle && pointAngle >= normalizedEndAngle) return true;
+                }
             }
         }
         return false;

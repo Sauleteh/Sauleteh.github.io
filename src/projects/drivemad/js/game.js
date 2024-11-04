@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const camera = new Point(0, 0); // La cámara tiene el mismo tamaño que el canvas y la coordenada que se especifica es su esquina superior izquierda. Su movimiento horizontal está invertido (+x => Izq.) y su movimiento vertical es igual al del canvas (+y => Abajo)
 
     const airFriction = 0.1;
+    const outsideCircuitMultiplier = 0.8;
     const cars = [];
     const circuit = new Circuit(120, 16);
     circuit.setStartPoint(100, 100, -40);
@@ -24,7 +25,8 @@ document.addEventListener('DOMContentLoaded', function() {
     circuit.addSegment(circuit.straightLine(250));
     circuit.addSegment(circuit.arc(100, 180));
     circuit.addSegment(circuit.straightLine(400));
-    circuit.addSegment(circuit.arc(100, 180));
+    circuit.addSegment(circuit.arc(100, -180));
+    circuit.addSegment(circuit.arc(1000, 39));
 
     const userCar = new Car(
         new Point(100, 100), // Posición (del centro del coche) inicial
@@ -37,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
         0.3, // Poder al frenar
         5, // Fuerza de giro
         4, // Velocidad para alcanzar la máxima fuerza de giro
-        2, // Multiplicador de giro derrapando
+        1.5, // Multiplicador de giro derrapando
         5, // Tamaño de las partículas de humo al derrapar
         4 // Aleatoriedad de movimiento de las partículas de humo
     );
@@ -185,6 +187,11 @@ document.addEventListener('DOMContentLoaded', function() {
             userCar.speed.x += Math.cos(rads) * userCar.accelerationPower;
             userCar.speed.y += Math.sin(rads) * userCar.accelerationPower;
             userCar.isAccelerating = true;
+
+            if (!userCar.isInsideCircuit) {
+                userCar.speed.x *= outsideCircuitMultiplier;
+                userCar.speed.y *= outsideCircuitMultiplier;
+            }
         }
         else if (controls.keys.brake.isPressed) {
             if (userCar.isSpeedNegative) userCar.isDrifting = false; // Si la velocidad es negativa, no se puede derrapar
@@ -192,6 +199,11 @@ document.addEventListener('DOMContentLoaded', function() {
             userCar.speed.x -= Math.cos(rads) * userCar.brakingPower;
             userCar.speed.y -= Math.sin(rads) * userCar.brakingPower;
             userCar.isAccelerating = false;
+
+            if (!userCar.isInsideCircuit) {
+                userCar.speed.x *= outsideCircuitMultiplier;
+                userCar.speed.y *= outsideCircuitMultiplier;
+            }
         }
         
         if (controls.keys.left.isPressed) {
@@ -218,13 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function checkIsColliding() {
-        for (let i = 0; i < circuit.segments.length; i++) {
-            const isInside = circuit.isCarInside(userCar);
-            if (!isInside) {
-                userCar.color = "red";
-            }
-            else userCar.color = "green";
-        }
+        userCar.isInsideCircuit = circuit.isCarInside(userCar);
     }
 
     function applyRotationToSpeed() {
@@ -373,4 +379,5 @@ document.addEventListener('DOMContentLoaded', function() {
  *     - [ ] Excepto si está expresamente indicado, los circuitos están previamente definidos (¿feedback de circuitos?).
  * - [ ] Implementar música.
  * - [ ] Implementar efectos de sonido.
+ * - [X] BUG: Al poner el último arco al revés, no se detecta si se está dentro de dicho arco.
  */
