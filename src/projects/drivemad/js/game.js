@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const circuit = new Circuit(120, 16);
     circuit.setStartPoint(100, 100, 0);
     // circuit.addSegment(circuit.arc(1500, 360));
-    circuit.addSegment(circuit.straightLine(2500));
+    circuit.addSegment(circuit.straightLine(12500));
     // circuit.addSegment(circuit.arc(100, 180));
     // circuit.addSegment(circuit.straightLine(400));
     // circuit.addSegment(circuit.arc(100, -180));
@@ -40,12 +40,14 @@ document.addEventListener('DOMContentLoaded', function() {
         5, // Fuerza de giro
         4, // Velocidad para alcanzar la máxima fuerza de giro
         1.5, // Multiplicador de giro derrapando
+        1.05, // Multiplicador de velocidad al usar el turbo
+        1000, // Duración del turbo
         5, // Tamaño de las partículas de humo al derrapar
         4 // Aleatoriedad de movimiento de las partículas de humo
     );
     cars.push(userCar); //* Debug
 
-    const aiCar = new Car(new Point(200, 200), 25, 20, 40, "blue", new Point(0, 0), 1.2, 0.3, 5, 4, 2, 5, 4);
+    const aiCar = new Car(new Point(200, 200), 25, 20, 40, "blue", new Point(0, 0), 1.2, 0.3, 5, 4, 2, 1.1, 1000, 5, 4);
     cars.push(aiCar); //* Debug
 
     function initEvents() {
@@ -172,7 +174,17 @@ document.addEventListener('DOMContentLoaded', function() {
             ctx.fill();
         }
 
-        console.log(`Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)}) | Direction: ${userCar.direction.toFixed(3)}º | Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) [${userCar.absoluteSpeed.toFixed(3)}] | Drifting: ${userCar.isDrifting} | NegativeSpeed: ${userCar.isSpeedNegative ? "Yes" : "No"} | Camera: [${camera.x.toFixed(3)}, ${camera.y.toFixed(3)}] | IsCarInsideCircuit: ${circuit.isCarInside(userCar)}`); // Debug
+        console.log(`
+                    Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)})\n
+                    Direction: ${userCar.direction.toFixed(3)}º\n
+                    Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) [${userCar.absoluteSpeed.toFixed(3)}]\n
+                    Drifting: ${userCar.isDrifting}\n
+                    NegativeSpeed: ${userCar.isSpeedNegative ? "Yes" : "No"}\n
+                    Camera: [${camera.x.toFixed(3)}, ${camera.y.toFixed(3)}]\n
+                    IsCarInsideCircuit: ${circuit.isCarInside(userCar)}\n
+                    Remaining boosts: ${userCar.boostCounter}\n
+                    BoostLastUsed: ${userCar.boostLastUsed}`
+        ); // Debug
     }
 
     function checkCarControls() {
@@ -220,6 +232,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (userCar.direction < 0) userCar.direction += 360;
             }
         }
+
+        if (controls.keys.boost.isPressed && !controls.keys.boost.actionDone && userCar.boostCounter > 0) {
+            userCar.boostCounter--;
+            userCar.boostLastUsed = Date.now();
+            controls.keys.boost.actionDone = true;
+        }
     }
 
     function applySpeed() {
@@ -247,6 +265,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 car.lastDirection = car.direction;
             }
         });
+    }
+
+    function applyBoostMultiplier() {
+        if (userCar.boostLastUsed !== 0) { // Si se ha usado el turbo...
+            if (Date.now() - userCar.boostDuration >= userCar.boostLastUsed) {
+                userCar.boostLastUsed = 0;
+            }
+            else {
+                userCar.speed.x *= userCar.boostMultiplier;
+                userCar.speed.y *= userCar.boostMultiplier;
+            }
+        }
     }
 
     function checkIsDrifting() {
@@ -338,6 +368,7 @@ document.addEventListener('DOMContentLoaded', function() {
         applySpeed();
         checkIsColliding();
         applyRotationToSpeed();
+        applyBoostMultiplier();
         applyAirFriction();
         updateSmokeParticles();
 
@@ -356,11 +387,12 @@ document.addEventListener('DOMContentLoaded', function() {
  *     - [X] Para dejar de derrapar, se debe estar conduciendo en línea recta sin girar durante un corto período de tiempo.
  *     - [X] Derrapar te permite girar más fuerte, pero cuanto más girado estás con respecto a tu dirección de la velocidad, más velocidad pierdes.
  *     - [ ] Dejar rastro del neumático en el suelo.
- * - [ ] Implementar el sistema de boost.
- *     - [ ] Se podría hacer con un botón o mediante objetos en el suelo.
- * - [ ] Implementar un creador de circuitos.
+ * - [X] Implementar el sistema de boost.
+ *     - [X] Se hace mediante un botón.
+ *     - [X] La forma de obtener el turbo depende del modo de juego en el que se esté: ya sea mediante objetos del suelo o completando vueltas en el circuito.
+ * - [-] Implementar un creador de circuitos.
  *     - [X] Se podrán crear circuitos con líneas rectas y curvas.
- *     - [ ] El circuito debería "unirse" entre segmentos.
+ *     - [-] El circuito debería "unirse" entre segmentos. DELETED: No es necesario unir los segmentos de momento
  *     - [X] El circuito debe poder detectar si estás dentro del mismo, ralentizando el coche en caso contrario
  *     - [X] Salir del circuito hará que la potencia de aceleración se reduzca drásticamente.
  * - [X] Mejorar el sistema de cámara haciendo que sea "empujada" por el vector de velocidad del coche.

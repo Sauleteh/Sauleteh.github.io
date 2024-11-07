@@ -11,12 +11,14 @@
  * @param {number} turnForce - Fuerza de giro del coche.
  * @param {number} turnForceThreshold - Velocidad a la que debe llegar el coche para alcanzar la máxima fuerza de giro (ya que cuanta más velocidad, más giro hasta llegado a este límite).
  * @param {number} driftingTurnMultiplier - Al derrapar, se multiplica la fuerza de giro del coche por este valor.
+ * @param {number} boostMultiplier - Multiplicador de velocidad al usar el turbo del coche.
+ * @param {number} boostDuration - Duración del turbo del coche en milisegundos.
  * @param {number} smokeParticleSize - Tamaño de las partículas de humo del coche.
  * @param {number} smokeParticleRandomness - Aleatoriedad de movimiento de las partículas del humo del coche.
  */
 export class Car
 {
-    constructor(coords, direction, width, height, color, speed, accelerationPower, brakingPower, turnForce, turnForceThreshold, driftingTurnMultiplier, smokeParticleSize, smokeParticleRandomness) {
+    constructor(coords, direction, width, height, color, speed, accelerationPower, brakingPower, turnForce, turnForceThreshold, driftingTurnMultiplier, boostMultiplier, boostDuration, smokeParticleSize, smokeParticleRandomness) {
         this.coords = coords;
         this.direction = direction;
         this.width = width;
@@ -28,6 +30,8 @@ export class Car
         this.turnForce = turnForce;
         this.turnForceThreshold = turnForceThreshold;
         this.driftingTurnMultiplier = driftingTurnMultiplier;
+        this.boostMultiplier = boostMultiplier;
+        this.boostDuration = boostDuration;
         this.smokeParticleSize = smokeParticleSize;
         this.smokeParticleRandomness = smokeParticleRandomness;
 
@@ -37,6 +41,8 @@ export class Car
         this.isInsideCircuit = true;
         this.driftCancelCounter = 0; // Si este contador llega a un número determinado después de tener el coche en línea recta un número de frames dado, se considera que se está dejando de derrapar
         this.smokeParticles = []; // Array de puntos "point" donde están localizadas las partículas del humo cuando se derrapa y con una variable "life" que indica la vida que le queda a la partícula para desaparecer
+        this.boostCounter = 1; // Número de turbos disponibles. Al principio, todos los coches comienzan con un turbo disponible
+        this.boostLastUsed = 0; // Último momento en el que se usó el turbo
     }
 
     get absoluteSpeed() {

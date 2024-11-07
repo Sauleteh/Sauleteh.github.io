@@ -37,6 +37,11 @@ export class Controls
                 isPressed: false,
                 actionDone: false,
                 check: (key) => { return key === " "; }
+            },
+            boost: {
+                isPressed: false,
+                actionDone: false,
+                check: (key) => { return key === "z"; }
             }
         };
     }
