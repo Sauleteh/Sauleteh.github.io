@@ -20,13 +20,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const outsideCircuitMultiplier = 0.8;
     const cars = [];
     const circuit = new Circuit(120, 16);
-    circuit.setStartPoint(100, 100, -40);
-    circuit.addSegment(circuit.straightLine(150));
-    circuit.addSegment(circuit.straightLine(250));
-    circuit.addSegment(circuit.arc(100, 180));
-    circuit.addSegment(circuit.straightLine(400));
-    circuit.addSegment(circuit.arc(100, -180));
-    circuit.addSegment(circuit.arc(1000, 39));
+    circuit.setStartPoint(100, 100, 0);
+    // circuit.addSegment(circuit.arc(1500, 360));
+    circuit.addSegment(circuit.straightLine(2500));
+    // circuit.addSegment(circuit.arc(100, 180));
+    // circuit.addSegment(circuit.straightLine(400));
+    // circuit.addSegment(circuit.arc(100, -180));
+    // circuit.addSegment(circuit.arc(1000, 39));
 
     const userCar = new Car(
         new Point(100, 100), // Posición (del centro del coche) inicial
@@ -305,10 +305,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // En cada frame, el coche se sitúa en el centro de la cámara
+    // En cada frame, la cámara se sitúa en el centro del coche del jugador
     function updateCamera() {
-        camera.x = -userCar.coords.x + canvas.width / 2;
-        camera.y = -userCar.coords.y + canvas.height / 2;
+        let shakingValue = userCar.absoluteSpeed / 8;
+        camera.x = -userCar.coords.x + canvas.width / 2 - userCar.speed.x * 5 - Math.floor(Math.random() * shakingValue) + shakingValue/2;
+        camera.y = -userCar.coords.y + canvas.height / 2 - userCar.speed.y * 5 - Math.floor(Math.random() * shakingValue) + shakingValue/2;
     }
 
     function draw(now) {
@@ -361,8 +362,8 @@ document.addEventListener('DOMContentLoaded', function() {
  *     - [X] Se podrán crear circuitos con líneas rectas y curvas.
  *     - [ ] El circuito debería "unirse" entre segmentos.
  *     - [X] El circuito debe poder detectar si estás dentro del mismo, ralentizando el coche en caso contrario
- *     - [ ] Salir del circuito hará que la potencia de aceleración se reduzca drásticamente.
- * - [ ] Mejorar el sistema de cámara haciendo que sea "empujada" por el vector de velocidad del coche.
+ *     - [X] Salir del circuito hará que la potencia de aceleración se reduzca drásticamente.
+ * - [X] Mejorar el sistema de cámara haciendo que sea "empujada" por el vector de velocidad del coche.
  * - [X] BUG: Las partículas de humo hay más cantidad en la rueda izquierda que en la derecha.
  * - [X] La marcha atrás + derrape debería de ser más satisfactoria.
  * - [X] Mejorar las partículas de humo.

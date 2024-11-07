@@ -38,6 +38,9 @@ export function App() {
     }, {
         path: "/projects/drivemad",
         element: <HtmlProject url="./projects/drivemad/drivemad.html"/>
+    }, {
+        path: "/projects/jumperjerk",
+        element: <HtmlProject url="./projects/jumperjerk/index.html"/>
     }];
 
     const router = createHashRouter([{
