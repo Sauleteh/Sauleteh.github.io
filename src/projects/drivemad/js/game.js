@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const airFriction = 0.1;
     const outsideCircuitMultiplier = 0.8;
     const cars = [];
-    const circuit = new Circuit(120, 16);
+    const circuit = new Circuit(240, 16);
     circuit.setStartPoint(100, 100, 0);
     // circuit.addSegment(circuit.arc(1500, 360));
     circuit.addSegment(circuit.straightLine(12500));
@@ -335,29 +335,39 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (car.isDrifting) {
                 // Si se está derrapando, salen partículas de las ruedas traseras
+                const leftWheel = new Point(
+                    car.coords.x + Math.cos((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2,
+                    car.coords.y + Math.sin((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2
+                );
+
+                const rightWheel = new Point(
+                    car.coords.x + Math.cos((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2,
+                    car.coords.y + Math.sin((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2
+                );
+
                 car.smokeParticles.push({ // Rueda izquierda
                     point: new Point(
-                        car.coords.x + Math.cos((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2 + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2,
-                        car.coords.y + Math.sin((car.direction + car.height/1.2) * Math.PI / 180) * -car.width/1.2 + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2
+                        leftWheel.x + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2,
+                        leftWheel.y + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2
                     ),
                     life: 10
                 });
                 car.smokeParticles.push({ // Rueda derecha
                     point: new Point(
-                        car.coords.x + Math.cos((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2 + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2,
-                        car.coords.y + Math.sin((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2 + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2
+                        rightWheel.x + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2,
+                        rightWheel.y + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2
                     ),
                     life: 10
                 });
 
                 const speedAngle = Math.atan2(car.speed.y, car.speed.x) * 180 / Math.PI;
-                if (Math.abs(speedAngle - car.direction) > 25) { // Solo se crea el desgaste de las ruedas si el ángulo de la velocidad con respecto a la dirección del coche es mayor de cierto grado
+                if (Math.abs(speedAngle - car.direction) > 20 && car.absoluteSpeed > 1) { // Solo se crea el desgaste de las ruedas si el ángulo de la velocidad con respecto a la dirección del coche es mayor de cierto grado
                     car.wheelWear[0].push({
-                        point: car.smokeParticles[car.smokeParticles.length-2].point,
+                        point: leftWheel,
                         isNewSegment: car.createNewWheelWearSegment
                     });
                     car.wheelWear[1].push({
-                        point: car.smokeParticles[car.smokeParticles.length-1].point,
+                        point: rightWheel,
                         isNewSegment: car.createNewWheelWearSegment
                     });
                     car.createNewWheelWearSegment = false;
@@ -428,9 +438,12 @@ document.addEventListener('DOMContentLoaded', function() {
  *     - [X] Para dejar de derrapar, se debe estar conduciendo en línea recta sin girar durante un corto período de tiempo.
  *     - [X] Derrapar te permite girar más fuerte, pero cuanto más girado estás con respecto a tu dirección de la velocidad, más velocidad pierdes.
  *     - [X] Dejar rastro del neumático en el suelo.
+ *     - [X] El rastro del derrape no debe tener el shaking de las partículas.
  * - [X] Implementar el sistema de boost.
  *     - [X] Se hace mediante un botón.
  *     - [X] La forma de obtener el turbo depende del modo de juego en el que se esté: ya sea mediante objetos del suelo o completando vueltas en el circuito.
+ *     - [ ] Mientras se usa el boost, hacer que en la pantalla aparezcan partículas de fuego en la parte trasera del coche.
+ *     - [ ] Al usar el boost, aparecen partículas por la pantalla de color blanco que van en la dirección contraria a la velocidad del coche.
  * - [-] Implementar un creador de circuitos.
  *     - [X] Se podrán crear circuitos con líneas rectas y curvas.
  *     - [-] El circuito debería "unirse" entre segmentos. DELETED: No es necesario unir los segmentos de momento
