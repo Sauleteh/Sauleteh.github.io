@@ -337,7 +337,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // En cada frame, la cámara se sitúa en el centro del coche del jugador
     function updateCamera() {
-        let shakingValue = userCar.absoluteSpeed / 8;
+        let shakingValue = userCar.absoluteSpeed * (userCar.boostLastUsed === 0 ? 1 : 2) / 8; // Si se está usando el turbo, el valor de shaking es el doble
         camera.x = -userCar.coords.x + canvas.width / 2 - userCar.speed.x * 5 - Math.floor(Math.random() * shakingValue) + shakingValue/2;
         camera.y = -userCar.coords.y + canvas.height / 2 - userCar.speed.y * 5 - Math.floor(Math.random() * shakingValue) + shakingValue/2;
     }
