@@ -80,6 +80,24 @@ document.addEventListener('DOMContentLoaded', function() {
     function drawDriftParticles() {
         cars.forEach(car => {
             ctx.fillStyle = "gray";
+            ctx.strokeStyle = "lightgray";
+            ctx.lineWidth = car.smokeParticleSize;
+            for (let i = 0; i < car.wheelWear.length; i++) 
+            {
+                if (car.wheelWear[i].length > 1) {
+                    ctx.beginPath();
+                    ctx.moveTo(car.wheelWear[i][0].point.x + camera.x, car.wheelWear[i][0].point.y + camera.y);
+                    for (let j = 1; j < car.wheelWear[i].length; j++) {
+                        if (car.wheelWear[i][j].isNewSegment) { // Si es un nuevo segmento, se pinta el punto anterior y se empieza un nuevo segmento
+                            ctx.stroke();
+                            ctx.beginPath();
+                            ctx.moveTo(car.wheelWear[i][j].point.x + camera.x, car.wheelWear[i][j].point.y + camera.y);
+                        }
+                        else ctx.lineTo(car.wheelWear[i][j].point.x + camera.x, car.wheelWear[i][j].point.y + camera.y);
+                    }
+                    ctx.stroke();
+                }
+            }
             for (let i = 0; i < car.smokeParticles.length; i++) {
                 const smokeParticle = car.smokeParticles[i];
                 ctx.fillRect(
@@ -178,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)})\n
                     Direction: ${userCar.direction.toFixed(3)}º\n
                     Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) [${userCar.absoluteSpeed.toFixed(3)}]\n
-                    Drifting: ${userCar.isDrifting}\n
+                    Drifting: ${userCar.isDrifting} (${userCar.driftCancelCounter})\n
                     NegativeSpeed: ${userCar.isSpeedNegative ? "Yes" : "No"}\n
                     Camera: [${camera.x.toFixed(3)}, ${camera.y.toFixed(3)}]\n
                     IsCarInsideCircuit: ${circuit.isCarInside(userCar)}\n
@@ -285,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Comprobamos si se sigue derrapando
                 if (car.lastDirection === car.direction) {
                     car.driftCancelCounter++;
-                    if (car.driftCancelCounter >= 20) {
+                    if (car.driftCancelCounter >= car.driftCancelMax) {
                         car.isDrifting = false;
                     }
                 }
@@ -331,6 +349,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     ),
                     life: 10
                 });
+
+                const speedAngle = Math.atan2(car.speed.y, car.speed.x) * 180 / Math.PI;
+                if (Math.abs(speedAngle - car.direction) > 25) { // Solo se crea el desgaste de las ruedas si el ángulo de la velocidad con respecto a la dirección del coche es mayor de cierto grado
+                    car.wheelWear[0].push({
+                        point: car.smokeParticles[car.smokeParticles.length-2].point,
+                        isNewSegment: car.createNewWheelWearSegment
+                    });
+                    car.wheelWear[1].push({
+                        point: car.smokeParticles[car.smokeParticles.length-1].point,
+                        isNewSegment: car.createNewWheelWearSegment
+                    });
+                    car.createNewWheelWearSegment = false;
+                }
+                else {
+                    car.createNewWheelWearSegment = true;
+                    car.wheelWear[0].shift();
+                    car.wheelWear[1].shift();
+                }
+            }
+            else {
+                car.createNewWheelWearSegment = true;
+                car.wheelWear[0].shift();
+                car.wheelWear[1].shift();
             }
         });
     }
@@ -381,12 +422,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /** TODO list:
  * - [X] Implementar sistema de frenado en vez de que al frenar se sume el vector de freno (que no es suficiente potencia para frenados más grandes).
- * - [ ] Implementar el sistema de derrape.
+ * - [X] Implementar el sistema de derrape.
  *     - [X] Se hará con el botón espacio.
  *     - [X] Al pulsar (no mantener) el botón, se empezará el modo derrape.
  *     - [X] Para dejar de derrapar, se debe estar conduciendo en línea recta sin girar durante un corto período de tiempo.
  *     - [X] Derrapar te permite girar más fuerte, pero cuanto más girado estás con respecto a tu dirección de la velocidad, más velocidad pierdes.
- *     - [ ] Dejar rastro del neumático en el suelo.
+ *     - [X] Dejar rastro del neumático en el suelo.
  * - [X] Implementar el sistema de boost.
  *     - [X] Se hace mediante un botón.
  *     - [X] La forma de obtener el turbo depende del modo de juego en el que se esté: ya sea mediante objetos del suelo o completando vueltas en el circuito.
