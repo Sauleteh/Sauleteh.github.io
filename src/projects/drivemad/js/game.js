@@ -5,6 +5,8 @@ import { Controls } from "./Controls.js";
 import { Circuit } from "./Circuit.js";
 
 document.addEventListener('DOMContentLoaded', function() {
+    const sfxEngine = document.querySelector("#sfxEngine");
+    sfxEngine.preservesPitch = false;
     const canvas = document.querySelector("canvas.game");
     const ctx = canvas.getContext("2d");
 
@@ -22,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const circuit = new Circuit(240, 16);
     circuit.setStartPoint(100, 100, 0);
     // circuit.addSegment(circuit.arc(1500, 360));
-    circuit.addSegment(circuit.straightLine(12500));
+    circuit.addSegment(circuit.straightLine(125000));
     // circuit.addSegment(circuit.arc(100, 180));
     // circuit.addSegment(circuit.straightLine(400));
     // circuit.addSegment(circuit.arc(100, -180));
@@ -60,6 +62,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const { key } = event;
             controls.checkControls(key, "up");
         });
+
+        sfxEngine.addEventListener("timeupdate", function() {
+            if (this.currentTime > this.duration - 1.5) {
+                this.currentTime = 0;
+                this.play();
+            }
+        });
+
+        // Comenzar ejecución del sonido al hacer click en la pantalla (se necesita evento de usuario obligatorio para esto)
+        document.addEventListener('click', () => {
+            sfxEngine.play();
+         }, { once: true })
     }
 
     function clearCanvas() {
@@ -393,6 +407,10 @@ document.addEventListener('DOMContentLoaded', function() {
         camera.y = -userCar.coords.y + canvas.height / 2 - userCar.speed.y * 5 - Math.floor(Math.random() * shakingValue) + shakingValue/2;
     }
 
+    function updatePlaybackRate() {
+        sfxEngine.playbackRate = 0.5 + userCar.absoluteSpeed / 5;
+    }
+
     function draw(now) {
         window.requestAnimationFrame(draw);
         if (!fpsController.shouldContinue(now)) return;
@@ -422,6 +440,7 @@ document.addEventListener('DOMContentLoaded', function() {
         applyBoostMultiplier();
         applyAirFriction();
         updateSmokeParticles();
+        updatePlaybackRate();
 
         fpsController.updateLastTime(now);
     }
