@@ -52,6 +52,44 @@ document.addEventListener('DOMContentLoaded', function() {
     const aiCar = new Car(new Point(200, 200), 25, 20, 40, "blue", new Point(0, 0), 1.2, 0.3, 5, 4, 2, 1.1, 1000, 5, 4);
     cars.push(aiCar); //* Debug
 
+    const socket = new WebSocket('wss://sauleteh.gayofo.com/wss/drivemad');
+    socket.onopen = function () {
+        console.log("Connected to WebSocket server");
+        // Registrar el coche en el servidor
+        const message = JSON.stringify({
+            type: "login",
+            content: userCar
+        });
+        socket.send(message);
+    };
+
+    socket.onclose = function (event) {
+        console.log(`Disconnected with event code: ${event.code}`);
+    };
+
+    socket.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+
+        if (data.type === "login_id" && data.code === 0) {
+            // Aquí se recibe el id del usuario proporcionado por el servidor
+            userCar.id = data.content;
+        }
+        else if (data.type === "login_new_car" && data.code === 0) {
+            // Aquí se reciben los coches recién conectados al servidor o la lista de coches si se acaba de entrar
+            cars.push(data.content);
+        }
+        else if (data.type === "move" && data.code === 0) {
+            // Aquí se reciben las actualizaciones de posición de los coches
+            const index = cars.findIndex(car => car.id === data.content.id);
+            if (index !== -1) cars[index] = data.content;
+        }
+        else if (data.type === "logout" && data.code === 0) {
+            // Aquí se recibe el id del coche que se ha desconectado
+            const index = cars.findIndex(car => car.id === data.content);
+            if (index !== -1) cars.splice(index, 1);
+        }
+    };
+
     function initEvents() {
         document.addEventListener("keydown", function(event) {
             const { key } = event;
@@ -207,6 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         console.log(`
+                    Id: ${userCar.id}\n
                     Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)})\n
                     Direction: ${userCar.direction.toFixed(3)}º\n
                     Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) [${userCar.absoluteSpeed.toFixed(3)}]\n
@@ -269,6 +308,21 @@ document.addEventListener('DOMContentLoaded', function() {
             userCar.boostCounter--;
             userCar.boostLastUsed = Date.now();
             controls.keys.boost.actionDone = true;
+        }
+
+        if (
+            (controls.keys.drift.isPressed && !controls.keys.drift.actionDone) ||
+            controls.keys.accelerate.isPressed ||
+            controls.keys.brake.isPressed ||
+            controls.keys.left.isPressed ||
+            controls.keys.right.isPressed ||
+            (controls.keys.boost.isPressed && !controls.keys.boost.actionDone && userCar.boostCounter > 0)
+        ) {
+            const message = JSON.stringify({
+                type: "move",
+                content: userCar
+            });
+            socket.send(message);
         }
     }
 
