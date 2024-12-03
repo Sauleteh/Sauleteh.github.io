@@ -21,14 +21,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const airFriction = 0.1;
     const outsideCircuitMultiplier = 0.8;
     const cars = [];
-    const circuit = new Circuit(240, 16);
-    circuit.setStartPoint(100, 100, 0);
-    // circuit.addSegment(circuit.arc(1500, 360));
-    circuit.addSegment(circuit.straightLine(125000));
-    // circuit.addSegment(circuit.arc(100, 180));
-    // circuit.addSegment(circuit.straightLine(400));
-    // circuit.addSegment(circuit.arc(100, -180));
-    // circuit.addSegment(circuit.arc(1000, 39));
+    const circuit = new Circuit(160, 12);
+    circuit.setStartPoint(100, 100, -90);
+    circuit.addSegment(circuit.arc(500, 180));
+    circuit.addSegment(circuit.straightLine(650));
+    circuit.addSegment(circuit.arc(180, 90));
+    circuit.addSegment(circuit.straightLine(150));
+    circuit.addSegment(circuit.arc(120, -90));
+    circuit.addSegment(circuit.arc(300, 270));
+    circuit.addSegment(circuit.straightLine(280));
+    circuit.addSegment(circuit.arc(200, -90));
+    circuit.addSegment(circuit.straightLine(500));
+    circuit.addSegment(circuit.arc(200, -225));
+    circuit.addSegment(circuit.arc(200, 225));
+    circuit.addSegment(circuit.arc(300, -23));
+    circuit.addSegment(circuit.arc(300, 23));
 
     const userCar = new Car(
         "User", // Nombre del usuario del coche
@@ -50,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
     );
     cars.push(userCar); //* Debug
 
-    const aiCar = new Car("IA", new Point(200, 200), 25, 20, 40, "blue", new Point(0, 0), 1.2, 0.3, 5, 4, 2, 1.1, 1000, 5, 4);
+    const aiCar = new Car("Bores", new Point(200, 200), 25, 20, 40, "blue", new Point(0, 0), 1.2, 0.3, 5, 4, 2, 1.1, 1000, 5, 4);
     cars.push(aiCar); //* Debug
 
     const socket = new WebSocket('wss://sauleteh.gayofo.com/wss/drivemad');
