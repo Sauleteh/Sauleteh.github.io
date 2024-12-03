@@ -338,5 +338,15 @@
         "linkToPopup": false,
         "tag": "paused",
         "theme": "Sin terminar (WIP)"
+    },
+    {
+        "title": "Drive Mad",
+        "platform": "Web | HTML, CSS y JS (frontend), Node.js y websockets (backend)",
+        "description": "Juego de carreras online 2D con coches donde deberás competir para ser el mejor. Elige el coche que mejor se adapte a tu estilo de conducción y compite en los distintos modos de juego.",
+        "thumbnail": "/project-images/placeholder.webp",
+        "link": "/projects/drivemad",
+        "linkToPopup": false,
+        "tag": "progress",
+        "theme": "Sin terminar (WIP)"
     }
 ]

@@ -21,16 +21,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const airFriction = 0.1;
     const outsideCircuitMultiplier = 0.8;
     const cars = [];
-    const circuit = new Circuit(240, 16);
-    circuit.setStartPoint(100, 100, 0);
-    // circuit.addSegment(circuit.arc(1500, 360));
-    circuit.addSegment(circuit.straightLine(125000));
-    // circuit.addSegment(circuit.arc(100, 180));
-    // circuit.addSegment(circuit.straightLine(400));
-    // circuit.addSegment(circuit.arc(100, -180));
-    // circuit.addSegment(circuit.arc(1000, 39));
+    const circuit = new Circuit(160, 12);
+    circuit.setStartPoint(100, 100, -90);
+    circuit.addSegment(circuit.arc(500, 180));
+    circuit.addSegment(circuit.straightLine(650));
+    circuit.addSegment(circuit.arc(180, 90));
+    circuit.addSegment(circuit.straightLine(150));
+    circuit.addSegment(circuit.arc(120, -90));
+    circuit.addSegment(circuit.arc(300, 270));
+    circuit.addSegment(circuit.straightLine(280));
+    circuit.addSegment(circuit.arc(200, -90));
+    circuit.addSegment(circuit.straightLine(500));
+    circuit.addSegment(circuit.arc(200, -225));
+    circuit.addSegment(circuit.arc(200, 225));
+    circuit.addSegment(circuit.arc(300, -23));
+    circuit.addSegment(circuit.arc(300, 23));
 
     const userCar = new Car(
+        "User", // Nombre del usuario del coche
         new Point(100, 100), // Posición (del centro del coche) inicial
         0, // Ángulo (grados)
         20, // Ancho
@@ -49,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
     );
     cars.push(userCar); //* Debug
 
-    const aiCar = new Car(new Point(200, 200), 25, 20, 40, "blue", new Point(0, 0), 1.2, 0.3, 5, 4, 2, 1.1, 1000, 5, 4);
+    const aiCar = new Car("Bores", new Point(200, 200), 25, 20, 40, "blue", new Point(0, 0), 1.2, 0.3, 5, 4, 2, 1.1, 1000, 5, 4);
     cars.push(aiCar); //* Debug
 
     const socket = new WebSocket('wss://sauleteh.gayofo.com/wss/drivemad');
@@ -65,6 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     socket.onclose = function (event) {
         console.log(`Disconnected with event code: ${event.code}`);
+
     };
 
     socket.onmessage = function (event) {
@@ -160,6 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 );
             }
         });
+        ctx.lineWidth = 1;
     }
 
     function drawCircuit() {
@@ -189,6 +199,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         ctx.lineWidth = 1;
+    }
+
+    function drawUsername() {
+        // Dibujar debajo del coche el nombre de usuario
+        cars.forEach(car => {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+            ctx.font = "12px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText(car.name, car.coords.x + camera.x, car.coords.y + camera.y + car.width + 12);
+        });
     }
 
     function drawDebug() {
@@ -354,15 +374,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function applyBoostMultiplier() {
-        if (userCar.boostLastUsed !== 0) { // Si se ha usado el turbo...
-            if (Date.now() - userCar.boostDuration >= userCar.boostLastUsed) {
-                userCar.boostLastUsed = 0;
+        cars.forEach(car => {
+            if (car.boostLastUsed !== 0) { // Si se ha usado el turbo...
+                if (Date.now() - car.boostDuration >= car.boostLastUsed) {
+                    car.boostLastUsed = 0;
+                }
+                else {
+                    car.speed.x *= car.boostMultiplier;
+                    car.speed.y *= car.boostMultiplier;
+                }
             }
-            else {
-                userCar.speed.x *= userCar.boostMultiplier;
-                userCar.speed.y *= userCar.boostMultiplier;
-            }
-        }
+        });
     }
 
     function checkIsDrifting() {
@@ -429,7 +451,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
 
                 const speedAngle = Math.atan2(car.speed.y, car.speed.x) * 180 / Math.PI;
-                if (Math.abs(speedAngle - car.direction) > 20 && car.absoluteSpeed > 1) { // Solo se crea el desgaste de las ruedas si el ángulo de la velocidad con respecto a la dirección del coche es mayor de cierto grado
+                if (Math.abs(speedAngle - car.direction) > 25 && car.absoluteSpeed > 1) { // Solo se crea el desgaste de las ruedas si el ángulo de la velocidad con respecto a la dirección del coche es mayor de cierto grado
                     car.wheelWear[0].push({
                         point: leftWheel,
                         isNewSegment: car.createNewWheelWearSegment
@@ -471,9 +493,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // console.log(fpsController.elapsed);
         
         clearCanvas();
+        drawCircuit();
         drawDriftParticles();
         drawCars();
-        drawCircuit();
+        drawUsername();
         drawDebug();
         
         let rads = aiCar.direction * Math.PI / 180; //* Debug
@@ -512,6 +535,7 @@ document.addEventListener('DOMContentLoaded', function() {
  *     - [X] Derrapar te permite girar más fuerte, pero cuanto más girado estás con respecto a tu dirección de la velocidad, más velocidad pierdes.
  *     - [X] Dejar rastro del neumático en el suelo.
  *     - [X] El rastro del derrape no debe tener el shaking de las partículas.
+ *     - [ ] Si se sigue derrapando durante un cierto tiempo, empezar a borrar el rastro igualmente aunque no haya terminado de derrapar.
  * - [X] Implementar el sistema de boost.
  *     - [X] Se hace mediante un botón.
  *     - [X] La forma de obtener el turbo depende del modo de juego en el que se esté: ya sea mediante objetos del suelo o completando vueltas en el circuito.
@@ -539,5 +563,6 @@ document.addEventListener('DOMContentLoaded', function() {
  *     - [ ] Excepto si está expresamente indicado, los circuitos están previamente definidos (¿feedback de circuitos?).
  * - [ ] Implementar música.
  * - [ ] Implementar efectos de sonido.
+ * - [ ] BUG: Cuantos más FPS vaya el juego, más rápido va el coche (hay que implementar el delta time).
  * - [X] BUG: Al poner el último arco al revés, no se detecta si se está dentro de dicho arco.
  */
