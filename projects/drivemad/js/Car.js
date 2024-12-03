@@ -18,7 +18,8 @@
  */
 export class Car
 {
-    constructor(coords, direction, width, height, color, speed, accelerationPower, brakingPower, turnForce, turnForceThreshold, driftingTurnMultiplier, boostMultiplier, boostDuration, smokeParticleSize, smokeParticleRandomness) {
+    constructor(name, coords, direction, width, height, color, speed, accelerationPower, brakingPower, turnForce, turnForceThreshold, driftingTurnMultiplier, boostMultiplier, boostDuration, smokeParticleSize, smokeParticleRandomness) {
+        this.name = name;
         this.coords = coords;
         this.direction = direction;
         this.width = width;
