@@ -473,6 +473,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 car.wheelWear[0].shift();
                 car.wheelWear[1].shift();
             }
+
+            if (car.wheelWear[0].length >= car.wheelWearLimit) {
+                car.wheelWear[0].shift();
+                car.wheelWear[1].shift();
+            }
         });
     }
 
@@ -535,7 +540,7 @@ document.addEventListener('DOMContentLoaded', function() {
  *     - [X] Derrapar te permite girar más fuerte, pero cuanto más girado estás con respecto a tu dirección de la velocidad, más velocidad pierdes.
  *     - [X] Dejar rastro del neumático en el suelo.
  *     - [X] El rastro del derrape no debe tener el shaking de las partículas.
- *     - [ ] Si se sigue derrapando durante un cierto tiempo, empezar a borrar el rastro igualmente aunque no haya terminado de derrapar.
+ *     - [X] Si se sigue derrapando durante un cierto tiempo, empezar a borrar el rastro igualmente aunque no haya terminado de derrapar.
  * - [X] Implementar el sistema de boost.
  *     - [X] Se hace mediante un botón.
  *     - [X] La forma de obtener el turbo depende del modo de juego en el que se esté: ya sea mediante objetos del suelo o completando vueltas en el circuito.
