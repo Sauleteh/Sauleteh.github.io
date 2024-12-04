@@ -347,8 +347,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function applySpeed() {
         cars.forEach(car => {
-            car.coords.x += car.speed.x;
-            car.coords.y += car.speed.y;
+            car.coords.x += car.speed.x * fpsController.elapsed / 30;
+            car.coords.y += car.speed.y * fpsController.elapsed / 30;
         });
     }
 
@@ -515,11 +515,11 @@ document.addEventListener('DOMContentLoaded', function() {
         updateCamera();
         checkCarControls();
         checkIsDrifting();
-        applySpeed();
         checkIsColliding();
         applyRotationToSpeed();
         applyBoostMultiplier();
         applyAirFriction();
+        applySpeed();
         updateSmokeParticles();
         updatePlaybackRate();
 
