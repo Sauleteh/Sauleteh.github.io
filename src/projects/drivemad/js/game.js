@@ -304,14 +304,20 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (controls.keys.left.isPressed) {
             if (userCar.speed.x != 0 || userCar.speed.y != 0) {
-                userCar.direction -= (!userCar.isAccelerating && userCar.isSpeedNegative ? -1 : 1) * (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * (userCar.absoluteSpeed < userCar.turnForceThreshold ? userCar.absoluteSpeed / userCar.turnForceThreshold : 1) * fpsController.deltaTime;
+                userCar.direction -= (!userCar.isAccelerating && userCar.isSpeedNegative ? -1 : 1) * // Comprobar marcha atrás
+                    (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * // El giro es mayor si se está derrapando
+                    (userCar.absoluteSpeed < userCar.turnForceThreshold ? userCar.absoluteSpeed / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
+                    fpsController.deltaTime;
                 userCar.direction = userCar.direction % 360;
                 if (userCar.direction < 0) userCar.direction += 360;
             }
         }
         else if (controls.keys.right.isPressed) {
             if (userCar.speed.x != 0 || userCar.speed.y != 0) {
-                userCar.direction += (!userCar.isAccelerating && userCar.isSpeedNegative ? -1 : 1) * (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * (userCar.absoluteSpeed < userCar.turnForceThreshold ? userCar.absoluteSpeed / userCar.turnForceThreshold : 1) * fpsController.deltaTime;
+                userCar.direction += (!userCar.isAccelerating && userCar.isSpeedNegative ? -1 : 1) * // Comprobar marcha atrás
+                    (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * // El giro es mayor si se está derrapando
+                    (userCar.absoluteSpeed < userCar.turnForceThreshold ? userCar.absoluteSpeed / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
+                    fpsController.deltaTime;
                 userCar.direction = userCar.direction % 360;
                 if (userCar.direction < 0) userCar.direction += 360;
             }
@@ -409,8 +415,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Si la velocidad es muy baja, se establece a 0 (threshold de 0.001)
-            if (Math.abs(car.speed.x) < 0.001) car.speed.x = 0;
-            if (Math.abs(car.speed.y) < 0.001) car.speed.y = 0;
+            if (Math.abs(car.speed.x) < 0.1) car.speed.x = 0;
+            if (Math.abs(car.speed.y) < 0.1) car.speed.y = 0;
         });
     }
 
@@ -571,4 +577,5 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [X] BUG: Al poner el último arco al revés, no se detecta si se está dentro de dicho arco.
  * - [ ] Tienes que poder pitar.
  * - [ ] Condiciones meteorológicas.
+ * - [ ] Realizar el giro del coche de forma más suave si no se mantienen pulsadas las teclas.
  */
