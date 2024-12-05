@@ -49,6 +49,7 @@ export class Car
         this.createNewWheelWearSegment = false; // True si se debe crear un nuevo segmento de desgaste de ruedas, false en caso contrario
         this.boostCounter = 1; // Número de turbos disponibles. Al principio, todos los coches comienzan con un turbo disponible
         this.boostLastUsed = 0; // Último momento en el que se usó el turbo (0 si no se está usando, mayor que 0 en caso contrario)
+        this.isPressingAccelerateOrBrake = false; // True si se está pulsando el acelerador o el freno, false en caso contrario
     }
 
     get absoluteSpeed() {

@@ -18,7 +18,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const controls = new Controls();
     const camera = new Point(0, 0); // La cámara tiene el mismo tamaño que el canvas y la coordenada que se especifica es su esquina superior izquierda. Su movimiento horizontal está invertido (+x => Izq.) y su movimiento vertical es igual al del canvas (+y => Abajo)
 
-    const airFriction = 0.1;
+    const movingAirFriction = 0.1;
+    const idleAirFriction = 0.008;
     const outsideCircuitMultiplier = 0.8;
     const cars = [];
     const circuit = new Circuit(160, 12);
@@ -73,7 +74,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     socket.onclose = function (event) {
         console.log(`Disconnected with event code: ${event.code}`);
-
     };
 
     socket.onmessage = function (event) {
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         sfxEngine.addEventListener("timeupdate", function() {
             if (this.currentTime > this.duration - 1.5) {
-                this.currentTime = 0;
+                this.currentTime = 1;
                 this.play();
             }
         });
@@ -290,11 +290,7 @@ document.addEventListener('DOMContentLoaded', function() {
             userCar.speed.x += Math.cos(rads) * userCar.accelerationPower;
             userCar.speed.y += Math.sin(rads) * userCar.accelerationPower;
             userCar.isAccelerating = true;
-
-            if (!userCar.isInsideCircuit) {
-                userCar.speed.x *= outsideCircuitMultiplier;
-                userCar.speed.y *= outsideCircuitMultiplier;
-            }
+            userCar.isPressingAccelerateOrBrake = true;
         }
         else if (controls.keys.brake.isPressed) {
             if (userCar.isSpeedNegative) userCar.isDrifting = false; // Si la velocidad es negativa, no se puede derrapar
@@ -302,23 +298,20 @@ document.addEventListener('DOMContentLoaded', function() {
             userCar.speed.x -= Math.cos(rads) * userCar.brakingPower;
             userCar.speed.y -= Math.sin(rads) * userCar.brakingPower;
             userCar.isAccelerating = false;
-
-            if (!userCar.isInsideCircuit) {
-                userCar.speed.x *= outsideCircuitMultiplier;
-                userCar.speed.y *= outsideCircuitMultiplier;
-            }
+            userCar.isPressingAccelerateOrBrake = true;
         }
+        else userCar.isPressingAccelerateOrBrake = false;
         
         if (controls.keys.left.isPressed) {
             if (userCar.speed.x != 0 || userCar.speed.y != 0) {
-                userCar.direction -= (!userCar.isAccelerating && userCar.isSpeedNegative ? -1 : 1) * (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * (userCar.absoluteSpeed < userCar.turnForceThreshold ? userCar.absoluteSpeed / userCar.turnForceThreshold : 1);
+                userCar.direction -= (!userCar.isAccelerating && userCar.isSpeedNegative ? -1 : 1) * (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * (userCar.absoluteSpeed < userCar.turnForceThreshold ? userCar.absoluteSpeed / userCar.turnForceThreshold : 1) * fpsController.deltaTime;
                 userCar.direction = userCar.direction % 360;
                 if (userCar.direction < 0) userCar.direction += 360;
             }
         }
         else if (controls.keys.right.isPressed) {
             if (userCar.speed.x != 0 || userCar.speed.y != 0) {
-                userCar.direction += (!userCar.isAccelerating && userCar.isSpeedNegative ? -1 : 1) * (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * (userCar.absoluteSpeed < userCar.turnForceThreshold ? userCar.absoluteSpeed / userCar.turnForceThreshold : 1);
+                userCar.direction += (!userCar.isAccelerating && userCar.isSpeedNegative ? -1 : 1) * (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * (userCar.absoluteSpeed < userCar.turnForceThreshold ? userCar.absoluteSpeed / userCar.turnForceThreshold : 1) * fpsController.deltaTime;
                 userCar.direction = userCar.direction % 360;
                 if (userCar.direction < 0) userCar.direction += 360;
             }
@@ -348,8 +341,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function applySpeed() {
         cars.forEach(car => {
-            car.coords.x += car.speed.x;
-            car.coords.y += car.speed.y;
+            car.coords.x += car.speed.x * fpsController.deltaTime;
+            car.coords.y += car.speed.y * fpsController.deltaTime;
         });
     }
 
@@ -402,12 +395,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function applyAirFriction() {
+    function applyFriction() {
         cars.forEach(car => {
-            //if (car.isSpeedNegative) return; // Si la velocidad es negativa, no se aplica la fricción del aire
             let negativeSpeed = new Point(-car.speed.x, -car.speed.y);
-            car.speed.x += airFriction * negativeSpeed.x;
-            car.speed.y += airFriction * negativeSpeed.y;
+            // Fricción con el aire
+            car.speed.x += (car.isPressingAccelerateOrBrake ? movingAirFriction : idleAirFriction) * negativeSpeed.x;
+            car.speed.y += (car.isPressingAccelerateOrBrake ? movingAirFriction : idleAirFriction) * negativeSpeed.y;
+
+            // Fricción con el suelo
+            if (!car.isInsideCircuit) {
+                car.speed.x *= outsideCircuitMultiplier;
+                car.speed.y *= outsideCircuitMultiplier;
+            }
 
             // Si la velocidad es muy baja, se establece a 0 (threshold de 0.001)
             if (Math.abs(car.speed.x) < 0.001) car.speed.x = 0;
@@ -489,7 +488,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updatePlaybackRate() {
-        sfxEngine.playbackRate = 0.5 + userCar.absoluteSpeed / 5;
+        sfxEngine.playbackRate = 0.2 + userCar.absoluteSpeed / 5;
     }
 
     function draw(now) {
@@ -513,16 +512,16 @@ document.addEventListener('DOMContentLoaded', function() {
             if (aiCar.direction < 0) aiCar.direction += 360;
         }
 
-        updateCamera();
         checkCarControls();
         checkIsDrifting();
-        applySpeed();
         checkIsColliding();
         applyRotationToSpeed();
         applyBoostMultiplier();
-        applyAirFriction();
+        applyFriction();
+        applySpeed();
         updateSmokeParticles();
         updatePlaybackRate();
+        updateCamera();
 
         fpsController.updateLastTime(now);
     }
@@ -567,7 +566,9 @@ document.addEventListener('DOMContentLoaded', function() {
  *     - [ ] Modo de juego supervivencia: Sé el último en pie en el circuito empujando a tus rivales. Al completar una vuelta ganas un super empuje.
  *     - [ ] Excepto si está expresamente indicado, los circuitos están previamente definidos (¿feedback de circuitos?).
  * - [ ] Implementar música.
- * - [ ] Implementar efectos de sonido.
- * - [ ] BUG: Cuantos más FPS vaya el juego, más rápido va el coche (hay que implementar el delta time).
+ * - [X] Implementar efectos de sonido.
+ * - [X] BUG: Cuantos más FPS vaya el juego, más rápido va el coche (hay que implementar el delta time).
  * - [X] BUG: Al poner el último arco al revés, no se detecta si se está dentro de dicho arco.
+ * - [ ] Tienes que poder pitar.
+ * - [ ] Condiciones meteorológicas.
  */
