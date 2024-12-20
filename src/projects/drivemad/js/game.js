@@ -17,10 +17,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const fpsController = new FPSControllerV2(60);
     const controls = new Controls();
     const camera = new Point(0, 0); // La cámara tiene el mismo tamaño que el canvas y la coordenada que se especifica es su esquina superior izquierda. Su movimiento horizontal está invertido (+x => Izq.) y su movimiento vertical es igual al del canvas (+y => Abajo)
+    const socketFrameUpdate = 1; // Cada cuántos frames se envía la actualización de posición al servidor
+    let socketFrameUpdateCounter = 0; // Contador de frames para enviar la actualización de posición al servidor
 
     const movingAirFriction = 0.1;
     const idleAirFriction = 0.008;
     const outsideCircuitMultiplier = 0.8;
+    const wheelWear = [[], []]; // Dos arrays, una para cada rueda donde se guarda los distintos puntos "point" donde ha estado la rueda y "isNewSegment" si es un nuevo segmento de derrape o no
+    const wheelWearLimit = 150; // Límite de rastros del suelo
+    let createNewWheelWearSegment = false; // True si se debe crear un nuevo segmento de desgaste de ruedas, false en caso contrario
+
     const cars = [];
     const circuit = new Circuit(160, 12);
     circuit.setStartPoint(100, 100, -90);
@@ -45,7 +51,6 @@ document.addEventListener('DOMContentLoaded', function() {
         20, // Ancho
         40, // Alto
         "red", // Color
-        new Point(0, 0), // Velocidad inicial
         1.2, // Poder de aceleración
         0.3, // Poder al frenar
         5, // Fuerza de giro
@@ -53,12 +58,10 @@ document.addEventListener('DOMContentLoaded', function() {
         1.5, // Multiplicador de giro derrapando
         1.05, // Multiplicador de velocidad al usar el turbo
         1000, // Duración del turbo
-        5, // Tamaño de las partículas de humo al derrapar
-        4 // Aleatoriedad de movimiento de las partículas de humo
     );
     cars.push(userCar); //* Debug
 
-    const aiCar = new Car("Bores", new Point(200, 200), 25, 20, 40, "blue", new Point(0, 0), 1.2, 0.3, 5, 4, 2, 1.1, 1000, 5, 4);
+    const aiCar = new Car("Bores", new Point(200, 200), 25, 20, 40, "blue", 1.2, 0.3, 5, 4, 2, 1.1, 1000);
     cars.push(aiCar); //* Debug
 
     const socket = new WebSocket('wss://sauleteh.gayofo.com/wss/drivemad');
@@ -120,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Comenzar ejecución del sonido al hacer click en la pantalla (se necesita evento de usuario obligatorio para esto)
         document.addEventListener('click', () => {
             sfxEngine.play();
-         }, { once: true })
+        }, { once: true });
     }
 
     function clearCanvas() {
@@ -139,26 +142,27 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function drawDriftParticles() {
-        cars.forEach(car => {
-            ctx.fillStyle = "gray";
-            ctx.strokeStyle = "lightgray";
-            ctx.lineWidth = car.smokeParticleSize;
-            for (let i = 0; i < car.wheelWear.length; i++) 
-            {
-                if (car.wheelWear[i].length > 1) {
-                    ctx.beginPath();
-                    ctx.moveTo(car.wheelWear[i][0].point.x + camera.x, car.wheelWear[i][0].point.y + camera.y);
-                    for (let j = 1; j < car.wheelWear[i].length; j++) {
-                        if (car.wheelWear[i][j].isNewSegment) { // Si es un nuevo segmento, se pinta el punto anterior y se empieza un nuevo segmento
-                            ctx.stroke();
-                            ctx.beginPath();
-                            ctx.moveTo(car.wheelWear[i][j].point.x + camera.x, car.wheelWear[i][j].point.y + camera.y);
-                        }
-                        else ctx.lineTo(car.wheelWear[i][j].point.x + camera.x, car.wheelWear[i][j].point.y + camera.y);
+        ctx.fillStyle = "gray";
+        ctx.strokeStyle = "lightgray";
+        ctx.lineWidth = userCar.smokeParticleSize;
+        for (let i = 0; i < wheelWear.length; i++)
+        {
+            if (wheelWear[i].length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(wheelWear[i][0].point.x + camera.x, wheelWear[i][0].point.y + camera.y);
+                for (let j = 1; j < wheelWear[i].length; j++) {
+                    if (wheelWear[i][j].isNewSegment) { // Si es un nuevo segmento, se pinta el punto anterior y se empieza un nuevo segmento
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(wheelWear[i][j].point.x + camera.x, wheelWear[i][j].point.y + camera.y);
                     }
-                    ctx.stroke();
+                    else ctx.lineTo(wheelWear[i][j].point.x + camera.x, wheelWear[i][j].point.y + camera.y);
                 }
+                ctx.stroke();
             }
+        }
+
+        cars.forEach(car => {
             for (let i = 0; i < car.smokeParticles.length; i++) {
                 const smokeParticle = car.smokeParticles[i];
                 ctx.fillRect(
@@ -268,13 +272,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     Id: ${userCar.id}\n
                     Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)})\n
                     Direction: ${userCar.direction.toFixed(3)}º\n
-                    Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) [${userCar.absoluteSpeed.toFixed(3)}]\n
+                    Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) ${userCar.isSpeedNegative ? "-" : "+"}[${userCar.absoluteSpeed.toFixed(3)}]\n
                     Drifting: ${userCar.isDrifting} (${userCar.driftCancelCounter})\n
-                    NegativeSpeed: ${userCar.isSpeedNegative ? "Yes" : "No"}\n
                     Camera: [${camera.x.toFixed(3)}, ${camera.y.toFixed(3)}]\n
                     IsCarInsideCircuit: ${circuit.isCarInside(userCar)}\n
-                    Remaining boosts: ${userCar.boostCounter}\n
-                    BoostLastUsed: ${userCar.boostLastUsed}`
+                    Remaining boosts: ${userCar.boostCounter} [${userCar.boostLastUsed}]\n
+                    DeltaTime: ${fpsController.deltaTime.toFixed(3)}`
         ); // Debug
     }
 
@@ -337,11 +340,15 @@ document.addEventListener('DOMContentLoaded', function() {
             controls.keys.right.isPressed ||
             (controls.keys.boost.isPressed && !controls.keys.boost.actionDone && userCar.boostCounter > 0)
         ) {
-            const message = JSON.stringify({
-                type: "move",
-                content: userCar
-            });
-            socket.send(message);
+            socketFrameUpdateCounter++;
+            if (socketFrameUpdateCounter >= Math.floor(socketFrameUpdate * fpsController.deltaTime)) {
+                const message = JSON.stringify({
+                    type: "move",
+                    content: userCar
+                });
+                socket.send(message);
+                socketFrameUpdateCounter = 0;
+            }
         }
     }
 
@@ -392,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Comprobamos si se sigue derrapando
                 if (car.lastDirection === car.direction) {
                     car.driftCancelCounter++;
-                    if (car.driftCancelCounter >= car.driftCancelMax) {
+                    if (car.driftCancelCounter >= car.driftCancelMax * fpsController.deltaTime) {
                         car.isDrifting = false;
                     }
                 }
@@ -455,33 +462,39 @@ document.addEventListener('DOMContentLoaded', function() {
                     life: 10
                 });
 
-                const speedAngle = Math.atan2(car.speed.y, car.speed.x) * 180 / Math.PI;
-                if (Math.abs(speedAngle - car.direction) > 25 && car.absoluteSpeed > 1) { // Solo se crea el desgaste de las ruedas si el ángulo de la velocidad con respecto a la dirección del coche es mayor de cierto grado
-                    car.wheelWear[0].push({
-                        point: leftWheel,
-                        isNewSegment: car.createNewWheelWearSegment
-                    });
-                    car.wheelWear[1].push({
-                        point: rightWheel,
-                        isNewSegment: car.createNewWheelWearSegment
-                    });
-                    car.createNewWheelWearSegment = false;
-                }
-                else {
-                    car.createNewWheelWearSegment = true;
-                    car.wheelWear[0].shift();
-                    car.wheelWear[1].shift();
+                if (car.id && car.id === userCar.id) {
+                    const speedAngle = Math.atan2(car.speed.y, car.speed.x) * 180 / Math.PI;
+                    if (Math.abs(speedAngle - car.direction) > 25 && car.absoluteSpeed > 1) { // Solo se crea el desgaste de las ruedas si el ángulo de la velocidad con respecto a la dirección del coche es mayor de cierto grado
+                        wheelWear[0].push({
+                            point: leftWheel,
+                            isNewSegment: createNewWheelWearSegment
+                        });
+                        wheelWear[1].push({
+                            point: rightWheel,
+                            isNewSegment: createNewWheelWearSegment
+                        });
+                        createNewWheelWearSegment = false;
+                    }
+                    else {
+                        createNewWheelWearSegment = true;
+                        wheelWear[0].shift();
+                        wheelWear[1].shift();
+                    }
                 }
             }
             else {
-                car.createNewWheelWearSegment = true;
-                car.wheelWear[0].shift();
-                car.wheelWear[1].shift();
+                if (car.id && car.id === userCar.id) {
+                    createNewWheelWearSegment = true;
+                    wheelWear[0].shift();
+                    wheelWear[1].shift();
+                }
             }
 
-            if (car.wheelWear[0].length >= car.wheelWearLimit) {
-                car.wheelWear[0].shift();
-                car.wheelWear[1].shift();
+            if (car.id && car.id === userCar.id) {
+                if (wheelWear[0].length >= wheelWearLimit) {
+                    wheelWear[0].shift();
+                    wheelWear[1].shift();
+                }
             }
         });
     }
@@ -578,4 +591,5 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [ ] Tienes que poder pitar.
  * - [ ] Condiciones meteorológicas.
  * - [ ] Realizar el giro del coche de forma más suave si no se mantienen pulsadas las teclas.
+ * - [X] Optimizar el servidor evitando que se envíen: el array del rastro en el suelo (solo se verán las del propio usuario)
  */
