@@ -7,6 +7,7 @@ import { Circuit } from "./Circuit.js";
 document.addEventListener('DOMContentLoaded', function() {
     const sfxEngine = document.querySelector("#sfxEngine");
     sfxEngine.preservesPitch = false;
+    sfxEngine.volume = 0.5;
     const canvas = document.querySelector("canvas.game");
     const ctx = canvas.getContext("2d");
 
@@ -126,6 +127,14 @@ document.addEventListener('DOMContentLoaded', function() {
         document.addEventListener('click', () => {
             sfxEngine.play();
         }, { once: true });
+
+        window.onblur = function() { // Pausar el sonido al cambiar de pestaña
+            sfxEngine.pause();
+        };
+
+        window.onfocus = function() { // Reanudar el sonido al volver a la pestaña
+            sfxEngine.play();
+        }
     }
 
     function clearCanvas() {
@@ -602,5 +611,6 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [ ] Tienes que poder pitar.
  * - [ ] Condiciones meteorológicas.
  * - [X] Realizar el giro del coche de forma más suave si no se mantienen pulsadas las teclas.
- * - [X] Optimizar el servidor evitando que se envíen: el array del rastro en el suelo (solo se verán las del propio usuario)
+ * - [X] Optimizar el servidor evitando que se envíen: el array del rastro en el suelo (solo se verán las del propio usuario).
+ * - [X] BUG: Al cambiar de ventana y volver, el delta time se vuelve muy grande.
  */

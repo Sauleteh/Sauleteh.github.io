@@ -34,6 +34,7 @@ export class FPSControllerV2
     }
 
     get deltaTime() {
+        if (this.elapsed > 250) return Math.min(1, this.elapsed / 30); // Si ha transcurrido mucho tiempo entre dos frames, se limita a un máximo de 1 de valor de delta time
         return this.elapsed / 30;
     }
 }
