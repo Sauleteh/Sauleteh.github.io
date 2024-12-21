@@ -9,7 +9,7 @@ export class FPSControllerV2
     {
         this.requiredElapsed = 1000 / desiredFPS;
         this.lastTime = 0;
-        this.elapsed = 0; // Este es el delta time
+        this.elapsed = 0;
     }
 
     /**
@@ -31,5 +31,9 @@ export class FPSControllerV2
      */
     updateLastTime(now) {
         this.lastTime = now;
+    }
+
+    get deltaTime() {
+        return this.elapsed / 30;
     }
 }
