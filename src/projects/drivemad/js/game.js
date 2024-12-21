@@ -26,6 +26,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const wheelWear = [[], []]; // Dos arrays, una para cada rueda donde se guarda los distintos puntos "point" donde ha estado la rueda y "isNewSegment" si es un nuevo segmento de derrape o no
     const wheelWearLimit = 150; // Límite de rastros del suelo
     let createNewWheelWearSegment = false; // True si se debe crear un nuevo segmento de desgaste de ruedas, false en caso contrario
+    const turnSensitiveLimit = 6; // Frames para alcanzar la máxima sensibilidad de giro
+    let turnSensitiveCounter = 0; // La sensibilidad del giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
 
     const cars = [];
     const circuit = new Circuit(160, 12);
@@ -307,9 +309,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (controls.keys.left.isPressed) {
             if (userCar.speed.x != 0 || userCar.speed.y != 0) {
+                turnSensitiveCounter++;
                 userCar.direction -= (!userCar.isAccelerating && userCar.isSpeedNegative ? -1 : 1) * // Comprobar marcha atrás
                     (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * // El giro es mayor si se está derrapando
                     (userCar.absoluteSpeed < userCar.turnForceThreshold ? userCar.absoluteSpeed / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
+                    (Math.min(turnSensitiveCounter / Math.floor(turnSensitiveLimit * fpsController.deltaTime), 1)) * // El giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
                     fpsController.deltaTime;
                 userCar.direction = userCar.direction % 360;
                 if (userCar.direction < 0) userCar.direction += 360;
@@ -317,13 +321,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         else if (controls.keys.right.isPressed) {
             if (userCar.speed.x != 0 || userCar.speed.y != 0) {
+                turnSensitiveCounter++;
                 userCar.direction += (!userCar.isAccelerating && userCar.isSpeedNegative ? -1 : 1) * // Comprobar marcha atrás
                     (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * // El giro es mayor si se está derrapando
                     (userCar.absoluteSpeed < userCar.turnForceThreshold ? userCar.absoluteSpeed / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
+                    (Math.min(turnSensitiveCounter / Math.floor(turnSensitiveLimit * fpsController.deltaTime), 1)) * // El giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
                     fpsController.deltaTime;
                 userCar.direction = userCar.direction % 360;
                 if (userCar.direction < 0) userCar.direction += 360;
             }
+        }
+        else {
+            turnSensitiveCounter = 0;
         }
 
         if (controls.keys.boost.isPressed && !controls.keys.boost.actionDone && userCar.boostCounter > 0) {
@@ -534,10 +543,12 @@ document.addEventListener('DOMContentLoaded', function() {
         checkCarControls();
         checkIsDrifting();
         checkIsColliding();
+
         applyRotationToSpeed();
         applyBoostMultiplier();
         applyFriction();
         applySpeed();
+
         updateSmokeParticles();
         updatePlaybackRate();
         updateCamera();
@@ -590,6 +601,6 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [X] BUG: Al poner el último arco al revés, no se detecta si se está dentro de dicho arco.
  * - [ ] Tienes que poder pitar.
  * - [ ] Condiciones meteorológicas.
- * - [ ] Realizar el giro del coche de forma más suave si no se mantienen pulsadas las teclas.
+ * - [X] Realizar el giro del coche de forma más suave si no se mantienen pulsadas las teclas.
  * - [X] Optimizar el servidor evitando que se envíen: el array del rastro en el suelo (solo se verán las del propio usuario)
  */
