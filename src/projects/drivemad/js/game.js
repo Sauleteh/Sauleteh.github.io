@@ -284,6 +284,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)})\n
                     Direction: ${userCar.direction.toFixed(3)}º\n
                     Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) ${userCar.isSpeedNegative ? "-" : "+"}[${userCar.absoluteSpeed.toFixed(3)}]\n
+                    Speed angle: ${userCar.speedAngle.toFixed(3)}º\n
                     Drifting: ${userCar.isDrifting} (${userCar.driftCancelCounter})\n
                     Camera: [${camera.x.toFixed(3)}, ${camera.y.toFixed(3)}]\n
                     IsCarInsideCircuit: ${circuit.isCarInside(userCar)}\n
@@ -429,9 +430,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function applyFriction() {
         cars.forEach(car => {
             let negativeSpeed = new Point(-car.speed.x, -car.speed.y);
+
             // Fricción con el aire
-            car.speed.x += (car.isPressingAccelerateOrBrake ? movingAirFriction : idleAirFriction) * negativeSpeed.x;
-            car.speed.y += (car.isPressingAccelerateOrBrake ? movingAirFriction : idleAirFriction) * negativeSpeed.y;
+            const angleFriction = Math.min(90, Math.abs(car.speedAngle - car.direction)) / 15 + 1; // La fricción con el aire aumenta cuanto más girado esté el coche (más cuerpo de coche se expone al aire)
+            car.speed.x += (car.isPressingAccelerateOrBrake ? movingAirFriction : (angleFriction * idleAirFriction)) * negativeSpeed.x;
+            car.speed.y += (car.isPressingAccelerateOrBrake ? movingAirFriction : (angleFriction * idleAirFriction)) * negativeSpeed.y;
 
             // Fricción con el suelo
             if (!car.isInsideCircuit) {
@@ -481,8 +484,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
 
                 if (car.id && car.id === userCar.id) {
-                    const speedAngle = Math.atan2(car.speed.y, car.speed.x) * 180 / Math.PI;
-                    if (Math.abs(speedAngle - car.direction) > 25 && car.absoluteSpeed > 1) { // Solo se crea el desgaste de las ruedas si el ángulo de la velocidad con respecto a la dirección del coche es mayor de cierto grado
+                    if (Math.abs(car.speedAngle - car.direction) > 25 && car.absoluteSpeed > 1) { // Solo se crea el desgaste de las ruedas si el ángulo de la velocidad con respecto a la dirección del coche es mayor de cierto grado
                         wheelWear[0].push({
                             point: leftWheel,
                             isNewSegment: createNewWheelWearSegment
@@ -613,4 +615,5 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [X] Realizar el giro del coche de forma más suave si no se mantienen pulsadas las teclas.
  * - [X] Optimizar el servidor evitando que se envíen: el array del rastro en el suelo (solo se verán las del propio usuario).
  * - [X] BUG: Al cambiar de ventana y volver, el delta time se vuelve muy grande.
+ * - [X] Cuanto más girado esté el coche, más fricción con el aire tiene.
  */
