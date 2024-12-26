@@ -296,11 +296,11 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log(`
                     Id: ${userCar.id}\n
                     Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)})\n
-                    Direction: ${userCar.direction.toFixed(3)}º\n
+                    Direction: ${userCar.direction.toFixed(3)}º [${userCar.lastDirection.toFixed(3)}º] [${turnSensitiveCounter}]\n
                     Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) ${carUtils.isSpeedNegative(userCar) ? "-" : "+"}[${carUtils.absoluteSpeed(userCar).toFixed(3)}]\n
                     Speed angle: ${carUtils.speedAngle(userCar).toFixed(3)}º\n
-                    Drifting: ${userCar.isDrifting} (${userCar.driftCancelCounter})\n
-                    Camera: [${camera.x.toFixed(3)}, ${camera.y.toFixed(3)}]\n
+                    Drifting: ${userCar.isDrifting} [${userCar.driftCancelCounter}]\n
+                    Camera: (${camera.x.toFixed(3)}, ${camera.y.toFixed(3)})\n
                     IsCarInsideCircuit: ${circuit.isCarInside(userCar)}\n
                     Remaining boosts: ${userCar.boostCounter} [${userCar.boostLastUsed}]\n
                     DeltaTime: ${fpsController.deltaTime.toFixed(3)}`
@@ -443,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function applyFriction() {
         cars.forEach(car => {
-            let negativeSpeed = new Point(-car.speed.x, -car.speed.y);
+            const negativeSpeed = new Point(-car.speed.x, -car.speed.y);
 
             // Fricción con el aire
             const angleFriction = Math.min(90, Math.abs(carUtils.speedAngle(car) - car.direction)) / 15 + 1; // La fricción con el aire aumenta cuanto más girado esté el coche (más cuerpo de coche se expone al aire)
@@ -456,9 +456,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 car.speed.y *= outsideCircuitMultiplier;
             }
 
-            // Si la velocidad es muy baja, se establece a 0 (threshold de 0.001)
-            if (Math.abs(car.speed.x) < 0.1) car.speed.x = 0;
-            if (Math.abs(car.speed.y) < 0.1) car.speed.y = 0;
+            // Si la velocidad es muy baja, se establece a 0 (threshold de 0.1)
+            if (carUtils.absoluteSpeed(car) < 0.1) {
+                car.speed.x = 0;
+                car.speed.y = 0;
+            }
         });
     }
 
