@@ -3,6 +3,7 @@ import { Car } from "./Car.js";
 import { Point } from "./Point.js";
 import { Controls } from "./Controls.js";
 import { Circuit } from "./Circuit.js";
+import { CarUtils } from "./CarUtils.js";
 
 document.addEventListener('DOMContentLoaded', function() {
     const sfxEngine = document.querySelector("#sfxEngine");
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let turnSensitiveCounter = 0; // La sensibilidad del giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
 
     const cars = [];
+    const carUtils = new CarUtils();
     const circuit = new Circuit(160, 12);
     circuit.setStartPoint(100, 100, -90);
     circuit.addSegment(circuit.arc(500, 180));
@@ -187,6 +189,10 @@ document.addEventListener('DOMContentLoaded', function() {
         ctx.lineWidth = 1;
     }
 
+    function drawBoostEffects() {
+        
+    }
+
     function drawCircuit() {
         ctx.strokeStyle = "green";
         ctx.lineWidth = circuit.lineWidth;
@@ -283,8 +289,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     Id: ${userCar.id}\n
                     Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)})\n
                     Direction: ${userCar.direction.toFixed(3)}º\n
-                    Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) ${userCar.isSpeedNegative ? "-" : "+"}[${userCar.absoluteSpeed.toFixed(3)}]\n
-                    Speed angle: ${userCar.speedAngle.toFixed(3)}º\n
+                    Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) ${carUtils.isSpeedNegative(userCar) ? "-" : "+"}[${carUtils.absoluteSpeed(userCar).toFixed(3)}]\n
+                    Speed angle: ${carUtils.speedAngle(userCar).toFixed(3)}º\n
                     Drifting: ${userCar.isDrifting} (${userCar.driftCancelCounter})\n
                     Camera: [${camera.x.toFixed(3)}, ${camera.y.toFixed(3)}]\n
                     IsCarInsideCircuit: ${circuit.isCarInside(userCar)}\n
@@ -295,7 +301,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function checkCarControls() {
         if (controls.keys.drift.isPressed && !controls.keys.drift.actionDone) {
-            if (userCar.isSpeedNegative) return; // Si la velocidad es negativa, no se puede derrapar
+            if (carUtils.isSpeedNegative(userCar)) return; // Si la velocidad es negativa, no se puede derrapar
             userCar.isDrifting = true;
             controls.keys.drift.actionDone = true;
         }
@@ -308,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
             userCar.isPressingAccelerateOrBrake = true;
         }
         else if (controls.keys.brake.isPressed) {
-            if (userCar.isSpeedNegative) userCar.isDrifting = false; // Si la velocidad es negativa, no se puede derrapar
+            if (carUtils.isSpeedNegative(userCar)) userCar.isDrifting = false; // Si la velocidad es negativa, no se puede derrapar
             let rads = userCar.direction * Math.PI / 180;
             userCar.speed.x -= Math.cos(rads) * userCar.brakingPower;
             userCar.speed.y -= Math.sin(rads) * userCar.brakingPower;
@@ -320,9 +326,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (controls.keys.left.isPressed) {
             if (userCar.speed.x != 0 || userCar.speed.y != 0) {
                 turnSensitiveCounter++;
-                userCar.direction -= (!userCar.isAccelerating && userCar.isSpeedNegative ? -1 : 1) * // Comprobar marcha atrás
+                userCar.direction -= (!userCar.isAccelerating && carUtils.isSpeedNegative(userCar) ? -1 : 1) * // Comprobar marcha atrás
                     (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * // El giro es mayor si se está derrapando
-                    (userCar.absoluteSpeed < userCar.turnForceThreshold ? userCar.absoluteSpeed / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
+                    (carUtils.absoluteSpeed(userCar) < userCar.turnForceThreshold ? carUtils.absoluteSpeed(userCar) / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
                     (Math.min(turnSensitiveCounter / Math.floor(turnSensitiveLimit * fpsController.deltaTime), 1)) * // El giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
                     fpsController.deltaTime;
                 userCar.direction = userCar.direction % 360;
@@ -332,9 +338,9 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (controls.keys.right.isPressed) {
             if (userCar.speed.x != 0 || userCar.speed.y != 0) {
                 turnSensitiveCounter++;
-                userCar.direction += (!userCar.isAccelerating && userCar.isSpeedNegative ? -1 : 1) * // Comprobar marcha atrás
+                userCar.direction += (!userCar.isAccelerating && carUtils.isSpeedNegative(userCar) ? -1 : 1) * // Comprobar marcha atrás
                     (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * // El giro es mayor si se está derrapando
-                    (userCar.absoluteSpeed < userCar.turnForceThreshold ? userCar.absoluteSpeed / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
+                    (carUtils.absoluteSpeed(userCar) < userCar.turnForceThreshold ? carUtils.absoluteSpeed(userCar) / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
                     (Math.min(turnSensitiveCounter / Math.floor(turnSensitiveLimit * fpsController.deltaTime), 1)) * // El giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
                     fpsController.deltaTime;
                 userCar.direction = userCar.direction % 360;
@@ -432,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let negativeSpeed = new Point(-car.speed.x, -car.speed.y);
 
             // Fricción con el aire
-            const angleFriction = Math.min(90, Math.abs(car.speedAngle - car.direction)) / 15 + 1; // La fricción con el aire aumenta cuanto más girado esté el coche (más cuerpo de coche se expone al aire)
+            const angleFriction = Math.min(90, Math.abs(carUtils.speedAngle(car) - car.direction)) / 15 + 1; // La fricción con el aire aumenta cuanto más girado esté el coche (más cuerpo de coche se expone al aire)
             car.speed.x += (car.isPressingAccelerateOrBrake ? movingAirFriction : (angleFriction * idleAirFriction)) * negativeSpeed.x;
             car.speed.y += (car.isPressingAccelerateOrBrake ? movingAirFriction : (angleFriction * idleAirFriction)) * negativeSpeed.y;
 
@@ -484,7 +490,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
 
                 if (car.id && car.id === userCar.id) {
-                    if (Math.abs(car.speedAngle - car.direction) > 25 && car.absoluteSpeed > 1) { // Solo se crea el desgaste de las ruedas si el ángulo de la velocidad con respecto a la dirección del coche es mayor de cierto grado
+                    if (Math.abs(carUtils.speedAngle(car) - car.direction) > 25 && carUtils.absoluteSpeed(car) > 1) { // Solo se crea el desgaste de las ruedas si el ángulo de la velocidad con respecto a la dirección del coche es mayor de cierto grado
                         wheelWear[0].push({
                             point: leftWheel,
                             isNewSegment: createNewWheelWearSegment
@@ -521,13 +527,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // En cada frame, la cámara se sitúa en el centro del coche del jugador
     function updateCamera() {
-        let shakingValue = userCar.absoluteSpeed * (userCar.boostLastUsed === 0 ? 1 : 2) / 8; // Si se está usando el turbo, el valor de shaking es el doble
+        let shakingValue = carUtils.absoluteSpeed(userCar) * (userCar.boostLastUsed === 0 ? 1 : 2) / 8; // Si se está usando el turbo, el valor de shaking es el doble
         camera.x = -userCar.coords.x + canvas.width / 2 - userCar.speed.x * 5 - Math.floor(Math.random() * shakingValue) + shakingValue/2;
         camera.y = -userCar.coords.y + canvas.height / 2 - userCar.speed.y * 5 - Math.floor(Math.random() * shakingValue) + shakingValue/2;
     }
 
     function updatePlaybackRate() {
-        sfxEngine.playbackRate = 0.2 + userCar.absoluteSpeed / 5;
+        sfxEngine.playbackRate = 0.2 + carUtils.absoluteSpeed(userCar) / 5;
     }
 
     function draw(now) {
@@ -539,14 +545,17 @@ document.addEventListener('DOMContentLoaded', function() {
         drawCircuit();
         drawDriftParticles();
         drawCars();
+        drawBoostEffects();
         drawUsername();
         drawDebug();
         
         let rads = aiCar.direction * Math.PI / 180; //* Debug
         aiCar.speed.x += Math.cos(rads) * aiCar.accelerationPower;
         aiCar.speed.y += Math.sin(rads) * aiCar.accelerationPower;
+        aiCar.isAccelerating = true;
+        aiCar.isPressingAccelerateOrBrake = true;
         if (aiCar.speed.x != 0 || aiCar.speed.y != 0) {
-            aiCar.direction -= (aiCar.isSpeedNegative ? -1 : 1) * (aiCar.turnForce * (aiCar.isDrifting ? aiCar.driftingTurnMultiplier : 1)) * (aiCar.absoluteSpeed < aiCar.turnForceThreshold ? aiCar.absoluteSpeed / aiCar.turnForceThreshold : 1);
+            aiCar.direction -= (carUtils.isSpeedNegative(aiCar) ? -1 : 1) * (aiCar.turnForce * (aiCar.isDrifting ? aiCar.driftingTurnMultiplier : 1)) * (carUtils.absoluteSpeed(aiCar) < aiCar.turnForceThreshold ? carUtils.absoluteSpeed(aiCar) / aiCar.turnForceThreshold : 1);
             aiCar.direction = aiCar.direction % 360;
             if (aiCar.direction < 0) aiCar.direction += 360;
         }
@@ -616,4 +625,6 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [X] Optimizar el servidor evitando que se envíen: el array del rastro en el suelo (solo se verán las del propio usuario).
  * - [X] BUG: Al cambiar de ventana y volver, el delta time se vuelve muy grande.
  * - [X] Cuanto más girado esté el coche, más fricción con el aire tiene.
+ * - [ ] Hacer que las partículas de desgaste de las ruedas no pasen al servidor.
+ * - [ ] Implementar sistema de aceleración.
  */

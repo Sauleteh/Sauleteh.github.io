@@ -60,17 +60,5 @@ export class Car
         this.isPressingAccelerateOrBrake = false; // True si se está pulsando el acelerador o el freno, false en caso contrario
     }
 
-    get absoluteSpeed() {
-        return Math.sqrt(Math.pow(this.speed.x, 2) + Math.pow(this.speed.y, 2));
-    }
-
-    get speedAngle() {
-        const speedAngleFake = Math.atan2(this.speed.y, this.speed.x) * 180 / Math.PI; // De 0 a 180 y luego de -180 a 0
-        return (((speedAngleFake < 0) ? 360 : 0) + speedAngleFake); // Transformamos el ángulo a 0-360
-    }
-
-    get isSpeedNegative() {
-        const diff = this.direction - this.speedAngle;
-        return Math.abs(((diff < 0 ? 360 : 0) + diff) - 180) <= 90;
-    }
+    //! IMPORTANTE: No añadir métodos aquí, no se enviarán al servidor. Para añadir métodos, añadirlos en el archivo CarUtils.js.
 }
