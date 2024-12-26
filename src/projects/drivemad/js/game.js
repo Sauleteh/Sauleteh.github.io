@@ -4,6 +4,7 @@ import { Point } from "./Point.js";
 import { Controls } from "./Controls.js";
 import { Circuit } from "./Circuit.js";
 import { CarUtils } from "./CarUtils.js";
+import { LocalCarVariables } from "./LocalCarVariables.js";
 
 document.addEventListener('DOMContentLoaded', function() {
     const sfxEngine = document.querySelector("#sfxEngine");
@@ -32,6 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let turnSensitiveCounter = 0; // La sensibilidad del giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
 
     const cars = [];
+    const localCarVariables = []; // Variables para los coches, pero que no se envían al servidor. El elemento i son las variables del coche i en el array de coches.
     const carUtils = new CarUtils();
     const circuit = new Circuit(160, 12);
     circuit.setStartPoint(100, 100, -90);
@@ -65,9 +67,11 @@ document.addEventListener('DOMContentLoaded', function() {
         1000, // Duración del turbo
     );
     cars.push(userCar); //* Debug
+    localCarVariables.push(new LocalCarVariables());
 
     const aiCar = new Car("Bores", new Point(200, 200), 25, 20, 40, "blue", 1.2, 0.3, 5, 4, 2, 1.1, 1000);
     cars.push(aiCar); //* Debug
+    localCarVariables.push(new LocalCarVariables());
 
     const socket = new WebSocket('wss://sauleteh.gayofo.com/wss/drivemad');
     socket.onopen = function () {
@@ -94,6 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (data.type === "login_new_car" && data.code === 0) {
             // Aquí se reciben los coches recién conectados al servidor o la lista de coches si se acaba de entrar
             cars.push(data.content);
+            localCarVariables.push(new LocalCarVariables());
         }
         else if (data.type === "move" && data.code === 0) {
             // Aquí se reciben las actualizaciones de posición de los coches
@@ -103,7 +108,10 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (data.type === "logout" && data.code === 0) {
             // Aquí se recibe el id del coche que se ha desconectado
             const index = cars.findIndex(car => car.id === data.content);
-            if (index !== -1) cars.splice(index, 1);
+            if (index !== -1) {
+                cars.splice(index, 1);
+                localCarVariables.splice(index, 1);
+            }
         }
     };
 
@@ -175,9 +183,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        cars.forEach(car => {
-            for (let i = 0; i < car.smokeParticles.length; i++) {
-                const smokeParticle = car.smokeParticles[i];
+        cars.forEach((car, index) => {
+            for (let i = 0; i < localCarVariables[index].smokeParticles.length; i++) {
+                const smokeParticle = localCarVariables[index].smokeParticles[i];
                 ctx.fillRect(
                     smokeParticle.point.x - car.smokeParticleSize / 2 + camera.x,
                     smokeParticle.point.y - car.smokeParticleSize / 2 + camera.y,
@@ -455,11 +463,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateSmokeParticles() {
-        cars.forEach(car => {
+        cars.forEach((car, index) => {
             // Se actualiza la vida de cada partícula
-            for (let i = car.smokeParticles.length-1; i >= 0; i--) {
-                car.smokeParticles[i].life--;
-                if (car.smokeParticles[i].life <= 0) car.smokeParticles.splice(i, 1);
+            for (let i = localCarVariables[index].smokeParticles.length-1; i >= 0; i--) {
+                localCarVariables[index].smokeParticles[i].life--;
+                if (localCarVariables[index].smokeParticles[i].life <= 0) localCarVariables[index].smokeParticles.splice(i, 1);
             }
             
             if (car.isDrifting) {
@@ -474,14 +482,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     car.coords.y + Math.sin((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2
                 );
 
-                car.smokeParticles.push({ // Rueda izquierda
+                localCarVariables[index].smokeParticles.push({ // Rueda izquierda
                     point: new Point(
                         leftWheel.x + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2,
                         leftWheel.y + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2
                     ),
                     life: 10
                 });
-                car.smokeParticles.push({ // Rueda derecha
+                localCarVariables[index].smokeParticles.push({ // Rueda derecha
                     point: new Point(
                         rightWheel.x + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2,
                         rightWheel.y + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2
@@ -625,6 +633,6 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [X] Optimizar el servidor evitando que se envíen: el array del rastro en el suelo (solo se verán las del propio usuario).
  * - [X] BUG: Al cambiar de ventana y volver, el delta time se vuelve muy grande.
  * - [X] Cuanto más girado esté el coche, más fricción con el aire tiene.
- * - [ ] Hacer que las partículas de desgaste de las ruedas no pasen al servidor.
+ * - [Comprobar en el backend] Hacer que las partículas de desgaste de las ruedas no pasen al servidor.
  * - [ ] Implementar sistema de aceleración.
  */

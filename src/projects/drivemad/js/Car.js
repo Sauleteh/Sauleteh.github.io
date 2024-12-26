@@ -54,7 +54,6 @@ export class Car
         this.isInsideCircuit = true;
         this.driftCancelMax = 20; // Número de frames que se deben mantener en línea recta para dejar de derrapar
         this.driftCancelCounter = this.driftCancelMax; // Si este contador llega a un número determinado después de tener el coche en línea recta un número de frames dado, se considera que se está dejando de derrapar (no empieza en 0 para que no se considere que se está dejando de derrapar al principio)
-        this.smokeParticles = []; // Array de puntos "point" donde están localizadas las partículas del humo cuando se derrapa y con una variable "life" que indica la vida que le queda a la partícula para desaparecer
         this.boostCounter = 1; // Número de turbos disponibles. Al principio, todos los coches comienzan con un turbo disponible
         this.boostLastUsed = 0; // Último momento en el que se usó el turbo (0 si no se está usando, mayor que 0 en caso contrario)
         this.isPressingAccelerateOrBrake = false; // True si se está pulsando el acelerador o el freno, false en caso contrario

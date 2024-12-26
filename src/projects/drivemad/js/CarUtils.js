@@ -1,3 +1,6 @@
+/**
+ * Clase que tiene como función ayudar a la clase Car para realizar cálculos relacionados con las variables de los coches.
+ */
 export class CarUtils {
     constructor() {}
 
