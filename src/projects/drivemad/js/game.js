@@ -58,7 +58,8 @@ document.addEventListener('DOMContentLoaded', function() {
         20, // Ancho
         40, // Alto
         "red", // Color
-        1.2, // Poder de aceleración
+        1.2, // Poder de velocidad
+        1.5, // Poder de aceleración
         0.3, // Poder al frenar
         5, // Fuerza de giro
         4, // Velocidad para alcanzar la máxima fuerza de giro
@@ -69,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
     cars.push(userCar); //* Debug
     localCarVariables.push(new LocalCarVariables());
 
-    const aiCar = new Car("Bores", new Point(200, 200), 25, 20, 40, "blue", 1.2, 0.3, 5, 4, 2, 1.1, 1000);
+    const aiCar = new Car("Bores", new Point(200, 200), 25, 20, 40, "blue", 1.2, 2, 0.3, 5, 4, 2, 1.1, 1000);
     cars.push(aiCar); //* Debug
     localCarVariables.push(new LocalCarVariables());
 
@@ -315,15 +316,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (controls.keys.accelerate.isPressed) {
-            let rads = userCar.direction * Math.PI / 180;
-            userCar.speed.x += Math.cos(rads) * userCar.accelerationPower;
-            userCar.speed.y += Math.sin(rads) * userCar.accelerationPower;
+            const rads = userCar.direction * Math.PI / 180;
+            let accelerationMultiplier = Math.min(1, Math.max(0.1, (carUtils.absoluteSpeed(userCar) / carUtils.maxSpeed(userCar, movingAirFriction) * userCar.accelerationPower))); // El multiplicador está entre 0.1 y 1 para poder arrancar el coche
+            if (!userCar.isInsideCircuit) accelerationMultiplier = 1; // Si está fuera del circuito, no se aplica la multiplicación de la aceleración
+
+            userCar.speed.x += Math.cos(rads) * userCar.speedPower * accelerationMultiplier;
+            userCar.speed.y += Math.sin(rads) * userCar.speedPower * accelerationMultiplier;
             userCar.isAccelerating = true;
             userCar.isPressingAccelerateOrBrake = true;
         }
         else if (controls.keys.brake.isPressed) {
             if (carUtils.isSpeedNegative(userCar)) userCar.isDrifting = false; // Si la velocidad es negativa, no se puede derrapar
-            let rads = userCar.direction * Math.PI / 180;
+            const rads = userCar.direction * Math.PI / 180;
+
             userCar.speed.x -= Math.cos(rads) * userCar.brakingPower;
             userCar.speed.y -= Math.sin(rads) * userCar.brakingPower;
             userCar.isAccelerating = false;
@@ -560,8 +565,8 @@ document.addEventListener('DOMContentLoaded', function() {
         drawDebug();
         
         let rads = aiCar.direction * Math.PI / 180; //* Debug
-        aiCar.speed.x += Math.cos(rads) * aiCar.accelerationPower;
-        aiCar.speed.y += Math.sin(rads) * aiCar.accelerationPower;
+        aiCar.speed.x += Math.cos(rads) * aiCar.speedPower;
+        aiCar.speed.y += Math.sin(rads) * aiCar.speedPower;
         aiCar.isAccelerating = true;
         aiCar.isPressingAccelerateOrBrake = true;
         if (aiCar.speed.x != 0 || aiCar.speed.y != 0) {
@@ -636,5 +641,5 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [X] BUG: Al cambiar de ventana y volver, el delta time se vuelve muy grande.
  * - [X] Cuanto más girado esté el coche, más fricción con el aire tiene.
  * - [Comprobar en el backend] Hacer que las partículas de desgaste de las ruedas no pasen al servidor.
- * - [ ] Implementar sistema de aceleración.
+ * - [X] Implementar sistema de aceleración.
  */

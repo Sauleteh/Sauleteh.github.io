@@ -8,7 +8,8 @@ import { Point } from './Point.js';
  * @param {number} width - El ancho del coche.
  * @param {number} height - La altura del coche.
  * @param {string} color - El color del coche.
- * @param {number} accelerationPower - Poder al acelerar el coche.
+ * @param {number} speedPower - Poder de velocidad del coche, es decir, lo máximo que puede acelerar el coche.
+ * @param {number} accelerationPower - Poder de aceleración del coche, es decir, lo rápido que acelera el coche (son los frames necesarios para alcanzar el poder de velocidad).
  * @param {number} brakingPower - Poder al frenar el coche.
  * @param {number} turnForce - Fuerza de giro del coche.
  * @param {number} turnForceThreshold - Velocidad a la que debe llegar el coche para alcanzar la máxima fuerza de giro (ya que cuanta más velocidad, más giro hasta llegado a este límite).
@@ -18,8 +19,9 @@ import { Point } from './Point.js';
  */
 export class Car
 {
-    constructor(name, coords, direction, width, height, color, accelerationPower, brakingPower, turnForce, turnForceThreshold, driftingTurnMultiplier, boostMultiplier, boostDuration) {
+    constructor(name, coords, direction, width, height, color, speedPower, accelerationPower, brakingPower, turnForce, turnForceThreshold, driftingTurnMultiplier, boostMultiplier, boostDuration) {
         if (width <= 0 || height <= 0) throw new Error('El ancho y la altura del coche deben ser mayores que 0.');
+        if (speedPower <= 0) throw new Error('El poder de velocidad del coche debe ser mayor que 0.');
         if (accelerationPower <= 0) throw new Error('El poder de aceleración del coche debe ser mayor que 0.');
         if (brakingPower <= 0) throw new Error('El poder de frenado del coche debe ser mayor que 0.');
         if (turnForce <= 0) throw new Error('La fuerza de giro del coche debe ser mayor que 0.');
@@ -35,6 +37,7 @@ export class Car
         this.width = width;
         this.height = height;
         this.color = color;
+        this.speedPower = speedPower;
         this.accelerationPower = accelerationPower;
         this.brakingPower = brakingPower;
         this.turnForce = turnForce;

@@ -17,4 +17,9 @@ export class CarUtils {
         const diff = car.direction - this.speedAngle(car);
         return Math.abs(((diff < 0 ? 360 : 0) + diff) - 180) <= 90;
     }
+
+    // Tener en cuenta que si en cualquier momento del desarrollo cambian las funciones de cálculo de velocidad, deberá cambiarse esta función también
+    maxSpeed(car, movingAirFriction) {
+        return (1-movingAirFriction) / movingAirFriction * car.speedPower;
+    }
 }
