@@ -5,6 +5,10 @@ export function HtmlProject({ url }) {
     function handleLoad(event) {
         handleLightTheme(event);
         handleHeight(event);
+
+        addEventListener("resize", function() {
+            handleHeight(event);
+        });
     }
 
     function handleLightTheme(event) {
