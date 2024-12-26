@@ -531,7 +531,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     life: smokeParticleMaxLife
                 });
 
-                if (car.id && car.id === userCar.id) {
+                if (car === userCar) {
                     if (Math.abs(carUtils.speedAngle(car) - car.direction) > 25 && carUtils.absoluteSpeed(car) > 1) { // Solo se crea el desgaste de las ruedas si el ángulo de la velocidad con respecto a la dirección del coche es mayor de cierto grado
                         wheelWear[0].push({
                             point: leftWheel,
@@ -551,14 +551,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             else {
-                if (car.id && car.id === userCar.id) {
+                if (car === userCar) {
                     createNewWheelWearSegment = true;
                     wheelWear[0].shift();
                     wheelWear[1].shift();
                 }
             }
 
-            if (car.id && car.id === userCar.id) {
+            if (car === userCar) {
                 if (wheelWear[0].length >= wheelWearLimit) {
                     wheelWear[0].shift();
                     wheelWear[1].shift();
