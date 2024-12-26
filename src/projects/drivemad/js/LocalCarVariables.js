@@ -5,5 +5,6 @@
 export class LocalCarVariables {
     constructor() {
         this.smokeParticles = []; // Array de puntos "point" donde están localizadas las partículas del humo cuando se derrapa y con una variable "life" que indica la vida que le queda a la partícula para desaparecer
+        this.boostParticles = []; // Array de puntos "point" donde están localizadas las partículas del boost y con una variable "life" que indica la vida que le queda a la partícula para desaparecer
     }
 }

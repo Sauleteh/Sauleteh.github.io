@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const outsideCircuitMultiplier = 0.8;
     const wheelWear = [[], []]; // Dos arrays, una para cada rueda donde se guarda los distintos puntos "point" donde ha estado la rueda y "isNewSegment" si es un nuevo segmento de derrape o no
     const wheelWearLimit = 150; // Límite de rastros del suelo
+    const smokeParticleMaxLife = 10; // Vida máxima de las partículas de humo
+    const boostParticleMaxLife = 7; // Vida máxima de las partículas del boost
     let createNewWheelWearSegment = false; // True si se debe crear un nuevo segmento de desgaste de ruedas, false en caso contrario
     const turnSensitiveLimit = 6; // Frames para alcanzar la máxima sensibilidad de giro
     let turnSensitiveCounter = 0; // La sensibilidad del giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
@@ -166,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function drawDriftParticles() {
         ctx.fillStyle = "gray";
         ctx.strokeStyle = "lightgray";
-        ctx.lineWidth = userCar.smokeParticleSize;
+        ctx.lineWidth = userCar.particleSize;
         for (let i = 0; i < wheelWear.length; i++)
         {
             if (wheelWear[i].length > 1) {
@@ -188,10 +190,10 @@ document.addEventListener('DOMContentLoaded', function() {
             for (let i = 0; i < localCarVariables[index].smokeParticles.length; i++) {
                 const smokeParticle = localCarVariables[index].smokeParticles[i];
                 ctx.fillRect(
-                    smokeParticle.point.x - car.smokeParticleSize / 2 + camera.x,
-                    smokeParticle.point.y - car.smokeParticleSize / 2 + camera.y,
-                    car.smokeParticleSize * smokeParticle.life / 10,
-                    car.smokeParticleSize * smokeParticle.life / 10
+                    smokeParticle.point.x - car.particleSize / 2 + camera.x,
+                    smokeParticle.point.y - car.particleSize / 2 + camera.y,
+                    car.particleSize * smokeParticle.life / smokeParticleMaxLife,
+                    car.particleSize * smokeParticle.life / smokeParticleMaxLife
                 );
             }
         });
@@ -199,7 +201,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function drawBoostEffects() {
-        
+        cars.forEach((car, index) => {
+            const localCarVars = localCarVariables[index];
+            for (let i = 0; i < localCarVars.boostParticles.length; i++) {
+                const boostParticle = localCarVars.boostParticles[i];
+                ctx.fillStyle = `rgba(
+                    ${Math.min(255, 255 * (boostParticleMaxLife - boostParticle.life + 1) / boostParticleMaxLife)},
+                    ${Math.min(255, 255 * (boostParticleMaxLife - boostParticle.life - 1) / boostParticleMaxLife)},
+                    0,
+                    ${Math.min(1, boostParticle.life / boostParticleMaxLife + 0.1)}
+                )`;
+                ctx.fillRect(
+                    boostParticle.point.x - car.particleSize / 2 + camera.x,
+                    boostParticle.point.y - car.particleSize / 2 + camera.y,
+                    car.particleSize * ((boostParticleMaxLife - boostParticle.life) / boostParticleMaxLife + 0.5),
+                    car.particleSize * ((boostParticleMaxLife - boostParticle.life) / boostParticleMaxLife + 0.5)
+                );
+            }
+        });
     }
 
     function drawCircuit() {
@@ -268,6 +287,14 @@ document.addEventListener('DOMContentLoaded', function() {
             ctx.lineTo(car.coords.x + Math.cos((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2 + camera.x, car.coords.y + Math.sin((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2 + camera.y);
             ctx.closePath();
             ctx.stroke();
+
+            ctx.fillStyle = "yellow";
+            ctx.arc(
+                car.coords.x + Math.cos((car.direction + car.height/5) * Math.PI / 180) * -car.width/1.05 + camera.x,
+                car.coords.y + Math.sin((car.direction + car.height/5) * Math.PI / 180) * -car.width/1.05 + camera.y,
+                4, 0, 2 * Math.PI
+            );
+            ctx.fill();
         });
 
         for (let i = 0; i < circuit.segments.length; i++) {
@@ -298,7 +325,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     Id: ${userCar.id}\n
                     Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)})\n
                     Direction: ${userCar.direction.toFixed(3)}º [${userCar.lastDirection.toFixed(3)}º] [${turnSensitiveCounter}]\n
-                    Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) ${carUtils.isSpeedNegative(userCar) ? "-" : "+"}[${carUtils.absoluteSpeed(userCar).toFixed(3)}]\n
+                    Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) ${carUtils.isSpeedNegative(userCar) ? "-" : "+"}[${carUtils.absoluteSpeed(userCar).toFixed(3)}] <= ${carUtils.maxSpeed(userCar, movingAirFriction).toFixed(3)}\n
                     Speed angle: ${carUtils.speedAngle(userCar).toFixed(3)}º\n
                     Drifting: ${userCar.isDrifting} [${userCar.driftCancelCounter}]\n
                     Camera: (${camera.x.toFixed(3)}, ${camera.y.toFixed(3)})\n
@@ -491,17 +518,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 localCarVariables[index].smokeParticles.push({ // Rueda izquierda
                     point: new Point(
-                        leftWheel.x + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2,
-                        leftWheel.y + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2
+                        leftWheel.x + Math.floor(Math.random() * car.particleRandomness) - car.particleRandomness/2,
+                        leftWheel.y + Math.floor(Math.random() * car.particleRandomness) - car.particleRandomness/2
                     ),
-                    life: 10
+                    life: smokeParticleMaxLife
                 });
                 localCarVariables[index].smokeParticles.push({ // Rueda derecha
                     point: new Point(
-                        rightWheel.x + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2,
-                        rightWheel.y + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2
+                        rightWheel.x + Math.floor(Math.random() * car.particleRandomness) - car.particleRandomness/2,
+                        rightWheel.y + Math.floor(Math.random() * car.particleRandomness) - car.particleRandomness/2
                     ),
-                    life: 10
+                    life: smokeParticleMaxLife
                 });
 
                 if (car.id && car.id === userCar.id) {
@@ -536,6 +563,44 @@ document.addEventListener('DOMContentLoaded', function() {
                     wheelWear[0].shift();
                     wheelWear[1].shift();
                 }
+            }
+        });
+    }
+
+    function updateBoostEffects() {
+        cars.forEach((car, index) => {
+            const localCarVars = localCarVariables[index];
+
+            // Se actualiza la vida de cada partícula
+            for (let i = localCarVars.boostParticles.length-1; i >= 0; i--) {
+                localCarVars.boostParticles[i].life--;
+                if (localCarVars.boostParticles[i].life <= 0) localCarVars.boostParticles.splice(i, 1);
+            }
+            
+            if (car.boostLastUsed !== 0) {
+                // Si se está usando el turbo, salen partículas del tubo de escape
+                const pipe = new Point(
+                    car.coords.x + Math.cos((car.direction + car.height/5) * Math.PI / 180) * -car.width/1.05,
+                    car.coords.y + Math.sin((car.direction + car.height/5) * Math.PI / 180) * -car.width/1.05
+                );
+
+                // Partículas de fuego con poca dispersión
+                localCarVars.boostParticles.push({
+                    point: new Point(
+                        pipe.x + Math.floor(Math.random() * car.particleRandomness) - car.particleRandomness/2,
+                        pipe.y + Math.floor(Math.random() * car.particleRandomness) - car.particleRandomness/2
+                    ),
+                    life: boostParticleMaxLife
+                });
+
+                // Partículas de fuego con mucha dispersión
+                localCarVars.boostParticles.push({
+                    point: new Point(
+                        pipe.x + Math.floor(Math.random() * car.particleRandomness * 3) - car.particleRandomness/2*3,
+                        pipe.y + Math.floor(Math.random() * car.particleRandomness * 3) - car.particleRandomness/2*3
+                    ),
+                    life: boostParticleMaxLife
+                });
             }
         });
     }
@@ -585,6 +650,7 @@ document.addEventListener('DOMContentLoaded', function() {
         applySpeed();
 
         updateSmokeParticles();
+        updateBoostEffects();
         updatePlaybackRate();
         updateCamera();
 
@@ -608,7 +674,7 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [X] Implementar el sistema de boost.
  *     - [X] Se hace mediante un botón.
  *     - [X] La forma de obtener el turbo depende del modo de juego en el que se esté: ya sea mediante objetos del suelo o completando vueltas en el circuito.
- *     - [ ] Mientras se usa el boost, hacer que en la pantalla aparezcan partículas de fuego en la parte trasera del coche.
+ *     - [X] Mientras se usa el boost, hacer que en la pantalla aparezcan partículas de fuego en la parte trasera del coche.
  *     - [ ] Al usar el boost, aparecen partículas por la pantalla de color blanco que van en la dirección contraria a la velocidad del coche.
  * - [-] Implementar un creador de circuitos.
  *     - [X] Se podrán crear circuitos con líneas rectas y curvas.
@@ -640,6 +706,6 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [X] Optimizar el servidor evitando que se envíen: el array del rastro en el suelo (solo se verán las del propio usuario).
  * - [X] BUG: Al cambiar de ventana y volver, el delta time se vuelve muy grande.
  * - [X] Cuanto más girado esté el coche, más fricción con el aire tiene.
- * - [Comprobar en el backend] Hacer que las partículas de desgaste de las ruedas no pasen al servidor.
+ * - [X] Hacer que las partículas de desgaste de las ruedas no pasen al servidor.
  * - [X] Implementar sistema de aceleración.
  */

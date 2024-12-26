@@ -46,8 +46,8 @@ export class Car
         this.boostMultiplier = boostMultiplier;
         this.boostDuration = boostDuration;
 
-        this.smokeParticleSize = Math.round(this.height * this.width / 100 - 3);
-        this.smokeParticleRandomness = Math.ceil(this.smokeParticleSize / 2) + 1;
+        this.particleSize = Math.round(this.height * this.width / 100 - 3);
+        this.particleRandomness = Math.ceil(this.particleSize / 2) + 1;
 
         this.id = null; // Identificador del coche para el online
         this.speed = new Point(0, 0); // Las coordenadas XY del coche (Es una clase Point)
