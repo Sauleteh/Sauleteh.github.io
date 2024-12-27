@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const userCar = new Car(
         "User", // Nombre del usuario del coche
         new Point(100, 100), // Posición (del centro del coche) inicial
-        0, // Ángulo (grados)
+        -90, // Ángulo (grados)
         20, // Ancho
         40, // Alto
         "red", // Color
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
     cars.push(userCar); //* Debug
     localCarVariables.push(new LocalCarVariables());
 
-    const aiCar = new Car("Bores", new Point(200, 200), 25, 20, 40, "blue", 1.2, 2, 0.3, 5, 4, 2, 1.1, 1000);
+    const aiCar = new Car("Bores", new Point(100, 100), -90, 20, 40, "blue", 1.2, 2, 0.3, 5, 4, 2, 1.1, 1000);
     cars.push(aiCar); //* Debug
     localCarVariables.push(new LocalCarVariables());
 
@@ -333,6 +333,60 @@ document.addEventListener('DOMContentLoaded', function() {
                     Remaining boosts: ${userCar.boostCounter} [${userCar.boostLastUsed}]\n
                     DeltaTime: ${fpsController.deltaTime.toFixed(3)}`
         ); // Debug
+    }
+
+    function checkAiNextMove() {
+        let precision = 0.1;
+        let segment = circuit.getCurrentSegment(aiCar, precision);
+        while (segment === null && precision < 1) {
+            precision += 0.1;
+            if (precision > 1) precision = 1;
+            segment = circuit.getCurrentSegment(aiCar, precision);
+        }
+
+        const rads = aiCar.direction * Math.PI / 180;
+        aiCar.speed.x += Math.cos(rads) * aiCar.speedPower;
+        aiCar.speed.y += Math.sin(rads) * aiCar.speedPower;
+        aiCar.isAccelerating = true;
+        aiCar.isPressingAccelerateOrBrake = true;
+
+        if (segment !== null) {
+            if (Math.abs(segment.ref.direction - aiCar.direction) !== 0) {
+                aiCar.direction = (aiCar.direction % 360 + 360) % 360; // Normaliza los ángulos al rango [0, 360)
+                segment.ref.direction = (segment.ref.direction % 360 + 360) % 360;
+                let diffClockwise = (segment.ref.direction - aiCar.direction + 360) % 360; // Calcula la diferencia en ambos sentidos
+
+                let arcDivider = 1;
+                let sideMultiplier = 1;
+                let angleMultiplier = null;
+                let diffCircuitClockwise = null;
+                if (segment.type === "arc") {
+                    arcDivider = Math.max(0.5, segment.data.radius / 400); // Ajuste para que el coche no se salga del círculo
+
+                    const side = circuit.getArcSide(aiCar, segment);
+                    if (side === "inside") sideMultiplier = 0.5;
+                    else if (side === "outside") sideMultiplier = 1.5;
+
+                    let currentAngle = circuit.getArcAngle(aiCar, segment) + (segment.data.isClockwise ? 90 : -90);
+                    currentAngle = (currentAngle % 360 + 360) % 360;
+                    diffCircuitClockwise = (currentAngle - aiCar.direction + 360) % 360;
+                    let diffCircuitCounterClockwise = (aiCar.direction - currentAngle + 360) % 360;
+
+                    angleMultiplier = Math.min(diffCircuitClockwise, diffCircuitCounterClockwise);
+                }
+
+                if ((segment.type === "arc" && segment.data.isClockwise && angleMultiplier === diffCircuitClockwise) || (segment.type === "straight" && diffClockwise <= 180)) { // Girar derecha
+                    aiCar.direction += aiCar.turnForce * precision * fpsController.deltaTime / arcDivider * sideMultiplier * (angleMultiplier !== null ? Math.min(aiCar.speedPower * 1.5, angleMultiplier) : 1);
+                    aiCar.direction = aiCar.direction % 360;
+                    if (aiCar.direction < 0) aiCar.direction += 360;
+                }
+                else if ((segment.type === "arc" && !segment.data.isClockwise && angleMultiplier !== diffCircuitClockwise) || (segment.type === "straight" && diffClockwise > 180)) { // Girar izquierda
+                    aiCar.direction -= aiCar.turnForce * precision * fpsController.deltaTime / arcDivider * sideMultiplier * (angleMultiplier !== null ? Math.min(aiCar.speedPower * 1.5, angleMultiplier) : 1);
+                    aiCar.direction = aiCar.direction % 360;
+                    if (aiCar.direction < 0) aiCar.direction += 360;
+                }
+            }
+        }
     }
 
     function checkCarControls() {
@@ -608,8 +662,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // En cada frame, la cámara se sitúa en el centro del coche del jugador
     function updateCamera() {
         let shakingValue = carUtils.absoluteSpeed(userCar) * (userCar.boostLastUsed === 0 ? 1 : 2) / 8; // Si se está usando el turbo, el valor de shaking es el doble
-        camera.x = -userCar.coords.x + canvas.width / 2 - userCar.speed.x * 5 - Math.floor(Math.random() * shakingValue) + shakingValue/2;
-        camera.y = -userCar.coords.y + canvas.height / 2 - userCar.speed.y * 5 - Math.floor(Math.random() * shakingValue) + shakingValue/2;
+        camera.x = -userCar.coords.x + canvas.width / 2 - userCar.speed.x * 5 - Math.floor(Math.random() * shakingValue) + shakingValue / 2;
+        camera.y = -userCar.coords.y + canvas.height / 2 - userCar.speed.y * 5 - Math.floor(Math.random() * shakingValue) + shakingValue / 2;
     }
 
     function updatePlaybackRate() {
@@ -628,18 +682,8 @@ document.addEventListener('DOMContentLoaded', function() {
         drawBoostEffects();
         drawUsername();
         drawDebug();
-        
-        let rads = aiCar.direction * Math.PI / 180; //* Debug
-        aiCar.speed.x += Math.cos(rads) * aiCar.speedPower;
-        aiCar.speed.y += Math.sin(rads) * aiCar.speedPower;
-        aiCar.isAccelerating = true;
-        aiCar.isPressingAccelerateOrBrake = true;
-        if (aiCar.speed.x != 0 || aiCar.speed.y != 0) {
-            aiCar.direction -= (carUtils.isSpeedNegative(aiCar) ? -1 : 1) * (aiCar.turnForce * (aiCar.isDrifting ? aiCar.driftingTurnMultiplier : 1)) * (carUtils.absoluteSpeed(aiCar) < aiCar.turnForceThreshold ? carUtils.absoluteSpeed(aiCar) / aiCar.turnForceThreshold : 1);
-            aiCar.direction = aiCar.direction % 360;
-            if (aiCar.direction < 0) aiCar.direction += 360;
-        }
 
+        checkAiNextMove();
         checkCarControls();
         checkIsDrifting();
         checkIsColliding();
@@ -708,4 +752,5 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [X] Cuanto más girado esté el coche, más fricción con el aire tiene.
  * - [X] Hacer que las partículas de desgaste de las ruedas no pasen al servidor.
  * - [X] Implementar sistema de aceleración.
+ * - [X] Implementar coches con IA.
  */
