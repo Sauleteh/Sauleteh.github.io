@@ -3,10 +3,13 @@ import { Car } from "./Car.js";
 import { Point } from "./Point.js";
 import { Controls } from "./Controls.js";
 import { Circuit } from "./Circuit.js";
+import { CarUtils } from "./CarUtils.js";
+import { LocalCarVariables } from "./LocalCarVariables.js";
 
 document.addEventListener('DOMContentLoaded', function() {
     const sfxEngine = document.querySelector("#sfxEngine");
     sfxEngine.preservesPitch = false;
+    sfxEngine.volume = 0.5;
     const canvas = document.querySelector("canvas.game");
     const ctx = canvas.getContext("2d");
 
@@ -25,9 +28,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const outsideCircuitMultiplier = 0.8;
     const wheelWear = [[], []]; // Dos arrays, una para cada rueda donde se guarda los distintos puntos "point" donde ha estado la rueda y "isNewSegment" si es un nuevo segmento de derrape o no
     const wheelWearLimit = 150; // Límite de rastros del suelo
+    const smokeParticleMaxLife = 10; // Vida máxima de las partículas de humo
+    const boostParticleMaxLife = 7; // Vida máxima de las partículas del boost
     let createNewWheelWearSegment = false; // True si se debe crear un nuevo segmento de desgaste de ruedas, false en caso contrario
+    const turnSensitiveLimit = 6; // Frames para alcanzar la máxima sensibilidad de giro
+    let turnSensitiveCounter = 0; // La sensibilidad del giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
 
     const cars = [];
+    const localCarVariables = []; // Variables para los coches, pero que no se envían al servidor. El elemento i son las variables del coche i en el array de coches.
+    const carUtils = new CarUtils();
     const circuit = new Circuit(160, 12);
     circuit.setStartPoint(100, 100, -90);
     circuit.addSegment(circuit.arc(500, 180));
@@ -47,11 +56,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const userCar = new Car(
         "User", // Nombre del usuario del coche
         new Point(100, 100), // Posición (del centro del coche) inicial
-        0, // Ángulo (grados)
+        -90, // Ángulo (grados)
         20, // Ancho
         40, // Alto
         "red", // Color
-        1.2, // Poder de aceleración
+        1.2, // Poder de velocidad
+        1.5, // Poder de aceleración
         0.3, // Poder al frenar
         5, // Fuerza de giro
         4, // Velocidad para alcanzar la máxima fuerza de giro
@@ -60,9 +70,11 @@ document.addEventListener('DOMContentLoaded', function() {
         1000, // Duración del turbo
     );
     cars.push(userCar); //* Debug
+    localCarVariables.push(new LocalCarVariables());
 
-    const aiCar = new Car("Bores", new Point(200, 200), 25, 20, 40, "blue", 1.2, 0.3, 5, 4, 2, 1.1, 1000);
+    const aiCar = new Car("Bores", new Point(100, 100), -90, 20, 40, "blue", 1.2, 2, 0.3, 5, 4, 2, 1.1, 1000);
     cars.push(aiCar); //* Debug
+    localCarVariables.push(new LocalCarVariables());
 
     const socket = new WebSocket('wss://sauleteh.gayofo.com/wss/drivemad');
     socket.onopen = function () {
@@ -89,6 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (data.type === "login_new_car" && data.code === 0) {
             // Aquí se reciben los coches recién conectados al servidor o la lista de coches si se acaba de entrar
             cars.push(data.content);
+            localCarVariables.push(new LocalCarVariables());
         }
         else if (data.type === "move" && data.code === 0) {
             // Aquí se reciben las actualizaciones de posición de los coches
@@ -98,7 +111,10 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (data.type === "logout" && data.code === 0) {
             // Aquí se recibe el id del coche que se ha desconectado
             const index = cars.findIndex(car => car.id === data.content);
-            if (index !== -1) cars.splice(index, 1);
+            if (index !== -1) {
+                cars.splice(index, 1);
+                localCarVariables.splice(index, 1);
+            }
         }
     };
 
@@ -124,6 +140,14 @@ document.addEventListener('DOMContentLoaded', function() {
         document.addEventListener('click', () => {
             sfxEngine.play();
         }, { once: true });
+
+        window.onblur = function() { // Pausar el sonido al cambiar de pestaña
+            sfxEngine.pause();
+        };
+
+        window.onfocus = function() { // Reanudar el sonido al volver a la pestaña
+            sfxEngine.play();
+        }
     }
 
     function clearCanvas() {
@@ -144,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function drawDriftParticles() {
         ctx.fillStyle = "gray";
         ctx.strokeStyle = "lightgray";
-        ctx.lineWidth = userCar.smokeParticleSize;
+        ctx.lineWidth = userCar.particleSize;
         for (let i = 0; i < wheelWear.length; i++)
         {
             if (wheelWear[i].length > 1) {
@@ -162,18 +186,39 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        cars.forEach(car => {
-            for (let i = 0; i < car.smokeParticles.length; i++) {
-                const smokeParticle = car.smokeParticles[i];
+        cars.forEach((car, index) => {
+            for (let i = 0; i < localCarVariables[index].smokeParticles.length; i++) {
+                const smokeParticle = localCarVariables[index].smokeParticles[i];
                 ctx.fillRect(
-                    smokeParticle.point.x - car.smokeParticleSize / 2 + camera.x,
-                    smokeParticle.point.y - car.smokeParticleSize / 2 + camera.y,
-                    car.smokeParticleSize * smokeParticle.life / 10,
-                    car.smokeParticleSize * smokeParticle.life / 10
+                    smokeParticle.point.x - car.particleSize / 2 + camera.x,
+                    smokeParticle.point.y - car.particleSize / 2 + camera.y,
+                    car.particleSize * smokeParticle.life / smokeParticleMaxLife,
+                    car.particleSize * smokeParticle.life / smokeParticleMaxLife
                 );
             }
         });
         ctx.lineWidth = 1;
+    }
+
+    function drawBoostEffects() {
+        cars.forEach((car, index) => {
+            const localCarVars = localCarVariables[index];
+            for (let i = 0; i < localCarVars.boostParticles.length; i++) {
+                const boostParticle = localCarVars.boostParticles[i];
+                ctx.fillStyle = `rgba(
+                    ${Math.min(255, 255 * (boostParticleMaxLife - boostParticle.life + 1) / boostParticleMaxLife)},
+                    ${Math.min(255, 255 * (boostParticleMaxLife - boostParticle.life - 1) / boostParticleMaxLife)},
+                    0,
+                    ${Math.min(1, boostParticle.life / boostParticleMaxLife + 0.1)}
+                )`;
+                ctx.fillRect(
+                    boostParticle.point.x - car.particleSize / 2 + camera.x,
+                    boostParticle.point.y - car.particleSize / 2 + camera.y,
+                    car.particleSize * ((boostParticleMaxLife - boostParticle.life) / boostParticleMaxLife + 0.5),
+                    car.particleSize * ((boostParticleMaxLife - boostParticle.life) / boostParticleMaxLife + 0.5)
+                );
+            }
+        });
     }
 
     function drawCircuit() {
@@ -242,6 +287,14 @@ document.addEventListener('DOMContentLoaded', function() {
             ctx.lineTo(car.coords.x + Math.cos((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2 + camera.x, car.coords.y + Math.sin((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2 + camera.y);
             ctx.closePath();
             ctx.stroke();
+
+            ctx.fillStyle = "yellow";
+            ctx.arc(
+                car.coords.x + Math.cos((car.direction + car.height/5) * Math.PI / 180) * -car.width/1.05 + camera.x,
+                car.coords.y + Math.sin((car.direction + car.height/5) * Math.PI / 180) * -car.width/1.05 + camera.y,
+                4, 0, 2 * Math.PI
+            );
+            ctx.fill();
         });
 
         for (let i = 0; i < circuit.segments.length; i++) {
@@ -271,33 +324,92 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log(`
                     Id: ${userCar.id}\n
                     Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)})\n
-                    Direction: ${userCar.direction.toFixed(3)}º\n
-                    Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) ${userCar.isSpeedNegative ? "-" : "+"}[${userCar.absoluteSpeed.toFixed(3)}]\n
-                    Drifting: ${userCar.isDrifting} (${userCar.driftCancelCounter})\n
-                    Camera: [${camera.x.toFixed(3)}, ${camera.y.toFixed(3)}]\n
+                    Direction: ${userCar.direction.toFixed(3)}º [${userCar.lastDirection.toFixed(3)}º] [${turnSensitiveCounter}]\n
+                    Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) ${carUtils.isSpeedNegative(userCar) ? "-" : "+"}[${carUtils.absoluteSpeed(userCar).toFixed(3)}] <= ${carUtils.maxSpeed(userCar, movingAirFriction).toFixed(3)}\n
+                    Speed angle: ${carUtils.speedAngle(userCar).toFixed(3)}º\n
+                    Drifting: ${userCar.isDrifting} [${userCar.driftCancelCounter}]\n
+                    Camera: (${camera.x.toFixed(3)}, ${camera.y.toFixed(3)})\n
                     IsCarInsideCircuit: ${circuit.isCarInside(userCar)}\n
                     Remaining boosts: ${userCar.boostCounter} [${userCar.boostLastUsed}]\n
                     DeltaTime: ${fpsController.deltaTime.toFixed(3)}`
         ); // Debug
     }
 
+    function checkAiNextMove() {
+        let precision = 0.1;
+        let segment = circuit.getCurrentSegment(aiCar, precision);
+        while (segment === null && precision < 1) {
+            precision += 0.1;
+            if (precision > 1) precision = 1;
+            segment = circuit.getCurrentSegment(aiCar, precision);
+        }
+
+        const rads = aiCar.direction * Math.PI / 180;
+        aiCar.speed.x += Math.cos(rads) * aiCar.speedPower;
+        aiCar.speed.y += Math.sin(rads) * aiCar.speedPower;
+        aiCar.isAccelerating = true;
+        aiCar.isPressingAccelerateOrBrake = true;
+
+        if (segment !== null) {
+            if (Math.abs(segment.ref.direction - aiCar.direction) !== 0) {
+                aiCar.direction = (aiCar.direction % 360 + 360) % 360; // Normaliza los ángulos al rango [0, 360)
+                segment.ref.direction = (segment.ref.direction % 360 + 360) % 360;
+                let diffClockwise = (segment.ref.direction - aiCar.direction + 360) % 360; // Calcula la diferencia en ambos sentidos
+
+                let arcDivider = 1;
+                let sideMultiplier = 1;
+                let angleMultiplier = null;
+                let diffCircuitClockwise = null;
+                if (segment.type === "arc") {
+                    arcDivider = Math.max(0.5, segment.data.radius / 400); // Ajuste para que el coche no se salga del círculo
+
+                    const side = circuit.getArcSide(aiCar, segment);
+                    if (side === "inside") sideMultiplier = 0.5;
+                    else if (side === "outside") sideMultiplier = 1.5;
+
+                    let currentAngle = circuit.getArcAngle(aiCar, segment) + (segment.data.isClockwise ? 90 : -90);
+                    currentAngle = (currentAngle % 360 + 360) % 360;
+                    diffCircuitClockwise = (currentAngle - aiCar.direction + 360) % 360;
+                    let diffCircuitCounterClockwise = (aiCar.direction - currentAngle + 360) % 360;
+
+                    angleMultiplier = Math.min(diffCircuitClockwise, diffCircuitCounterClockwise);
+                }
+
+                if ((segment.type === "arc" && segment.data.isClockwise && angleMultiplier === diffCircuitClockwise) || (segment.type === "straight" && diffClockwise <= 180)) { // Girar derecha
+                    aiCar.direction += aiCar.turnForce * precision * fpsController.deltaTime / arcDivider * sideMultiplier * (angleMultiplier !== null ? Math.min(aiCar.speedPower * 1.5, angleMultiplier) : 1);
+                    aiCar.direction = aiCar.direction % 360;
+                    if (aiCar.direction < 0) aiCar.direction += 360;
+                }
+                else if ((segment.type === "arc" && !segment.data.isClockwise && angleMultiplier !== diffCircuitClockwise) || (segment.type === "straight" && diffClockwise > 180)) { // Girar izquierda
+                    aiCar.direction -= aiCar.turnForce * precision * fpsController.deltaTime / arcDivider * sideMultiplier * (angleMultiplier !== null ? Math.min(aiCar.speedPower * 1.5, angleMultiplier) : 1);
+                    aiCar.direction = aiCar.direction % 360;
+                    if (aiCar.direction < 0) aiCar.direction += 360;
+                }
+            }
+        }
+    }
+
     function checkCarControls() {
         if (controls.keys.drift.isPressed && !controls.keys.drift.actionDone) {
-            if (userCar.isSpeedNegative) return; // Si la velocidad es negativa, no se puede derrapar
+            if (carUtils.isSpeedNegative(userCar)) return; // Si la velocidad es negativa, no se puede derrapar
             userCar.isDrifting = true;
             controls.keys.drift.actionDone = true;
         }
 
         if (controls.keys.accelerate.isPressed) {
-            let rads = userCar.direction * Math.PI / 180;
-            userCar.speed.x += Math.cos(rads) * userCar.accelerationPower;
-            userCar.speed.y += Math.sin(rads) * userCar.accelerationPower;
+            const rads = userCar.direction * Math.PI / 180;
+            let accelerationMultiplier = Math.min(1, Math.max(0.1, (carUtils.absoluteSpeed(userCar) / carUtils.maxSpeed(userCar, movingAirFriction) * userCar.accelerationPower))); // El multiplicador está entre 0.1 y 1 para poder arrancar el coche
+            if (!userCar.isInsideCircuit) accelerationMultiplier = 1; // Si está fuera del circuito, no se aplica la multiplicación de la aceleración
+
+            userCar.speed.x += Math.cos(rads) * userCar.speedPower * accelerationMultiplier;
+            userCar.speed.y += Math.sin(rads) * userCar.speedPower * accelerationMultiplier;
             userCar.isAccelerating = true;
             userCar.isPressingAccelerateOrBrake = true;
         }
         else if (controls.keys.brake.isPressed) {
-            if (userCar.isSpeedNegative) userCar.isDrifting = false; // Si la velocidad es negativa, no se puede derrapar
-            let rads = userCar.direction * Math.PI / 180;
+            if (carUtils.isSpeedNegative(userCar)) userCar.isDrifting = false; // Si la velocidad es negativa, no se puede derrapar
+            const rads = userCar.direction * Math.PI / 180;
+
             userCar.speed.x -= Math.cos(rads) * userCar.brakingPower;
             userCar.speed.y -= Math.sin(rads) * userCar.brakingPower;
             userCar.isAccelerating = false;
@@ -307,9 +419,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (controls.keys.left.isPressed) {
             if (userCar.speed.x != 0 || userCar.speed.y != 0) {
-                userCar.direction -= (!userCar.isAccelerating && userCar.isSpeedNegative ? -1 : 1) * // Comprobar marcha atrás
+                turnSensitiveCounter++;
+                userCar.direction -= (!userCar.isAccelerating && carUtils.isSpeedNegative(userCar) ? -1 : 1) * // Comprobar marcha atrás
                     (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * // El giro es mayor si se está derrapando
-                    (userCar.absoluteSpeed < userCar.turnForceThreshold ? userCar.absoluteSpeed / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
+                    (carUtils.absoluteSpeed(userCar) < userCar.turnForceThreshold ? carUtils.absoluteSpeed(userCar) / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
+                    (Math.min(turnSensitiveCounter / Math.floor(turnSensitiveLimit * fpsController.deltaTime), 1)) * // El giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
                     fpsController.deltaTime;
                 userCar.direction = userCar.direction % 360;
                 if (userCar.direction < 0) userCar.direction += 360;
@@ -317,13 +431,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         else if (controls.keys.right.isPressed) {
             if (userCar.speed.x != 0 || userCar.speed.y != 0) {
-                userCar.direction += (!userCar.isAccelerating && userCar.isSpeedNegative ? -1 : 1) * // Comprobar marcha atrás
+                turnSensitiveCounter++;
+                userCar.direction += (!userCar.isAccelerating && carUtils.isSpeedNegative(userCar) ? -1 : 1) * // Comprobar marcha atrás
                     (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * // El giro es mayor si se está derrapando
-                    (userCar.absoluteSpeed < userCar.turnForceThreshold ? userCar.absoluteSpeed / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
+                    (carUtils.absoluteSpeed(userCar) < userCar.turnForceThreshold ? carUtils.absoluteSpeed(userCar) / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
+                    (Math.min(turnSensitiveCounter / Math.floor(turnSensitiveLimit * fpsController.deltaTime), 1)) * // El giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
                     fpsController.deltaTime;
                 userCar.direction = userCar.direction % 360;
                 if (userCar.direction < 0) userCar.direction += 360;
             }
+        }
+        else {
+            turnSensitiveCounter = 0;
         }
 
         if (controls.keys.boost.isPressed && !controls.keys.boost.actionDone && userCar.boostCounter > 0) {
@@ -410,10 +529,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function applyFriction() {
         cars.forEach(car => {
-            let negativeSpeed = new Point(-car.speed.x, -car.speed.y);
+            const negativeSpeed = new Point(-car.speed.x, -car.speed.y);
+
             // Fricción con el aire
-            car.speed.x += (car.isPressingAccelerateOrBrake ? movingAirFriction : idleAirFriction) * negativeSpeed.x;
-            car.speed.y += (car.isPressingAccelerateOrBrake ? movingAirFriction : idleAirFriction) * negativeSpeed.y;
+            const angleFriction = Math.min(90, Math.abs(carUtils.speedAngle(car) - car.direction)) / 15 + 1; // La fricción con el aire aumenta cuanto más girado esté el coche (más cuerpo de coche se expone al aire)
+            car.speed.x += (car.isPressingAccelerateOrBrake ? movingAirFriction : (angleFriction * idleAirFriction)) * negativeSpeed.x;
+            car.speed.y += (car.isPressingAccelerateOrBrake ? movingAirFriction : (angleFriction * idleAirFriction)) * negativeSpeed.y;
 
             // Fricción con el suelo
             if (!car.isInsideCircuit) {
@@ -421,18 +542,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 car.speed.y *= outsideCircuitMultiplier;
             }
 
-            // Si la velocidad es muy baja, se establece a 0 (threshold de 0.001)
-            if (Math.abs(car.speed.x) < 0.1) car.speed.x = 0;
-            if (Math.abs(car.speed.y) < 0.1) car.speed.y = 0;
+            // Si la velocidad es muy baja, se establece a 0 (threshold de 0.1)
+            if (carUtils.absoluteSpeed(car) < 0.1) {
+                car.speed.x = 0;
+                car.speed.y = 0;
+            }
         });
     }
 
     function updateSmokeParticles() {
-        cars.forEach(car => {
+        cars.forEach((car, index) => {
             // Se actualiza la vida de cada partícula
-            for (let i = car.smokeParticles.length-1; i >= 0; i--) {
-                car.smokeParticles[i].life--;
-                if (car.smokeParticles[i].life <= 0) car.smokeParticles.splice(i, 1);
+            for (let i = localCarVariables[index].smokeParticles.length-1; i >= 0; i--) {
+                localCarVariables[index].smokeParticles[i].life--;
+                if (localCarVariables[index].smokeParticles[i].life <= 0) localCarVariables[index].smokeParticles.splice(i, 1);
             }
             
             if (car.isDrifting) {
@@ -447,24 +570,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     car.coords.y + Math.sin((car.direction - car.height/1.2) * Math.PI / 180) * -car.width/1.2
                 );
 
-                car.smokeParticles.push({ // Rueda izquierda
+                localCarVariables[index].smokeParticles.push({ // Rueda izquierda
                     point: new Point(
-                        leftWheel.x + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2,
-                        leftWheel.y + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2
+                        leftWheel.x + Math.floor(Math.random() * car.particleRandomness) - car.particleRandomness/2,
+                        leftWheel.y + Math.floor(Math.random() * car.particleRandomness) - car.particleRandomness/2
                     ),
-                    life: 10
+                    life: smokeParticleMaxLife
                 });
-                car.smokeParticles.push({ // Rueda derecha
+                localCarVariables[index].smokeParticles.push({ // Rueda derecha
                     point: new Point(
-                        rightWheel.x + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2,
-                        rightWheel.y + Math.floor(Math.random() * car.smokeParticleRandomness) - car.smokeParticleRandomness/2
+                        rightWheel.x + Math.floor(Math.random() * car.particleRandomness) - car.particleRandomness/2,
+                        rightWheel.y + Math.floor(Math.random() * car.particleRandomness) - car.particleRandomness/2
                     ),
-                    life: 10
+                    life: smokeParticleMaxLife
                 });
 
-                if (car.id && car.id === userCar.id) {
-                    const speedAngle = Math.atan2(car.speed.y, car.speed.x) * 180 / Math.PI;
-                    if (Math.abs(speedAngle - car.direction) > 25 && car.absoluteSpeed > 1) { // Solo se crea el desgaste de las ruedas si el ángulo de la velocidad con respecto a la dirección del coche es mayor de cierto grado
+                if (car === userCar) {
+                    if (Math.abs(carUtils.speedAngle(car) - car.direction) > 25 && carUtils.absoluteSpeed(car) > 1) { // Solo se crea el desgaste de las ruedas si el ángulo de la velocidad con respecto a la dirección del coche es mayor de cierto grado
                         wheelWear[0].push({
                             point: leftWheel,
                             isNewSegment: createNewWheelWearSegment
@@ -483,14 +605,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             else {
-                if (car.id && car.id === userCar.id) {
+                if (car === userCar) {
                     createNewWheelWearSegment = true;
                     wheelWear[0].shift();
                     wheelWear[1].shift();
                 }
             }
 
-            if (car.id && car.id === userCar.id) {
+            if (car === userCar) {
                 if (wheelWear[0].length >= wheelWearLimit) {
                     wheelWear[0].shift();
                     wheelWear[1].shift();
@@ -499,15 +621,53 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function updateBoostEffects() {
+        cars.forEach((car, index) => {
+            const localCarVars = localCarVariables[index];
+
+            // Se actualiza la vida de cada partícula
+            for (let i = localCarVars.boostParticles.length-1; i >= 0; i--) {
+                localCarVars.boostParticles[i].life--;
+                if (localCarVars.boostParticles[i].life <= 0) localCarVars.boostParticles.splice(i, 1);
+            }
+            
+            if (car.boostLastUsed !== 0) {
+                // Si se está usando el turbo, salen partículas del tubo de escape
+                const pipe = new Point(
+                    car.coords.x + Math.cos((car.direction + car.height/5) * Math.PI / 180) * -car.width/1.05,
+                    car.coords.y + Math.sin((car.direction + car.height/5) * Math.PI / 180) * -car.width/1.05
+                );
+
+                // Partículas de fuego con poca dispersión
+                localCarVars.boostParticles.push({
+                    point: new Point(
+                        pipe.x + Math.floor(Math.random() * car.particleRandomness) - car.particleRandomness/2,
+                        pipe.y + Math.floor(Math.random() * car.particleRandomness) - car.particleRandomness/2
+                    ),
+                    life: boostParticleMaxLife
+                });
+
+                // Partículas de fuego con mucha dispersión
+                localCarVars.boostParticles.push({
+                    point: new Point(
+                        pipe.x + Math.floor(Math.random() * car.particleRandomness * 3) - car.particleRandomness/2*3,
+                        pipe.y + Math.floor(Math.random() * car.particleRandomness * 3) - car.particleRandomness/2*3
+                    ),
+                    life: boostParticleMaxLife
+                });
+            }
+        });
+    }
+
     // En cada frame, la cámara se sitúa en el centro del coche del jugador
     function updateCamera() {
-        let shakingValue = userCar.absoluteSpeed * (userCar.boostLastUsed === 0 ? 1 : 2) / 8; // Si se está usando el turbo, el valor de shaking es el doble
-        camera.x = -userCar.coords.x + canvas.width / 2 - userCar.speed.x * 5 - Math.floor(Math.random() * shakingValue) + shakingValue/2;
-        camera.y = -userCar.coords.y + canvas.height / 2 - userCar.speed.y * 5 - Math.floor(Math.random() * shakingValue) + shakingValue/2;
+        let shakingValue = carUtils.absoluteSpeed(userCar) * (userCar.boostLastUsed === 0 ? 1 : 2) / 8; // Si se está usando el turbo, el valor de shaking es el doble
+        camera.x = -userCar.coords.x + canvas.width / 2 - userCar.speed.x * 5 - Math.floor(Math.random() * shakingValue) + shakingValue / 2;
+        camera.y = -userCar.coords.y + canvas.height / 2 - userCar.speed.y * 5 - Math.floor(Math.random() * shakingValue) + shakingValue / 2;
     }
 
     function updatePlaybackRate() {
-        sfxEngine.playbackRate = 0.2 + userCar.absoluteSpeed / 5;
+        sfxEngine.playbackRate = 0.2 + carUtils.absoluteSpeed(userCar) / 5;
     }
 
     function draw(now) {
@@ -519,26 +679,22 @@ document.addEventListener('DOMContentLoaded', function() {
         drawCircuit();
         drawDriftParticles();
         drawCars();
+        drawBoostEffects();
         drawUsername();
         drawDebug();
-        
-        let rads = aiCar.direction * Math.PI / 180; //* Debug
-        aiCar.speed.x += Math.cos(rads) * aiCar.accelerationPower;
-        aiCar.speed.y += Math.sin(rads) * aiCar.accelerationPower;
-        if (aiCar.speed.x != 0 || aiCar.speed.y != 0) {
-            aiCar.direction -= (aiCar.isSpeedNegative ? -1 : 1) * (aiCar.turnForce * (aiCar.isDrifting ? aiCar.driftingTurnMultiplier : 1)) * (aiCar.absoluteSpeed < aiCar.turnForceThreshold ? aiCar.absoluteSpeed / aiCar.turnForceThreshold : 1);
-            aiCar.direction = aiCar.direction % 360;
-            if (aiCar.direction < 0) aiCar.direction += 360;
-        }
 
+        checkAiNextMove();
         checkCarControls();
         checkIsDrifting();
         checkIsColliding();
+
         applyRotationToSpeed();
         applyBoostMultiplier();
         applyFriction();
         applySpeed();
+
         updateSmokeParticles();
+        updateBoostEffects();
         updatePlaybackRate();
         updateCamera();
 
@@ -562,7 +718,7 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [X] Implementar el sistema de boost.
  *     - [X] Se hace mediante un botón.
  *     - [X] La forma de obtener el turbo depende del modo de juego en el que se esté: ya sea mediante objetos del suelo o completando vueltas en el circuito.
- *     - [ ] Mientras se usa el boost, hacer que en la pantalla aparezcan partículas de fuego en la parte trasera del coche.
+ *     - [X] Mientras se usa el boost, hacer que en la pantalla aparezcan partículas de fuego en la parte trasera del coche.
  *     - [ ] Al usar el boost, aparecen partículas por la pantalla de color blanco que van en la dirección contraria a la velocidad del coche.
  * - [-] Implementar un creador de circuitos.
  *     - [X] Se podrán crear circuitos con líneas rectas y curvas.
@@ -590,6 +746,11 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [X] BUG: Al poner el último arco al revés, no se detecta si se está dentro de dicho arco.
  * - [ ] Tienes que poder pitar.
  * - [ ] Condiciones meteorológicas.
- * - [ ] Realizar el giro del coche de forma más suave si no se mantienen pulsadas las teclas.
- * - [X] Optimizar el servidor evitando que se envíen: el array del rastro en el suelo (solo se verán las del propio usuario)
+ * - [X] Realizar el giro del coche de forma más suave si no se mantienen pulsadas las teclas.
+ * - [X] Optimizar el servidor evitando que se envíen: el array del rastro en el suelo (solo se verán las del propio usuario).
+ * - [X] BUG: Al cambiar de ventana y volver, el delta time se vuelve muy grande.
+ * - [X] Cuanto más girado esté el coche, más fricción con el aire tiene.
+ * - [X] Hacer que las partículas de desgaste de las ruedas no pasen al servidor.
+ * - [X] Implementar sistema de aceleración.
+ * - [X] Implementar coches con IA.
  */

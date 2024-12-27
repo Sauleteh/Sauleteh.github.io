@@ -8,7 +8,8 @@ import { Point } from './Point.js';
  * @param {number} width - El ancho del coche.
  * @param {number} height - La altura del coche.
  * @param {string} color - El color del coche.
- * @param {number} accelerationPower - Poder al acelerar el coche.
+ * @param {number} speedPower - Poder de velocidad del coche, es decir, lo máximo que puede acelerar el coche.
+ * @param {number} accelerationPower - Poder de aceleración del coche, es decir, lo rápido que acelera el coche (son los frames necesarios para alcanzar el poder de velocidad).
  * @param {number} brakingPower - Poder al frenar el coche.
  * @param {number} turnForce - Fuerza de giro del coche.
  * @param {number} turnForceThreshold - Velocidad a la que debe llegar el coche para alcanzar la máxima fuerza de giro (ya que cuanta más velocidad, más giro hasta llegado a este límite).
@@ -18,8 +19,9 @@ import { Point } from './Point.js';
  */
 export class Car
 {
-    constructor(name, coords, direction, width, height, color, accelerationPower, brakingPower, turnForce, turnForceThreshold, driftingTurnMultiplier, boostMultiplier, boostDuration) {
+    constructor(name, coords, direction, width, height, color, speedPower, accelerationPower, brakingPower, turnForce, turnForceThreshold, driftingTurnMultiplier, boostMultiplier, boostDuration) {
         if (width <= 0 || height <= 0) throw new Error('El ancho y la altura del coche deben ser mayores que 0.');
+        if (speedPower <= 0) throw new Error('El poder de velocidad del coche debe ser mayor que 0.');
         if (accelerationPower <= 0) throw new Error('El poder de aceleración del coche debe ser mayor que 0.');
         if (brakingPower <= 0) throw new Error('El poder de frenado del coche debe ser mayor que 0.');
         if (turnForce <= 0) throw new Error('La fuerza de giro del coche debe ser mayor que 0.');
@@ -35,6 +37,7 @@ export class Car
         this.width = width;
         this.height = height;
         this.color = color;
+        this.speedPower = speedPower;
         this.accelerationPower = accelerationPower;
         this.brakingPower = brakingPower;
         this.turnForce = turnForce;
@@ -43,8 +46,8 @@ export class Car
         this.boostMultiplier = boostMultiplier;
         this.boostDuration = boostDuration;
 
-        this.smokeParticleSize = Math.round(this.height * this.width / 100 - 3);
-        this.smokeParticleRandomness = Math.ceil(this.smokeParticleSize / 2) + 1;
+        this.particleSize = Math.round(this.height * this.width / 100 - 3);
+        this.particleRandomness = Math.ceil(this.particleSize / 2) + 1;
 
         this.id = null; // Identificador del coche para el online
         this.speed = new Point(0, 0); // Las coordenadas XY del coche (Es una clase Point)
@@ -54,20 +57,10 @@ export class Car
         this.isInsideCircuit = true;
         this.driftCancelMax = 20; // Número de frames que se deben mantener en línea recta para dejar de derrapar
         this.driftCancelCounter = this.driftCancelMax; // Si este contador llega a un número determinado después de tener el coche en línea recta un número de frames dado, se considera que se está dejando de derrapar (no empieza en 0 para que no se considere que se está dejando de derrapar al principio)
-        this.smokeParticles = []; // Array de puntos "point" donde están localizadas las partículas del humo cuando se derrapa y con una variable "life" que indica la vida que le queda a la partícula para desaparecer
         this.boostCounter = 1; // Número de turbos disponibles. Al principio, todos los coches comienzan con un turbo disponible
         this.boostLastUsed = 0; // Último momento en el que se usó el turbo (0 si no se está usando, mayor que 0 en caso contrario)
         this.isPressingAccelerateOrBrake = false; // True si se está pulsando el acelerador o el freno, false en caso contrario
     }
 
-    get absoluteSpeed() {
-        return Math.sqrt(Math.pow(this.speed.x, 2) + Math.pow(this.speed.y, 2));
-    }
-
-    get isSpeedNegative() {
-        const negSpeedAngle = Math.atan2(this.speed.y, this.speed.x) * 180 / Math.PI; // De 0 a 180 y luego de -180 a 0
-        const negSpeedReal = (((negSpeedAngle < 0) ? 360 : 0) + negSpeedAngle); // Transformamos el ángulo a 0-360
-        const diff = this.direction - negSpeedReal;
-        return Math.abs(((diff < 0 ? 360 : 0) + diff) - 180) <= 90;
-    }
+    //! IMPORTANTE: No añadir métodos aquí, no se enviarán al servidor. Para añadir métodos, añadirlos en el archivo CarUtils.js.
 }
