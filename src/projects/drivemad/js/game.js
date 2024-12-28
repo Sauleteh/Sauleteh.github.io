@@ -7,9 +7,16 @@ import { CarUtils } from "./CarUtils.js";
 import { LocalCarVariables } from "./LocalCarVariables.js";
 
 document.addEventListener('DOMContentLoaded', function() {
-    const sfxEngine = document.querySelector("#sfxEngine");
-    sfxEngine.preservesPitch = false;
-    sfxEngine.volume = 0.5;
+    const sfxEngineCtx = new window.AudioContext();
+    const sfxEngineSrc = sfxEngineCtx.createBufferSource();
+    fetch("./assets/car_engine.wav")
+    .then(response => response.arrayBuffer())
+    .then(arrayBuffer => sfxEngineCtx.decodeAudioData(arrayBuffer))
+    .then(audioBuffer => {
+        sfxEngineSrc.buffer = audioBuffer;
+        sfxEngineSrc.loop = true;
+    });
+        
     const canvas = document.querySelector("canvas.game");
     const ctx = canvas.getContext("2d");
 
@@ -129,24 +136,17 @@ document.addEventListener('DOMContentLoaded', function() {
             controls.checkControls(key, "up");
         });
 
-        sfxEngine.addEventListener("timeupdate", function() {
-            if (this.currentTime > this.duration - 1.5) {
-                this.currentTime = 1;
-                this.play();
-            }
-        });
-
         // Comenzar ejecución del sonido al hacer click en la pantalla (se necesita evento de usuario obligatorio para esto)
         document.addEventListener('click', () => {
-            sfxEngine.play();
+            sfxEngineSrc.start();
         }, { once: true });
 
         window.onblur = function() { // Pausar el sonido al cambiar de pestaña
-            sfxEngine.pause();
+            sfxEngineSrc.disconnect();
         };
 
         window.onfocus = function() { // Reanudar el sonido al volver a la pestaña
-            sfxEngine.play();
+            sfxEngineSrc.connect(sfxEngineCtx.destination);
         }
     }
 
@@ -542,8 +542,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 car.speed.y *= outsideCircuitMultiplier;
             }
 
-            // Si la velocidad es muy baja, se establece a 0 (threshold de 0.1)
-            if (carUtils.absoluteSpeed(car) < 0.1) {
+            // Si la velocidad es muy baja, se establece a 0 (threshold de 0.01)
+            if (!car.isPressingAccelerateOrBrake && carUtils.absoluteSpeed(car) < 0.01) {
                 car.speed.x = 0;
                 car.speed.y = 0;
             }
@@ -667,7 +667,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updatePlaybackRate() {
-        sfxEngine.playbackRate = 0.2 + carUtils.absoluteSpeed(userCar) / 5;
+        const speedRatio = carUtils.absoluteSpeed(userCar) / carUtils.maxSpeed(userCar, movingAirFriction);
+        sfxEngineSrc.playbackRate.value = 0.2 + Math.min(1, speedRatio) * 2.5 + (speedRatio > 1 ? (speedRatio % 0.2) * 3 : 0); // El pitch máximo se obtiene al llegar a la máxima velocidad del coche. Si se consigue ir más rápido que la velocidad máxima, el pitch hace un efecto de rebote
     }
 
     function draw(now) {
