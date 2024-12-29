@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const localCarVariables = []; // Variables para los coches, pero que no se envían al servidor. El elemento i son las variables del coche i en el array de coches.
     const carUtils = new CarUtils();
     const circuit = new Circuit(160, 12);
-    circuit.setStartPoint(100, 100, -90);
+    circuit.setStartPoint(100, 100, 270);
     circuit.addSegment(circuit.arc(500, 180));
     circuit.addSegment(circuit.straightLine(650));
     circuit.addSegment(circuit.arc(180, 90));
@@ -54,11 +54,10 @@ document.addEventListener('DOMContentLoaded', function() {
     circuit.addSegment(circuit.arc(300, 270));
     circuit.addSegment(circuit.straightLine(280));
     circuit.addSegment(circuit.arc(200, -90));
-    circuit.addSegment(circuit.straightLine(500));
-    circuit.addSegment(circuit.arc(200, -225));
-    circuit.addSegment(circuit.arc(200, 225));
-    circuit.addSegment(circuit.arc(300, -23));
-    circuit.addSegment(circuit.arc(300, 23));
+    circuit.addSegment(circuit.straightLine(520));
+    circuit.addSegment(circuit.arc(230, -225));
+    circuit.addSegment(circuit.arc(197.6241, 225));
+    circuit.addSegment(circuit.straightLine(232.3759));
 
     const userCar = new Car(
         "User", // Nombre del usuario del coche
@@ -754,4 +753,5 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [X] Hacer que las partículas de desgaste de las ruedas no pasen al servidor.
  * - [X] Implementar sistema de aceleración.
  * - [X] Implementar coches con IA.
+ * - [ ] Implementar un garaje donde puedas modificar tu coche.
  */

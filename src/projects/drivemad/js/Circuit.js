@@ -20,6 +20,98 @@ export class Circuit {
         else this.segments.push(segment);
     }
 
+    // Método para saber cómo cerrar el circuito de forma perfecta, no cambia ningún segmento, solo comenta cómo se debería cerrar. Obligatorio que el último segmento sea un arco (para saber cómo ponerlo). Observar la consola del navegador para saber los resultados.
+    howToCloseCircuit(maxIterations = 100) {
+        if (this.segments.length === 0) { throw new Error('No hay segmentos en el circuito'); }
+
+        let lastSegment = structuredClone(this.segments[this.segments.length - 1]);
+        const firstPoint = structuredClone(this.startPoint);
+
+        // Normalizar la dirección de los puntos
+        lastSegment.ref.direction = (lastSegment.ref.direction + 360) % 360;
+        firstPoint.direction = (firstPoint.direction + 360) % 360;
+
+        // Comprobar si el circuito ya está cerrado
+        let dx = lastSegment.ref.coords.x - firstPoint.coords.x;
+        let dy = lastSegment.ref.coords.y - firstPoint.coords.y;
+        const distanceSquared = dx * dx + dy * dy;
+
+        if (distanceSquared < 1e-6) {
+            console.log("Intento de cerrado de circuito fallido:\n\nEl circuito ya está cerrado");
+            return;
+        }
+        else { // Para cerrar el circuito de forma que no se cambie de forma excesiva la estructura del circuito, no se comprueba cómo añadir un nuevo segmento, solo se comenta cómo se debería cambiar el último segmento para cerrarlo correctamente
+            if (lastSegment.type === "straight") {
+                console.log("Intento de cerrado de circuito fallido:\n\nNo se puede cerrar el circuito con una línea recta. Por favor, borra el último segmento y añade un arco como último segmento.");
+                return;
+            }
+            else {
+                // Comprobar diferencia de ángulos
+                let diffAngle = (lastSegment.data.isClockwise) ?
+                ((firstPoint.direction - lastSegment.ref.direction + 360) % 360) :
+                ((lastSegment.ref.direction - firstPoint.direction + 360) % 360);
+
+                let newAngle = (lastSegment.data.endAngle - lastSegment.data.startAngle) * 180 / Math.PI;
+
+                if (diffAngle >= 90) {
+                    console.log("Intento de cerrado de circuito fallido:\n\nEl último segmento debe tener una diferencia menor de 90 grados con respecto al punto de cierre para saber cómo cerrar el circuito. Por favor, suma o resta el ángulo al último segmento para que la diferencia sea estrictamente menor de 90 grados.");
+                    return;
+                }
+                else if (diffAngle > 0) {
+                    // Borrar el último segmento y añadir un nuevo arco con el ángulo correcto
+                    const tempSegment = this.segments.pop();
+                    newAngle += diffAngle * (lastSegment.data.isClockwise ? 1 : -1);
+                    lastSegment = this.arc(lastSegment.data.radius, newAngle);
+                    this.addSegment(tempSegment);
+                }
+
+                // A partir de aquí, el segmento ya es paralelo al punto de inicio
+                
+                // Calcular la distancia de la curva con respecto al punto de inicio de forma perpendicular
+                const angleTan = Math.tan(firstPoint.direction * Math.PI / 180);
+                let distance = -1;
+                let newRadius = -1;
+                let iterations = 0;
+                let lastDistance = 0; // Distancia del último paso
+                let sign = 1; // Signo de la distancia, ya que no entiendo cómo funciona el signo de la distancia, se invierte si la nueva distancia es mayor que la anterior (ya que se está intentando disminuir la distancia lo máximo posible)
+
+                while (distance !== 0 && iterations < maxIterations) { // Iterar para encontrar la distancia 0
+                    distance = (angleTan * lastSegment.ref.coords.x - lastSegment.ref.coords.y - angleTan * firstPoint.coords.x + firstPoint.coords.y) / Math.sqrt(angleTan * angleTan + 1);
+                    newRadius = lastSegment.data.radius + distance * sign;
+
+                    if (iterations === 0) lastDistance = distance; // Esto solo ocurre en la primera iteración para obtener el primer cálculo de la distancia
+                    else if (iterations === 1) sign = Math.abs(distance) > Math.abs(lastDistance) ? -sign : sign; // En la segunda iteración se define correctamente el signo de la distancia
+
+                    if (distance !== 0) {
+                        const tempSegment = this.segments.pop();
+                        lastSegment = this.arc(newRadius, newAngle);
+                        this.addSegment(tempSegment);
+                    }
+
+                    if (Math.abs(distance) < 1e-6) { // Si la distancia llega a una aproximación suficientemente buena, se considera que es 0
+                        distance = 0;
+                    }
+
+                    iterations++;
+                }
+
+                // A partir de aquí, el segmento ya es paralelo al punto de inicio y está en la línea recta que une el punto de inicio con el punto final del segmento
+
+                // Calcular la longitud de la línea recta que falta
+                dx = lastSegment.ref.coords.x - firstPoint.coords.x;
+                dy = lastSegment.ref.coords.y - firstPoint.coords.y;
+                const lineLength = Math.sqrt(dx * dx + dy * dy);
+
+                console.log(
+                    `Intento de cerrado de circuito terminado en ${iterations} iteraciones:\n\n` +
+                    `Para cerrar el circuito, cambia el último segmento a circuit.arc(${newRadius}, ${newAngle}).\n\n` +
+                    (lineLength > 0 ? `Después, borra la llamada a este método y añade después del arco anterior el segmento circuit.straightLine(${lineLength}).` : `Después, borra la llamada a este método.`) +
+                    (distance !== 0 ? `\n\nIMPORTANTE: El radio obtenido no es un resultado perfecto sino una aproximación, aumenta el número de iteraciones para solventar esto si es necesario.` : '')
+                );
+            }
+        }
+    }
+
     /**
      * Obtener el segmento en el que se encuentra el coche, o null si está fuera del circuito.
      * @param {*} car es el coche que se quiere comprobar.
