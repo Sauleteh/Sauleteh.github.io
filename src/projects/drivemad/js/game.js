@@ -1,20 +1,23 @@
-import { FPSControllerV2 } from "./FPSControllerV2.js";
-import { Car } from "./Car.js";
-import { Point } from "./Point.js";
-import { Controls } from "./Controls.js";
-import { Circuit } from "./Circuit.js";
-import { CarUtils } from "./CarUtils.js";
-import { LocalCarVariables } from "./LocalCarVariables.js";
+import { FPSControllerV2 } from "./objects/FPSControllerV2.js";
+import { Car } from "./objects/Car.js";
+import { Point } from "./objects/Point.js";
+import { Controls } from "./objects/Controls.js";
+import { Circuit } from "./objects/Circuit.js";
+import { CarUtils } from "./objects/CarUtils.js";
+import { LocalCarVariables } from "./objects/LocalCarVariables.js";
 
-document.addEventListener('DOMContentLoaded', function() {
+const handler = function() {
+    document.removeEventListener('DOMContentLoaded', handler);
     const sfxEngineCtx = new window.AudioContext();
     const sfxEngineSrc = sfxEngineCtx.createBufferSource();
-    fetch("./assets/car_engine.wav")
+    fetch("./assets/audio/car_engine.wav")
     .then(response => response.arrayBuffer())
     .then(arrayBuffer => sfxEngineCtx.decodeAudioData(arrayBuffer))
     .then(audioBuffer => {
         sfxEngineSrc.buffer = audioBuffer;
         sfxEngineSrc.loop = true;
+        sfxEngineSrc.start();
+        sfxEngineSrc.connect(sfxEngineCtx.destination);
     });
         
     const canvas = document.querySelector("canvas.game");
@@ -134,11 +137,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const { key } = event;
             controls.checkControls(key, "up");
         });
-
-        // Comenzar ejecución del sonido al hacer click en la pantalla (se necesita evento de usuario obligatorio para esto)
-        document.addEventListener('click', () => {
-            sfxEngineSrc.start();
-        }, { once: true });
 
         window.onblur = function() { // Pausar el sonido al cambiar de pestaña
             sfxEngineSrc.disconnect();
@@ -703,7 +701,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initEvents();
     draw();
-});
+};
+document.addEventListener('DOMContentLoaded', handler);
 
 /** TODO list:
  * - [X] Implementar sistema de frenado en vez de que al frenar se sume el vector de freno (que no es suficiente potencia para frenados más grandes).

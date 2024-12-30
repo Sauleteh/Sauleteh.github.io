@@ -22,8 +22,9 @@ h1 {
 }
 
 canvas.game {
-    border: 8px solid black;
-    background-color: white;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+    background-color: rgb(63, 63, 63);
     margin: 0 auto;
     image-rendering: pixelated;
+    cursor: none;
 }
