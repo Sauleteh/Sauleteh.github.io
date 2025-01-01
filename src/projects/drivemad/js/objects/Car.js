@@ -62,5 +62,20 @@ export class Car
         this.isPressingAccelerateOrBrake = false; // True si se está pulsando el acelerador o el freno, false en caso contrario
     }
 
-    //! IMPORTANTE: No añadir métodos aquí, no se enviarán al servidor. Para añadir métodos, añadirlos en el archivo CarUtils.js.
+    //! IMPORTANTE: No añadir métodos de obtención de datos aquí, no se enviarán al servidor. Para añadir métodos de obtención de datos, añadirlos en el archivo CarUtils.js.
+
+    /**
+     * Reinicia el coche, sin cambiar su posición.
+     */
+    reset() {
+        this.speed.x = 0;
+        this.speed.y = 0;
+        this.isDrifting = false;
+        this.isAccelerating = false;
+        this.isInsideCircuit = true;
+        this.driftCancelCounter = this.driftCancelMax;
+        this.boostCounter = 1;
+        this.boostLastUsed = 0;
+        this.isPressingAccelerateOrBrake = false;
+    }
 }

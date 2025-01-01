@@ -47,20 +47,12 @@ const handler = function() {
     const cars = [];
     const localCarVariables = []; // Variables para los coches, pero que no se envían al servidor. El elemento i son las variables del coche i en el array de coches.
     const carUtils = new CarUtils();
-    const circuit = new Circuit(160, 12);
-    circuit.setStartPoint(100, 100, 270);
-    circuit.addSegment(circuit.arc(500, 180));
-    circuit.addSegment(circuit.straightLine(650));
-    circuit.addSegment(circuit.arc(180, 90));
-    circuit.addSegment(circuit.straightLine(150));
-    circuit.addSegment(circuit.arc(120, -90));
-    circuit.addSegment(circuit.arc(300, 270));
-    circuit.addSegment(circuit.straightLine(280));
-    circuit.addSegment(circuit.arc(200, -90));
-    circuit.addSegment(circuit.straightLine(520));
-    circuit.addSegment(circuit.arc(230, -225));
-    circuit.addSegment(circuit.arc(197.6241, 225));
-    circuit.addSegment(circuit.straightLine(232.3759));
+    let waitCountdownCount = undefined; // Contador de tiempo para empezar la carrera
+    let waitCountdownInterval = undefined; // Intervalo para contar el tiempo restante para empezar la carrera
+    let startCountdownCount = undefined; // Contador de tiempo para empezar la carrera
+    let startCountdownInterval = undefined; // Intervalo para contar el tiempo restante para empezar la carrera
+    let circuit = Circuit.defaultCircuit(); // Circuito por defecto para jugar mientras se espera a que empiece la carrera
+    let canMove = true; // Si es false, no se puede mover el coche
 
     const userCar = new Car(
         "User", // Nombre del usuario del coche
@@ -125,6 +117,99 @@ const handler = function() {
                 localCarVariables.splice(index, 1);
             }
         }
+        else if (data.type === "wait_countdown_start" && data.code === 0) {
+            // Cuando se actualiza el tiempo de espera para empezar la carrera, se recibe el tiempo restante
+            console.log(`${data.type}: ${data.content}`);
+
+            if (!data.content) throw new Error("The countdown time received is undefined");
+
+            // Si lo que se ha producido es una actualización del tiempo, se para el intervalo anterior
+            if (waitCountdownInterval) clearInterval(waitCountdownInterval);
+
+            waitCountdownCount = data.content;
+            waitCountdownInterval = setInterval(() => {
+                if (--waitCountdownCount <= 0) {
+                    clearInterval(waitCountdownInterval);
+                    waitCountdownCount = 0;
+                    waitCountdownInterval = undefined;
+                }
+            }, 1000);
+        }
+        else if (data.type === "wait_countdown_stop" && data.code === 0) {
+            // Cuando se para el tiempo de forma indefinida, se recibe el tiempo restante, que debería ser undefined
+            console.log(`${data.type}: ${data.content}`);
+
+            if (data.content) throw new Error("The countdown time received is not undefined");
+            else if (!waitCountdownInterval) throw new Error("The countdown interval is not defined");
+            
+            clearInterval(waitCountdownInterval);
+            waitCountdownCount = undefined;
+            waitCountdownInterval = undefined;
+        }
+        else if (data.type === "game_prepare" && data.code === 0) {
+            // Cuando se inicia la preparación de la carrera, se recibe "gamemode" y "circuit"
+            console.log(`${data.type}: ${data.content}`);
+
+            if (waitCountdownInterval) { // Si el servidor ha solicitado que el cliente se prepare antes de terminar el tiempo de espera, se para el intervalo
+                clearInterval(waitCountdownInterval);
+                waitCountdownInterval = undefined;
+            }
+            waitCountdownCount = undefined; // En cualquier caso, se pone el contador a undefined
+
+            if (data.content.gamemode === "RACE") {
+                const circuitData = data.content.circuit;
+                circuit = new Circuit(circuitData.data.circuitWidth, circuitData.data.lineWidth);
+                circuit.setStartPoint(circuitData.data.startPoint);
+                circuit.addServerSegments(circuitData.data.segments);
+            }
+            else throw new Error("Unknown gamemode");
+
+            canMove = false;
+            userCar.reset();
+            userCar.coords = circuit.startPoint.coords;
+            userCar.direction = circuit.startPoint.direction;
+            userCar.lastDirection = userCar.direction;
+
+            const message = JSON.stringify({
+                type: "prepared",
+                content: userCar.id
+            });
+            socket.send(message);
+        }
+        else if (data.type === "game_start" && data.code === 0) {
+            // Cuando se recibe la señal de iniciar la carrera, se recibe este evento sin recibir nada
+            console.log(`${data.type}: ${data.content}`);
+
+            if (waitCountdownInterval) throw new Error("The wait countdown is not stopped");
+            else if (startCountdownInterval) throw new Error("The start countdown is not stopped");
+            else if (waitCountdownCount || startCountdownCount) throw new Error("There is a countdown count already running");
+
+            startCountdownCount = 5;
+            startCountdownInterval = setInterval(() => {
+                if (--startCountdownCount <= 0) {
+                    clearInterval(startCountdownInterval);
+                    startCountdownCount = undefined;
+                    startCountdownInterval = undefined;
+                    canMove = true;
+                }
+            }, 1000);
+
+        }
+        else if (data.type === "game_stop" && data.code === 0) {
+            // Cuando se cancela la carrera por falta de jugadores, ya sea mientras estaba en preparación o en curso, se recibe este evento con el tiempo restante, que debería ser undefined
+            console.log(`${data.type}: ${data.content}`);
+
+            if (data.content) throw new Error("The countdown time received is not undefined");
+            else if (waitCountdownInterval || waitCountdownCount) throw new Error("The wait countdown is not stopped");
+
+            circuit = Circuit.defaultCircuit();
+            userCar.reset();
+            userCar.coords = circuit.startPoint.coords;
+            userCar.direction = circuit.startPoint.direction;
+            userCar.lastDirection = userCar.direction;
+            canMove = true;
+        }
+        else console.error(`Unknown message: ${data}`);
     };
 
     function initEvents() {
@@ -253,8 +338,20 @@ const handler = function() {
             ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
             ctx.font = "12px Arial";
             ctx.textAlign = "center";
+            ctx.textBaseline = "alphabetic";
             ctx.fillText(car.name, car.coords.x + camera.x, car.coords.y + camera.y + car.width + 12);
         });
+    }
+
+    function drawUserInterface() {
+        ctx.fillStyle = "black";
+        ctx.font = "bold 24px Arial";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+        ctx.fillText(`Boosts: ${userCar.boostCounter}`, 10, 10);
+        ctx.fillText(`Speed: ${(carUtils.absoluteSpeed(userCar) * 5).toFixed(1)} km/h`, 10, 40);
+        ctx.fillText(`Until next game: ${waitCountdownCount ? (waitCountdownCount + " seconds") : "Waiting for players"}`, 10, 70);
+        ctx.fillText(`Start countdown: ${startCountdownCount ? (startCountdownCount + " seconds") : "Waiting for start"}`, 10, 100);
     }
 
     function drawDebug() {
@@ -387,6 +484,8 @@ const handler = function() {
     }
 
     function checkCarControls() {
+        if (!canMove) return;
+
         if (controls.keys.drift.isPressed && !controls.keys.drift.actionDone) {
             if (carUtils.isSpeedNegative(userCar)) return; // Si la velocidad es negativa, no se puede derrapar
             userCar.isDrifting = true;
@@ -594,21 +693,18 @@ const handler = function() {
                         });
                         createNewWheelWearSegment = false;
                     }
-                    else {
-                        createNewWheelWearSegment = true;
-                        wheelWear[0].shift();
-                        wheelWear[1].shift();
-                    }
+                    else createNewWheelWearSegment = true;
                 }
             }
             else {
-                if (car === userCar) {
+                if (car === userCar) { // Si no está derrapando, ir borrando el desgaste de las ruedas
                     createNewWheelWearSegment = true;
                     wheelWear[0].shift();
                     wheelWear[1].shift();
                 }
             }
 
+            // Derrapando o no, si se alcanza el límite de desgaste de las ruedas, se va borrando el desgaste para ahorrar recursos
             if (car === userCar) {
                 if (wheelWear[0].length >= wheelWearLimit) {
                     wheelWear[0].shift();
@@ -679,6 +775,7 @@ const handler = function() {
         drawCars();
         drawBoostEffects();
         drawUsername();
+        drawUserInterface();
         drawDebug();
 
         checkAiNextMove();
@@ -730,11 +827,11 @@ document.addEventListener('DOMContentLoaded', handler);
  * - [X] Mejorar las partículas de humo.
  * - [X] BUG: El derrape ahora en 180 grados detecta que se está marcha atrás.
  * - [ ] Implementar modos de juego
- *     - [ ] El juego será solo online, podrán unirse tantas personas como quieran en una sola sala.
+ *     - [X] El juego será solo online, podrán unirse tantas personas como quieran en una sola sala.
  *     - [ ] Entre juego y juego, se estará un par de minutos en la sala de espera.
- *         - [ ] Si hay más de X personas, el contador se reducirá a un número mucho menor.
+ *         - [X] Si hay más de X personas, el contador se reducirá a un número mucho menor.
  *         - [ ] En la sala de espera, además de conducir mientras tanto, podrás cambiar tu coche (¿modificarlo?)
- *     - [ ] Cuando se termine el tiempo de sala de espera, empezará un modo de juego aleatorio.
+ *     - [X] Cuando se termine el tiempo de sala de espera, empezará un modo de juego aleatorio.
  *     - [ ] Modo de juego resistencia: Aguanta el mayor tiempo posible en un circuito proceduralmente generado donde tu coche irá cada vez más rápido.
  *     - [ ] Modo de juego carrera: Llega antes que cualquier otro a la meta después de X vueltas.
  *     - [ ] Modo de juego supervivencia: Sé el último en pie en el circuito empujando a tus rivales. Al completar una vuelta ganas un super empuje.

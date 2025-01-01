@@ -15,12 +15,22 @@ export class Circuit {
         this.startPoint = null; // Punto de inicio del circuito
     }
 
+    /**
+     * Añade un segmento al circuito.
+     * @param {object} segment Es el segmento que se quiere añadir al circuito.
+     */
     addSegment(segment) {
         if (this.startPoint === null) { throw new Error('No se ha indicado punto de inicio'); }
         else this.segments.push(segment);
     }
 
-    // Método para saber cómo cerrar el circuito de forma perfecta, no cambia ningún segmento, solo comenta cómo se debería cerrar. Obligatorio que el último segmento sea un arco (para saber cómo ponerlo). Observar la consola del navegador para saber los resultados.
+    /**
+     * Método para saber cómo cerrar el circuito de la mejor forma posible.
+     * No cambia valores de ningún segmento, solo comenta cómo se debería cambiar el último segmento para cerrar el circuito.
+     * Obligatorio que el último segmento sea un arco, da igual su distancia con respecto al punto de inicio, pero debe tener un ángulo respecto al punto de inicio menor de 90 grados.
+     * @param {number} maxIterations Número máximo de iteraciones para encontrar la distancia 0. Cuanto mayor sea, más preciso será el resultado. Si es muy bajo, se obtendrá una aproximación poco precisa.
+     * @returns {void} Observar la consola del navegador para saber los resultados. En caso de poder cerrarlo, dirá qué radio y con qué ángulo debería ponerse el último arco y, en caso de necesitarlo, también dirá qué longitud tendrá la recta final del circuito.
+     */
     howToCloseCircuit(maxIterations = 100) {
         if (this.segments.length === 0) { throw new Error('No hay segmentos en el circuito'); }
 
@@ -114,8 +124,8 @@ export class Circuit {
 
     /**
      * Obtener el segmento en el que se encuentra el coche, o null si está fuera del circuito.
-     * @param {*} car es el coche que se quiere comprobar.
-     * @param {*} precision es la precisión con la que se quiere comprobar si el coche está en el segmento. 1 indica que se comprobará todo el ancho del circuito, 0.5 la mitad, etc. La precisión es relativa al centro del circuito.
+     * @param {object} car es el coche que se quiere comprobar.
+     * @param {number} precision es la precisión con la que se quiere comprobar si el coche está en el segmento. 1 indica que se comprobará todo el ancho del circuito, 0.5 la mitad, etc. La precisión es relativa al centro del circuito.
      * @returns objeto segment que contiene el segmento en el que se encuentra el coche, o null si está fuera del circuito.
      */
     getCurrentSegment(car, precision = 1) {
@@ -179,14 +189,23 @@ export class Circuit {
         return null;
     }
 
-    // Comprobar si el coche está dentro del circuito
+    /**
+     * Comprobar si el coche está dentro del circuito
+     * @param {object} car Es el coche que se quiere comprobar.
+     * @returns Booleano que indica si el coche está dentro del circuito.
+     */
     isCarInside(car) {
         const currentSegment = this.getCurrentSegment(car);
         if (currentSegment === null) return false;
         else return true;
     }
 
-    // Obtener el lado en el que está el coche en un segmento de arco, retornando "inside" si está en la parte interior, "outside" si está en la parte exterior. NO se comprueba si está dentro del segmento.
+    /**
+     * Obtener el lado en el que está el coche en un segmento de arco, retornando "inside" si está en la parte interior, "outside" si está en la parte exterior. NO se comprueba si está dentro del segmento.
+     * @param {object} car Es el coche que se quiere comprobar.
+     * @param {object} segment Es el segmento de arco en el que se quiere comprobar.
+     * @returns Cadena de texto que representa el lado en el que está el coche: "inside" u "outside".
+     */
     getArcSide(car, segment) {
         if (segment.type !== 'arc') throw new Error('El segmento no es un arco');
 
@@ -198,7 +217,12 @@ export class Circuit {
         else return 'outside';
     }
 
-    // Obtener el ángulo de un punto respecto al centro de un segmento de arco. NO se comprueba si está dentro del segmento.
+    /**
+     * Obtener el ángulo de un punto respecto al centro de un segmento de arco. NO se comprueba si está dentro del segmento.
+     * @param {object} car Es el coche que se quiere comprobar.
+     * @param {object} segment Es el segmento de arco en el que se quiere comprobar.
+     * @returns Número que representa el ángulo en grados.
+     */
     getArcAngle(car, segment) {
         if (segment.type !== 'arc') throw new Error('El segmento no es un arco');
 
@@ -210,12 +234,22 @@ export class Circuit {
         return angle * 180 / Math.PI;
     }
 
-    // Dirección en grados
+    /**
+     * Definir el punto de inicio del circuito. Tiene dos formas de llamarse: con un argumento o con tres argumentos.
+     * @param {number|object} x Es la coordenada x del punto de inicio o un objeto PointWithDirection si solo se llama con un argumento.
+     * @param {number} y Es la coordenada y del punto de inicio.
+     * @param {number} direction Es la dirección en grados del punto de inicio.
+     */
     setStartPoint(x, y, direction) {
-        this.startPoint = new PointWithDirection(x, y, direction);
+        if (arguments.length === 1) this.startPoint = x;
+        else this.startPoint = new PointWithDirection(x, y, direction);
     }
 
-    // Línea recta: longitud en píxeles
+    /**
+     * Devuelve un segmento que representa una línea recta.
+     * @param {number} length Es la longitud de la línea recta, en píxeles.
+     * @returns Objeto que representa el segmento.
+     */
     straightLine(length) {
         if (this.startPoint === null) { throw new Error('No se ha indicado punto de inicio'); }
 
@@ -244,7 +278,12 @@ export class Circuit {
         }
     }
 
-    // Curva: radio en píxeles y ángulo en grados
+    /**
+     * Devuelve un segmento que representa un arco.
+     * @param {number} radius Es el radio del arco, en píxeles.
+     * @param {number} angle Es el ángulo del arco, en grados. Positivo para arcos en sentido horario, negativo para arcos en sentido antihorario.
+     * @returns Objeto que representa el segmento.
+     */
     arc(radius, angle) {
         if (this.startPoint === null) { throw new Error('No se ha indicado punto de inicio'); }
 
@@ -273,5 +312,25 @@ export class Circuit {
                 isClockwise: angle > 0
             }
         }
+    }
+
+    /**
+     * Transforma los segmentos recibidos del servidor en segmentos válidos y los añade al circuito.
+     * @param {object[]} segments Son los segmentos recibidos del servidor.
+     */
+    addServerSegments(segments) {
+        for (let i = 0; i < segments.length; i++) {
+            const segment = segments[i];
+            if (segment.type === "straight") this.addSegment(this.straightLine(segment.data.length));
+            else if (segment.type === "arc") this.addSegment(this.arc(segment.data.radius, segment.data.angle));
+            else throw new Error("Segmento no reconocido");
+        }
+    }
+
+    static defaultCircuit() {
+        const circuit = new Circuit(500, 20);
+        circuit.setStartPoint(100, 100, 0);
+        circuit.addSegment(circuit.arc(300, 360));
+        return circuit;
     }
 }
