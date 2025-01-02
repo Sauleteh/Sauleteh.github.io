@@ -27,31 +27,34 @@ const handler = function() {
     canvas.height = 540;
     ctx.imageSmoothingEnabled = false;  // Desactiva el suavizado de imágenes
 
+    // Inicialización de variables base para el juego
     const fpsController = new FPSControllerV2(60);
     const controls = new Controls();
     const camera = new Point(0, 0); // La cámara tiene el mismo tamaño que el canvas y la coordenada que se especifica es su esquina superior izquierda. Su movimiento horizontal está invertido (+x => Izq.) y su movimiento vertical es igual al del canvas (+y => Abajo)
     const socketFrameUpdate = 1; // Cada cuántos frames se envía la actualización de posición al servidor
     let socketFrameUpdateCounter = 0; // Contador de frames para enviar la actualización de posición al servidor
-
-    const movingAirFriction = 0.1;
-    const idleAirFriction = 0.008;
-    const outsideCircuitMultiplier = 0.8;
-    const wheelWear = [[], []]; // Dos arrays, una para cada rueda donde se guarda los distintos puntos "point" donde ha estado la rueda y "isNewSegment" si es un nuevo segmento de derrape o no
-    const wheelWearLimit = 150; // Límite de rastros del suelo
-    const smokeParticleMaxLife = 10; // Vida máxima de las partículas de humo
-    const boostParticleMaxLife = 7; // Vida máxima de las partículas del boost
-    let createNewWheelWearSegment = false; // True si se debe crear un nuevo segmento de desgaste de ruedas, false en caso contrario
-    const turnSensitiveLimit = 6; // Frames para alcanzar la máxima sensibilidad de giro
-    let turnSensitiveCounter = 0; // La sensibilidad del giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
-
     const cars = [];
     const localCarVariables = []; // Variables para los coches, pero que no se envían al servidor. El elemento i son las variables del coche i en el array de coches.
     const carUtils = new CarUtils();
+    let circuit = Circuit.defaultCircuit(); // Circuito por defecto para jugar mientras se espera a que empiece la carrera
+
+    // Constantes de juego
+    const movingAirFriction = 0.1;
+    const idleAirFriction = 0.008;
+    const outsideCircuitMultiplier = 0.8;
+    const smokeParticleMaxLife = 10; // Vida máxima de las partículas de humo
+    const boostParticleMaxLife = 7; // Vida máxima de las partículas del boost
+    const wheelWearLimit = 150; // Límite de rastros del suelo
+    const turnSensitiveLimit = 6; // Frames para alcanzar la máxima sensibilidad de giro
+
+    // Variables de juego
+    const wheelWear = [[], []]; // Dos arrays, una para cada rueda donde se guarda los distintos puntos "point" donde ha estado la rueda y "isNewSegment" si es un nuevo segmento de derrape o no
+    let createNewWheelWearSegment = false; // True si se debe crear un nuevo segmento de desgaste de ruedas, false en caso contrario
+    let turnSensitiveCounter = 0; // La sensibilidad del giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
     let waitCountdownCount = undefined; // Contador de tiempo para empezar la carrera
     let waitCountdownInterval = undefined; // Intervalo para contar el tiempo restante para empezar la carrera
     let startCountdownCount = undefined; // Contador de tiempo para empezar la carrera
     let startCountdownInterval = undefined; // Intervalo para contar el tiempo restante para empezar la carrera
-    let circuit = Circuit.defaultCircuit(); // Circuito por defecto para jugar mientras se espera a que empiece la carrera
     let canMove = true; // Si es false, no se puede mover el coche
 
     const userCar = new Car(
@@ -166,7 +169,8 @@ const handler = function() {
 
             canMove = false;
             userCar.reset();
-            userCar.coords = circuit.startPoint.coords;
+            userCar.coords = structuredClone(circuit.startPoint.coords);
+            userCar.lastCoords = structuredClone(userCar.coords);
             userCar.direction = circuit.startPoint.direction;
             userCar.lastDirection = userCar.direction;
 
@@ -204,7 +208,8 @@ const handler = function() {
 
             circuit = Circuit.defaultCircuit();
             userCar.reset();
-            userCar.coords = circuit.startPoint.coords;
+            userCar.coords = structuredClone(circuit.startPoint.coords);
+            userCar.lastCoords = structuredClone(userCar.coords);
             userCar.direction = circuit.startPoint.direction;
             userCar.lastDirection = userCar.direction;
             canMove = true;
@@ -415,6 +420,19 @@ const handler = function() {
             ctx.fill();
         }
 
+        // Dibujar línea de meta
+        ctx.strokeStyle = circuit.hasCrossedFinishLine(userCar) ? "white" : "red";
+        ctx.beginPath();
+        ctx.moveTo(
+            circuit.leftFinishLine.x + camera.x,
+            circuit.leftFinishLine.y + camera.y
+        );
+        ctx.lineTo(
+            circuit.rightFinishLine.x + camera.x,
+            circuit.rightFinishLine.y + camera.y
+        );
+        ctx.stroke();
+
         console.log(`
                     Id: ${userCar.id}\n
                     Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)})\n
@@ -569,6 +587,8 @@ const handler = function() {
 
     function applySpeed() {
         cars.forEach(car => {
+            car.lastCoords.x = car.coords.x;
+            car.lastCoords.y = car.coords.y;
             car.coords.x += car.speed.x * fpsController.deltaTime;
             car.coords.y += car.speed.y * fpsController.deltaTime;
         });
@@ -828,9 +848,8 @@ document.addEventListener('DOMContentLoaded', handler);
  * - [X] BUG: El derrape ahora en 180 grados detecta que se está marcha atrás.
  * - [ ] Implementar modos de juego
  *     - [X] El juego será solo online, podrán unirse tantas personas como quieran en una sola sala.
- *     - [ ] Entre juego y juego, se estará un par de minutos en la sala de espera.
+ *     - [X] Entre juego y juego, se estará un par de minutos en la sala de espera.
  *         - [X] Si hay más de X personas, el contador se reducirá a un número mucho menor.
- *         - [ ] En la sala de espera, además de conducir mientras tanto, podrás cambiar tu coche (¿modificarlo?)
  *     - [X] Cuando se termine el tiempo de sala de espera, empezará un modo de juego aleatorio.
  *     - [ ] Modo de juego resistencia: Aguanta el mayor tiempo posible en un circuito proceduralmente generado donde tu coche irá cada vez más rápido.
  *     - [ ] Modo de juego carrera: Llega antes que cualquier otro a la meta después de X vueltas.
@@ -850,4 +869,5 @@ document.addEventListener('DOMContentLoaded', handler);
  * - [X] Implementar sistema de aceleración.
  * - [X] Implementar coches con IA.
  * - [ ] Implementar un garaje donde puedas modificar tu coche.
+ * - [ ] Hacer que después de X frames, si no se ha movido el coche dejar de enviar la información al servidor, en vez de enviar info solo cuando se mueva para solucionar el problema de datos imprecisos.
  */

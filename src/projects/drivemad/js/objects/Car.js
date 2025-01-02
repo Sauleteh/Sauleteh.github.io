@@ -51,6 +51,7 @@ export class Car
 
         this.id = null; // Identificador del coche para el online
         this.speed = new Point(0, 0); // Las coordenadas XY del coche (Es una clase Point)
+        this.lastCoords = new Point(coords.x, coords.y); // Las últimas coordenadas XY del coche que hubo en el frame anterior (Es una clase Point)
         this.lastDirection = direction;
         this.isDrifting = false;
         this.isAccelerating = false; // True si está acelerando, false si está frenando (si no está haciendo ninguna de las dos, su estado no cambia, se queda en el estado que ya tiene)

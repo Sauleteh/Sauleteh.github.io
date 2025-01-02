@@ -9,10 +9,13 @@ import { Point, PointWithDirection } from './Point.js';
 */
 export class Circuit {
     constructor(circuitWidth, lineWidth) {
-        this.segments = []; // Las líneas que forman el circuito
         this.circuitWidth = circuitWidth; // Ancho del circuito en píxeles
         this.lineWidth = lineWidth; // Ancho de las líneas que delimitan el circuito
-        this.startPoint = null; // Punto de inicio del circuito
+        
+        this.segments = []; // Las líneas que forman el circuito
+        this.startPoint = null; // Punto de inicio del circuito. Modificar con setStartPoint
+        this.leftFinishLine = null; // Punto de inicio de la línea de meta por la izquierda
+        this.rightFinishLine = null; // Punto de inicio de la línea de meta por la derecha
     }
 
     /**
@@ -126,7 +129,7 @@ export class Circuit {
      * Obtener el segmento en el que se encuentra el coche, o null si está fuera del circuito.
      * @param {object} car es el coche que se quiere comprobar.
      * @param {number} precision es la precisión con la que se quiere comprobar si el coche está en el segmento. 1 indica que se comprobará todo el ancho del circuito, 0.5 la mitad, etc. La precisión es relativa al centro del circuito.
-     * @returns objeto segment que contiene el segmento en el que se encuentra el coche, o null si está fuera del circuito.
+     * @returns Objeto segment que contiene el segmento en el que se encuentra el coche, o null si está fuera del circuito.
      */
     getCurrentSegment(car, precision = 1) {
         for (let i = 0; i < this.segments.length; i++) {
@@ -243,6 +246,40 @@ export class Circuit {
     setStartPoint(x, y, direction) {
         if (arguments.length === 1) this.startPoint = x;
         else this.startPoint = new PointWithDirection(x, y, direction);
+
+        this.leftFinishLine = new Point(
+            this.startPoint.coords.x + Math.cos((this.startPoint.direction - 90) * Math.PI / 180) * this.circuitWidth / 2,
+            this.startPoint.coords.y + Math.sin((this.startPoint.direction - 90) * Math.PI / 180) * this.circuitWidth / 2
+        );
+        this.rightFinishLine = new Point(
+            this.startPoint.coords.x + Math.cos((this.startPoint.direction + 90) * Math.PI / 180) * this.circuitWidth / 2,
+            this.startPoint.coords.y + Math.sin((this.startPoint.direction + 90) * Math.PI / 180) * this.circuitWidth / 2
+        );
+    }
+
+    /**
+     * Comprobar si un coche ha cruzado la línea de meta.
+     * @param {object} car Es el coche que se quiere comprobar.
+     * @returns Booleano que indica si el coche ha cruzado la línea de meta en el último frame.
+     */
+    hasCrossedFinishLine(car) {
+        const prevPoint = car.lastCoords;
+        const currPoint = car.coords;
+        const lineStart = this.leftFinishLine;
+        const lineEnd = this.rightFinishLine;
+
+        // Se calcula el producto cruzado entre los puntos y la línea
+        const crossPrev = (lineEnd.x - lineStart.x) * (prevPoint.y - lineStart.y) - (lineEnd.y - lineStart.y) * (prevPoint.x - lineStart.x);
+        const crossCurrent = (lineEnd.x - lineStart.x) * (currPoint.y - lineStart.y) - (lineEnd.y - lineStart.y) * (currPoint.x - lineStart.x);
+    
+        const crossedLine = crossPrev * crossCurrent < 0; // Se verifica si los signos son diferentes (existe un cruce)
+        if (!crossedLine) return false; // Si no ha cruzado la línea, no se hace nada
+
+        // Se verifica que el punto de cruce esté entre la línea de meta
+        const prevIsInside = Math.min(lineStart.x, lineEnd.x) <= prevPoint.x && prevPoint.x <= Math.max(lineStart.x, lineEnd.x) && Math.min(lineStart.y, lineEnd.y) <= prevPoint.y && prevPoint.y <= Math.max(lineStart.y, lineEnd.y);
+        const currIsInside = Math.min(lineStart.x, lineEnd.x) <= currPoint.x && currPoint.x <= Math.max(lineStart.x, lineEnd.x) && Math.min(lineStart.y, lineEnd.y) <= currPoint.y && currPoint.y <= Math.max(lineStart.y, lineEnd.y);
+
+        return prevIsInside || currIsInside;
     }
 
     /**
@@ -329,8 +366,9 @@ export class Circuit {
 
     static defaultCircuit() {
         const circuit = new Circuit(500, 20);
-        circuit.setStartPoint(100, 100, 0);
-        circuit.addSegment(circuit.arc(300, 360));
+        circuit.setStartPoint(100, 100, 60);
+        circuit.addSegment(circuit.arc(300, 180));
+        circuit.addSegment(circuit.arc(300, 180));
         return circuit;
     }
 }
