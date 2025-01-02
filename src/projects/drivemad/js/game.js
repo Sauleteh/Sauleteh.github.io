@@ -171,6 +171,11 @@ const handler = function() {
                 circuit.setStartPoint(circuitData.data.startPoint);
                 circuit.addServerSegments(circuitData.data.segments);
                 lapsToComplete = data.content.laps;
+                if (data.content.inverted) {
+                    // Si está el circuito invertido, se invierte la dirección de salida después de añadir los segmentos para que lo único que gire sean los coches
+                    circuit.startPoint.direction += 180;
+                    circuit.startPoint.direction = circuit.startPoint.direction % 360;
+                }
             }
             else throw new Error("Unknown gamemode");
 

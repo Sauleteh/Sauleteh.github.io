@@ -282,7 +282,7 @@ export class Circuit {
     }
 
     /**
-     * Devuelve un segmento que representa una línea recta.
+     * Devuelve un segmento que representa una línea recta para el circuito con los segmentos actuales.
      * @param {number} length Es la longitud de la línea recta, en píxeles.
      * @returns Objeto que representa el segmento.
      */
@@ -316,7 +316,7 @@ export class Circuit {
     }
 
     /**
-     * Devuelve un segmento que representa un arco.
+     * Devuelve un segmento que representa un arco para el circuito con los segmentos actuales.
      * @param {number} radius Es el radio del arco, en píxeles.
      * @param {number} angle Es el ángulo del arco, en grados. Positivo para arcos en sentido horario, negativo para arcos en sentido antihorario.
      * @returns Objeto que representa el segmento.
