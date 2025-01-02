@@ -88,6 +88,7 @@ const handler = function() {
     cars.push(aiCar); //* Debug
     localCarVariables.push(new LocalCarVariables());
 
+    // MARK: Conexión server
     const socket = new WebSocket('wss://sauleteh.gayofo.com/wss/drivemad');
     socket.onopen = function () {
         console.log("Connected to WebSocket server");
@@ -251,6 +252,7 @@ const handler = function() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
+    // MARK: Dibujado
     function drawCars() {
         cars.forEach(car => {
             ctx.save();
@@ -461,6 +463,7 @@ const handler = function() {
         ); // Debug
     }
 
+    // MARK: Control de juego
     function checkAiNextMove() {
         let precision = 0.1;
         let segment = circuit.getCurrentSegment(aiCar, precision);
@@ -858,7 +861,7 @@ const handler = function() {
 };
 document.addEventListener('DOMContentLoaded', handler);
 
-/** TODO list:
+/** MARK: TODO list
  * - [X] Implementar sistema de frenado en vez de que al frenar se sume el vector de freno (que no es suficiente potencia para frenados más grandes).
  * - [X] Implementar el sistema de derrape.
  *     - [X] Se hará con el botón espacio.
@@ -907,6 +910,7 @@ document.addEventListener('DOMContentLoaded', handler);
  * - [X] Implementar sistema de aceleración.
  * - [X] Implementar coches con IA.
  * - [ ] Implementar un garaje donde puedas modificar tu coche.
+ * - [ ] Implementar un creador de circuitos, donde envíes el circuito al servidor y este lo envíe a los demás jugadores.
  * - [ ] Hacer que después de X frames, si no se ha movido el coche dejar de enviar la información al servidor, en vez de enviar info solo cuando se mueva para solucionar el problema de datos imprecisos.
  * - [X] BUG: La detección de la línea de meta no funciona correctamente.
  */
