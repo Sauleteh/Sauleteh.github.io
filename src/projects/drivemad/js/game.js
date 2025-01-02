@@ -619,7 +619,7 @@ const handler = function() {
 
         // Primero se comprueba si se visitaron todos los segmentos y, en tal caso, se comprueba también si se cruzó la línea de meta
         if (circuit.segments.length === segmentsVisited.size) {
-            if (circuit.hasCrossedFinishLine(userCar)) { // TODO: Arreglar la detección de la línea de meta
+            if (circuit.hasCrossedFinishLine(userCar)) {
                 segmentsVisited.clear();
                 lapsCompleted++;
 
@@ -908,5 +908,5 @@ document.addEventListener('DOMContentLoaded', handler);
  * - [X] Implementar coches con IA.
  * - [ ] Implementar un garaje donde puedas modificar tu coche.
  * - [ ] Hacer que después de X frames, si no se ha movido el coche dejar de enviar la información al servidor, en vez de enviar info solo cuando se mueva para solucionar el problema de datos imprecisos.
- * - [ ] BUG: La detección de la línea de meta no funciona correctamente.
+ * - [X] BUG: La detección de la línea de meta no funciona correctamente.
  */

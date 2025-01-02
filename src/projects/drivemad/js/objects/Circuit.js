@@ -263,23 +263,22 @@ export class Circuit {
      * @returns Booleano que indica si el coche ha cruzado la línea de meta en el último frame.
      */
     hasCrossedFinishLine(car) {
-        const prevPoint = car.lastCoords;
-        const currPoint = car.coords;
-        const lineStart = this.leftFinishLine;
-        const lineEnd = this.rightFinishLine;
+        // Créditos: https://math.stackexchange.com/questions/149622/finding-out-whether-two-line-segments-intersect-each-other (Respuesta de wcochran)
+        const p1 = car.lastCoords;
+        const p2 = car.coords;
+        const l1 = this.leftFinishLine;
+        const l2 = this.rightFinishLine;
 
-        // Se calcula el producto cruzado entre los puntos y la línea
-        const crossPrev = (lineEnd.x - lineStart.x) * (prevPoint.y - lineStart.y) - (lineEnd.y - lineStart.y) * (prevPoint.x - lineStart.x);
-        const crossCurrent = (lineEnd.x - lineStart.x) * (currPoint.y - lineStart.y) - (lineEnd.y - lineStart.y) * (currPoint.x - lineStart.x);
-    
-        const crossedLine = crossPrev * crossCurrent < 0; // Se verifica si los signos son diferentes (existe un cruce)
-        if (!crossedLine) return false; // Si no ha cruzado la línea, no se hace nada
+        const det = (p2.x - p1.x) * (l2.y - l1.y) - (p2.y - p1.y) * (l2.x - l1.x); // Calcular determinante (denominador para las fórmulas de intersección)
+        if (det === 0) return false; // Si det = 0, las líneas son paralelas o coincidentes, no hay cruce
 
-        // Se verifica que el punto de cruce esté entre la línea de meta
-        const prevIsInside = Math.min(lineStart.x, lineEnd.x) <= prevPoint.x && prevPoint.x <= Math.max(lineStart.x, lineEnd.x) && Math.min(lineStart.y, lineEnd.y) <= prevPoint.y && prevPoint.y <= Math.max(lineStart.y, lineEnd.y);
-        const currIsInside = Math.min(lineStart.x, lineEnd.x) <= currPoint.x && currPoint.x <= Math.max(lineStart.x, lineEnd.x) && Math.min(lineStart.y, lineEnd.y) <= currPoint.y && currPoint.y <= Math.max(lineStart.y, lineEnd.y);
+        // Calcular parámetros de la intersección (t y u)
+        const t = ((l1.x - p1.x) * (l2.y - l1.y) - (l1.y - p1.y) * (l2.x - l1.x)) / det;
+        const u = ((l1.x - p1.x) * (p2.y - p1.y) - (l1.y - p1.y) * (p2.x - p1.x)) / det;
 
-        return prevIsInside || currIsInside;
+        // Verificar si la intersección ocurre dentro de ambos segmentos
+        if (t >= 0 && t <= 1 && u >= 0 && u <= 1) return true;
+        else return false;
     }
 
     /**
