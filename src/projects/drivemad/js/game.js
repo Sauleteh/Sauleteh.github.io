@@ -5,6 +5,7 @@ import { Controls } from "./objects/Controls.js";
 import { Circuit } from "./objects/Circuit.js";
 import { CarUtils } from "./objects/CarUtils.js";
 import { LocalCarVariables } from "./objects/LocalCarVariables.js";
+import { Gamemodes } from "./objects/Gamemodes.js";
 
 const handler = function() {
     document.removeEventListener('DOMContentLoaded', handler);
@@ -56,11 +57,18 @@ const handler = function() {
     let startCountdownCount = undefined; // Contador de tiempo para empezar la carrera
     let startCountdownInterval = undefined; // Intervalo para contar el tiempo restante para empezar la carrera
     let canMove = true; // Si es false, no se puede mover el coche
+    let gamemode = undefined; // Modo de juego actual
+
+    // Variables especiales para cada modo de juego
+    // Modo de juego carrera
+    const segmentsVisited = new Set(); // Para que cuente la vuelta como válida, se deben visitar todos los segmentos del circuito
+    let lapsCompleted = 0; // Vueltas completadas por el coche
+    let lapsToComplete = undefined; // Vueltas necesarias para completar la carrera
 
     const userCar = new Car(
         "User", // Nombre del usuario del coche
         new Point(100, 100), // Posición (del centro del coche) inicial
-        -90, // Ángulo (grados)
+        0, // Ángulo (grados)
         20, // Ancho
         40, // Alto
         "red", // Color
@@ -76,7 +84,7 @@ const handler = function() {
     cars.push(userCar); //* Debug
     localCarVariables.push(new LocalCarVariables());
 
-    const aiCar = new Car("Bores", new Point(100, 100), -90, 20, 40, "blue", 1.2, 2, 0.3, 5, 4, 2, 1.1, 1000);
+    const aiCar = new Car("Bores", new Point(100, 100), 0, 20, 40, "blue", 1.2, 2, 0.3, 5, 4, 2, 1.1, 1000);
     cars.push(aiCar); //* Debug
     localCarVariables.push(new LocalCarVariables());
 
@@ -97,6 +105,7 @@ const handler = function() {
 
     socket.onmessage = function (event) {
         const data = JSON.parse(event.data);
+        console.log(data);
 
         if (data.type === "login_id" && data.code === 0) {
             // Aquí se recibe el id del usuario proporcionado por el servidor
@@ -122,8 +131,6 @@ const handler = function() {
         }
         else if (data.type === "wait_countdown_start" && data.code === 0) {
             // Cuando se actualiza el tiempo de espera para empezar la carrera, se recibe el tiempo restante
-            console.log(`${data.type}: ${data.content}`);
-
             if (!data.content) throw new Error("The countdown time received is undefined");
 
             // Si lo que se ha producido es una actualización del tiempo, se para el intervalo anterior
@@ -140,8 +147,6 @@ const handler = function() {
         }
         else if (data.type === "wait_countdown_stop" && data.code === 0) {
             // Cuando se para el tiempo de forma indefinida, se recibe el tiempo restante, que debería ser undefined
-            console.log(`${data.type}: ${data.content}`);
-
             if (data.content) throw new Error("The countdown time received is not undefined");
             else if (!waitCountdownInterval) throw new Error("The countdown interval is not defined");
             
@@ -151,28 +156,26 @@ const handler = function() {
         }
         else if (data.type === "game_prepare" && data.code === 0) {
             // Cuando se inicia la preparación de la carrera, se recibe "gamemode" y "circuit"
-            console.log(`${data.type}: ${data.content}`);
-
             if (waitCountdownInterval) { // Si el servidor ha solicitado que el cliente se prepare antes de terminar el tiempo de espera, se para el intervalo
                 clearInterval(waitCountdownInterval);
                 waitCountdownInterval = undefined;
             }
             waitCountdownCount = undefined; // En cualquier caso, se pone el contador a undefined
 
-            if (data.content.gamemode === "RACE") {
+            resetGamemodeVariables();
+
+            if (data.content.gamemode === Gamemodes.RACE) {
                 const circuitData = data.content.circuit;
                 circuit = new Circuit(circuitData.data.circuitWidth, circuitData.data.lineWidth);
                 circuit.setStartPoint(circuitData.data.startPoint);
                 circuit.addServerSegments(circuitData.data.segments);
+                lapsToComplete = data.content.laps;
             }
             else throw new Error("Unknown gamemode");
 
+            gamemode = data.content.gamemode;
             canMove = false;
-            userCar.reset();
-            userCar.coords = structuredClone(circuit.startPoint.coords);
-            userCar.lastCoords = structuredClone(userCar.coords);
-            userCar.direction = circuit.startPoint.direction;
-            userCar.lastDirection = userCar.direction;
+            userCar.reset(circuit.startPoint);
 
             const message = JSON.stringify({
                 type: "prepared",
@@ -182,8 +185,6 @@ const handler = function() {
         }
         else if (data.type === "game_start" && data.code === 0) {
             // Cuando se recibe la señal de iniciar la carrera, se recibe este evento sin recibir nada
-            console.log(`${data.type}: ${data.content}`);
-
             if (waitCountdownInterval) throw new Error("The wait countdown is not stopped");
             else if (startCountdownInterval) throw new Error("The start countdown is not stopped");
             else if (waitCountdownCount || startCountdownCount) throw new Error("There is a countdown count already running");
@@ -201,21 +202,30 @@ const handler = function() {
         }
         else if (data.type === "game_stop" && data.code === 0) {
             // Cuando se cancela la carrera por falta de jugadores, ya sea mientras estaba en preparación o en curso, se recibe este evento con el tiempo restante, que debería ser undefined
-            console.log(`${data.type}: ${data.content}`);
-
             if (data.content) throw new Error("The countdown time received is not undefined");
             else if (waitCountdownInterval || waitCountdownCount) throw new Error("The wait countdown is not stopped");
 
+            resetGamemodeVariables();
+            gamemode = undefined;
             circuit = Circuit.defaultCircuit();
-            userCar.reset();
-            userCar.coords = structuredClone(circuit.startPoint.coords);
-            userCar.lastCoords = structuredClone(userCar.coords);
-            userCar.direction = circuit.startPoint.direction;
-            userCar.lastDirection = userCar.direction;
+            userCar.reset(circuit.startPoint);
             canMove = true;
+        }
+        else if (data.type === "game_end" && data.code === 0) {
+            // Cuando se acaba la carrera, se recibe este evento sin recibir nada
+            resetGamemodeVariables();
+            gamemode = undefined;
+            circuit = Circuit.defaultCircuit();
+            userCar.reset(circuit.startPoint);
         }
         else console.error(`Unknown message: ${data}`);
     };
+
+    function resetGamemodeVariables() {
+        segmentsVisited.clear();
+        lapsCompleted = 0;
+        lapsToComplete = undefined;
+    }
 
     function initEvents() {
         document.addEventListener("keydown", function(event) {
@@ -313,6 +323,9 @@ const handler = function() {
         ctx.lineWidth = circuit.lineWidth;
         for (let i = 0; i < circuit.segments.length; i++) {
             const segment = circuit.segments[i];
+            if (segmentsVisited.has(segment.id)) ctx.strokeStyle = "lime";
+            else ctx.strokeStyle = "green";
+
             if (segment.type === 'straight') {
                 ctx.beginPath();
                 ctx.moveTo(segment.data.start.x - segment.data.widthSin + camera.x, segment.data.start.y + segment.data.widthCos + camera.y);
@@ -357,6 +370,7 @@ const handler = function() {
         ctx.fillText(`Speed: ${(carUtils.absoluteSpeed(userCar) * 5).toFixed(1)} km/h`, 10, 40);
         ctx.fillText(`Until next game: ${waitCountdownCount ? (waitCountdownCount + " seconds") : "Waiting for players"}`, 10, 70);
         ctx.fillText(`Start countdown: ${startCountdownCount ? (startCountdownCount + " seconds") : "Waiting for start"}`, 10, 100);
+        ctx.fillText(`Laps: ${lapsCompleted} / ${lapsToComplete ? lapsToComplete : "?"}`, 10, 130);
     }
 
     function drawDebug() {
@@ -595,7 +609,29 @@ const handler = function() {
     }
 
     function checkIsColliding() {
-        userCar.isInsideCircuit = circuit.isCarInside(userCar);
+        const currentSegment = circuit.getCurrentSegment(userCar);
+        if (currentSegment !== null && gamemode === Gamemodes.RACE) segmentsVisited.add(currentSegment.id); // Si se está en modo carrera, se añade el segmento a los segmentos visitados
+        userCar.isInsideCircuit = currentSegment !== null;
+    }
+
+    function checkLapCompletion() {
+        if (gamemode !== Gamemodes.RACE) return;
+
+        // Primero se comprueba si se visitaron todos los segmentos y, en tal caso, se comprueba también si se cruzó la línea de meta
+        if (circuit.segments.length === segmentsVisited.size) {
+            if (circuit.hasCrossedFinishLine(userCar)) { // TODO: Arreglar la detección de la línea de meta
+                segmentsVisited.clear();
+                lapsCompleted++;
+
+                if (lapsCompleted >= lapsToComplete) {
+                    const message = JSON.stringify({
+                        type: "finished",
+                        content: userCar.id
+                    });
+                    socket.send(message);
+                }
+            }
+        }
     }
 
     function applyRotationToSpeed() {
@@ -802,6 +838,7 @@ const handler = function() {
         checkCarControls();
         checkIsDrifting();
         checkIsColliding();
+        checkLapCompletion();
 
         applyRotationToSpeed();
         applyBoostMultiplier();
@@ -852,8 +889,9 @@ document.addEventListener('DOMContentLoaded', handler);
  *         - [X] Si hay más de X personas, el contador se reducirá a un número mucho menor.
  *     - [X] Cuando se termine el tiempo de sala de espera, empezará un modo de juego aleatorio.
  *     - [ ] Modo de juego resistencia: Aguanta el mayor tiempo posible en un circuito proceduralmente generado donde tu coche irá cada vez más rápido.
- *     - [ ] Modo de juego carrera: Llega antes que cualquier otro a la meta después de X vueltas.
+ *     - [Comprobar que funciona] Modo de juego carrera: Llega antes que cualquier otro a la meta después de X vueltas.
  *     - [ ] Modo de juego supervivencia: Sé el último en pie en el circuito empujando a tus rivales. Al completar una vuelta ganas un super empuje.
+ *     - [ ] Modo de juego time trial: Completa el circuito en el menor tiempo posible bajo un tiempo límite y sé el que tarde menos en completarlo.
  *     - [ ] Excepto si está expresamente indicado, los circuitos están previamente definidos (¿feedback de circuitos?).
  * - [ ] Implementar música.
  * - [X] Implementar efectos de sonido.
@@ -870,4 +908,5 @@ document.addEventListener('DOMContentLoaded', handler);
  * - [X] Implementar coches con IA.
  * - [ ] Implementar un garaje donde puedas modificar tu coche.
  * - [ ] Hacer que después de X frames, si no se ha movido el coche dejar de enviar la información al servidor, en vez de enviar info solo cuando se mueva para solucionar el problema de datos imprecisos.
+ * - [ ] BUG: La detección de la línea de meta no funciona correctamente.
  */

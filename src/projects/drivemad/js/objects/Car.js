@@ -66,9 +66,10 @@ export class Car
     //! IMPORTANTE: No añadir métodos de obtención de datos aquí, no se enviarán al servidor. Para añadir métodos de obtención de datos, añadirlos en el archivo CarUtils.js.
 
     /**
-     * Reinicia el coche, sin cambiar su posición.
+     * Reinicia el coche.
+     * @param {PointWithDirection} startPoint - Punto de inicio del circuito.
      */
-    reset() {
+    reset(startPoint) {
         this.speed.x = 0;
         this.speed.y = 0;
         this.isDrifting = false;
@@ -78,5 +79,10 @@ export class Car
         this.boostCounter = 1;
         this.boostLastUsed = 0;
         this.isPressingAccelerateOrBrake = false;
+
+        this.coords = structuredClone(startPoint.coords);
+        this.lastCoords = structuredClone(this.coords);
+        this.direction = startPoint.direction;
+        this.lastDirection = this.direction;
     }
 }

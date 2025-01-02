@@ -303,6 +303,7 @@ export class Circuit {
         );
 
         return {
+            id: this.segments.length,
             type: 'straight',
             ref: new PointWithDirection(endCoords.x, endCoords.y, currentPoint.direction),
             data: {
@@ -339,6 +340,7 @@ export class Circuit {
         );
 
         return {
+            id: this.segments.length,
             type: 'arc',
             ref: new PointWithDirection(reference.x, reference.y, currentPoint.direction + angle),
             data: {
