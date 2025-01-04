@@ -74,9 +74,38 @@ canvas.game {
     color: var(--ld-project-circledodger-text);
     font-size: 14px;
     padding: 5px 10px;
-    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    gap: 5px;
 
     &:nth-child(even) { background-color: var(--ld-project-circledodger-background-secondary); }
+}
+
+.controls-segment-list-item-text {
+    flex-grow: 1;
+}
+
+.controls-segment-list-item-button {
+    appearance: none;
+    border: 0;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+
+    &.controls-segment-list-item-button-edit {
+        background: url("/icons/edit-pen-icon.svg");
+        background-size: 14px;
+        background-repeat: no-repeat;
+        filter: invert(1);
+    }
+
+    &.controls-segment-list-item-button-delete {
+        background: url("/icons/recycle-bin-icon.svg");
+        background-size: 14px;
+        background-repeat: no-repeat;
+        filter: invert(1);
+    }
 }
 
 .controls-button {

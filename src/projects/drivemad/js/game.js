@@ -169,7 +169,7 @@ const handler = function() {
                 const circuitData = data.content.circuit;
                 circuit = new Circuit(circuitData.data.circuitWidth, circuitData.data.lineWidth);
                 circuit.setStartPoint(circuitData.data.startPoint);
-                circuit.addServerSegments(circuitData.data.segments);
+                circuit.addInfoSegments(circuitData.data.segments);
                 lapsToComplete = data.content.laps;
                 if (data.content.inverted) {
                     // Si está el circuito invertido, se invierte la dirección de salida después de añadir los segmentos para que lo único que gire sean los coches

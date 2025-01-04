@@ -342,6 +342,7 @@ export class Circuit {
             data: {
                 arcCenter: center,
                 radius: radius,
+                angle: angle,
                 startAngle: (currentPoint.direction + angleDirection) * Math.PI / 180, // En radianes
                 endAngle: ((currentPoint.direction + angleDirection) + angle) * Math.PI / 180, // En radianes
                 isClockwise: angle > 0
@@ -350,10 +351,10 @@ export class Circuit {
     }
 
     /**
-     * Transforma los segmentos recibidos del servidor en segmentos válidos y los añade al circuito.
+     * Transforma los segmentos recibidos en forma de información básica en segmentos válidos y los añade al circuito.
      * @param {object[]} segments Son los segmentos recibidos del servidor.
      */
-    addServerSegments(segments) {
+    addInfoSegments(segments) {
         for (let i = 0; i < segments.length; i++) {
             const segment = segments[i];
             if (segment.type === "straight") this.addSegment(this.straightLine(segment.data.length));

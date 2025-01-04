@@ -89,9 +89,9 @@ const handler = function() {
                 circuit = new Circuit(circuitWidth, lineWidth);
                 circuit.setStartPoint(100, 100, angle);
                 outDiv.textContent = "Circuit created successfully. You can now add segments.";
-                addItemToSegmentList(`Start point direction: ${circuit.startPoint.direction}º`);
+                addItemToSegmentList(`Circuit angle: ${circuit.startPoint.direction}º`);
                 addItemToSegmentList(`Circuit width: ${circuit.circuitWidth}px`);
-                addItemToSegmentList(`Edge lines width: ${circuit.lineWidth}px`);
+                addItemToSegmentList(`Edges width: ${circuit.lineWidth}px`);
             }
         }
 
@@ -127,7 +127,7 @@ const handler = function() {
             const radius = parseFloat(document.querySelector(".controls-arc input:nth-of-type(1)").value);
             const angle = parseFloat(document.querySelector(".controls-arc input:nth-of-type(2)").value);
 
-            if (!radius || radius <= 0) outDiv.textContent = "Please, enter the radius of the arc. It must be greater than 0.";
+            if (!radius || (radius - circuit.circuitWidth / 2) <= 0) outDiv.textContent = "Please, enter the radius of the arc. It must be greater than " + (circuit.circuitWidth/2).toFixed(2) + "px.";
             else if (angle === undefined || angle === null || isNaN(angle) || angle === 0 || angle <= -360 || angle >= 360) outDiv.textContent = "Please, enter the angle of the arc. It must be between -360 (excluded) and 360 (excluded).\nIt cannot be 0 either.";
             else {
                 circuit.addSegment(circuit.arc(radius, angle));
@@ -168,9 +168,63 @@ const handler = function() {
         const ul = document.querySelector(".controls-segment-list");
         const li = document.createElement("li");
         li.classList.add("controls-segment-list-item");
-        li.textContent = item;
+        
+        const text = document.createElement("label");
+        text.classList.add("controls-segment-list-item-text");
+        text.textContent = item;
+        li.appendChild(text);
+
+        const editButton = document.createElement("button");
+        editButton.classList.add("controls-segment-list-item-button");
+        editButton.classList.add("controls-segment-list-item-button-edit");
+        editButton.addEventListener("click", onEditButtonClick);
+        li.appendChild(editButton);
+
+        const deleteButton = document.createElement("button");
+        deleteButton.classList.add("controls-segment-list-item-button");
+        deleteButton.classList.add("controls-segment-list-item-button-delete");
+        deleteButton.addEventListener("click", onDeleteButtonClick);
+        li.appendChild(deleteButton);
+
         ul.appendChild(li);
         ul.scrollTop = ul.scrollHeight;
+    }
+
+    function onEditButtonClick(event) {
+        const target = event.target;
+        return;
+    }
+
+    function onDeleteButtonClick(event) {
+        const outDiv = document.querySelector(".controls-output-multiline");
+
+        const target = event.target;
+        const li = target.parentElement;
+        const ul = li.parentElement;
+        const index = Array.from(ul.children).indexOf(li); // Índice del elemento en la lista
+
+        // Si se intenta borrar uno de los 3 primeros elementos (Dirección, ancho y grosor del circuito), no se puede borrar
+        if (index >= 0 && index <= 2) outDiv.textContent = "You cannot delete the circuit definition.";
+        else {
+            const segmentIndex = index - 3; // Índice del segmento en el array de segmentos
+            circuit.segments.splice(segmentIndex, 1);
+            ul.removeChild(li);
+
+            // Recalculamos la lista de segmentos: se eliminan todos los segmentos y se vuelven a añadir
+            const segments = structuredClone(circuit.segments);
+            circuit.segments = [];
+            for (let i = 0; i < segments.length; i++) {
+                const segment = segments[i];
+                if (segment.type === 'straight') circuit.addSegment(circuit.straightLine(segment.data.length));
+                else if (segment.type === 'arc') circuit.addSegment(circuit.arc(segment.data.radius, segment.data.angle));
+            }
+
+            outDiv.textContent = "Segment deleted successfully.";
+            draw();
+        }
+
+        invokeHandleHeight();
+        return;
     }
 
     function clearCanvas() {
