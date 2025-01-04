@@ -251,7 +251,13 @@ const handler = function() {
      */
     function updateScale(value) {
         if (value === 0) scale = 1;
-        else scale += value;
+        
+        // Se reduce o aumenta la escala según el valor de value. Si ese value hace que la escala sea 0, se divide entre 10
+        const diff = parseFloat((scale - Math.abs(value)).toFixed(2)); // Diferencia entre la escala actual y el valor absoluto de value
+        if (value < 0) scale += ( diff <= 0 ? value / 10 : value ); // Si se está reduciendo la escala, se divide value entre 10 si la diferencia es menor o igual a 0
+        else scale += ( diff < 0 ? value / 10 : value ); // Si se está aumentando la escala, se divide value entre 10 si la diferencia es menor a 0, no si es menor o igual a 0 ya que al aumentar la escala a 0.1, 0.1 - 0.1 es igual a 0 por lo que no se dividiría entre 10
+
+        if (parseFloat(scale.toFixed(2)) <= 0) scale -= value / 10; // Si la escala es menor o igual a 0, se vuelve a la escala anterior
 
         const outDiv = document.querySelector(".controls-output-multiline");
         outDiv.textContent = `Scale updated to ${scale.toFixed(2)}.`;
