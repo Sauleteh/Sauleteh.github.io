@@ -28,3 +28,119 @@ canvas.game {
     image-rendering: pixelated;
     cursor: none;
 }
+
+.controls-primary {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.controls-secondary {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.controls-primary-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin: 12px 0px;
+}
+
+.controls-create-circuit, .controls-straight-line, .controls-arc, .controls-howtoclose {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+}
+
+.controls-segment-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    width: 200px;
+    height: 200px;
+    background-color: var(--ld-project-circledodger-background-primary);
+    border: 1px solid var(--ld-project-circledodger-color-3);
+    border-radius: 5px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ld-project-circledodger-color-3) var(--ld-project-circledodger-background-primary);
+}
+
+.controls-segment-list-item {
+    font-family: 'Raleway', sans-serif;
+    color: var(--ld-project-circledodger-text);
+    font-size: 14px;
+    padding: 5px 10px;
+    cursor: pointer;
+
+    &:nth-child(even) { background-color: var(--ld-project-circledodger-background-secondary); }
+}
+
+.controls-button {
+    background-color: var(--ld-project-circledodger-background-primary);
+    color: var(--ld-project-circledodger-text);
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--ld-project-circledodger-color-3);
+    font-family: 'Raleway', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+
+    &:hover { background-color: var(--ld-project-circledodger-background-secondary); }
+    &:active { background-color: var(--ld-project-circledodger-background-tertiary); }
+
+    &#btnZoomOut {
+        border-right: 0;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    &#btnZoomIn {
+        border-left: 0;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    &#btnZoomReset {
+        border-left: 0;
+        border-right: 0;
+        border-radius: 0;
+    }
+}
+
+.controls-zoom {
+    display: flex;
+    flex-direction: row;
+}
+
+.controls-input {
+    background-color: var(--ld-project-circledodger-background-primary);
+    color: var(--ld-project-circledodger-text);
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--ld-project-circledodger-color-3);
+    font-family: 'Raleway', sans-serif;
+    font-size: 14px;
+    flex-grow: 1;
+    width: 130px;
+}
+
+.controls-output-multiline {
+    white-space: pre-wrap;
+    background-color: var(--ld-project-circledodger-background-primary);
+    color: var(--ld-project-circledodger-color-2);
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--ld-project-circledodger-color-3);
+    font-family: 'Raleway', sans-serif;
+    font-size: 14px;
+    min-width: 500px;
+    flex-grow: 1;
+}
+
+.controls-div {
+    margin: 20px 0px;
+}

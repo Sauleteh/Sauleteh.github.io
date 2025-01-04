@@ -11,7 +11,8 @@ const handler = function() {
 
     const options = [
         new MenuOption("Play online", handlePlayOnline, canvas.width / 12, 200),
-        new MenuOption("Garage", undefined, canvas.width / 12, 250)
+        new MenuOption("Garage", undefined, canvas.width / 12, 250),
+        new MenuOption("Circuit creator", handleCircuitCreator, canvas.width / 12, 300)
     ];
 
     let isEntering = false; // Si se ha confirmado que el servidor está en línea, entonces se va a entrar
@@ -40,6 +41,12 @@ const handler = function() {
                 window.loadScript("./js/game.js", "game");
             }
         };
+    }
+
+    function handleCircuitCreator() {
+        stopEvents();
+        window.removeScript("menu");
+        window.loadScript("./js/creator.js", "creator");
     }
 
     function initEvents() {

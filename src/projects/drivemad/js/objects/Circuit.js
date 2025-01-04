@@ -32,7 +32,7 @@ export class Circuit {
      * No cambia valores de ningún segmento, solo comenta cómo se debería cambiar el último segmento para cerrar el circuito.
      * Obligatorio que el último segmento sea un arco, da igual su distancia con respecto al punto de inicio, pero debe tener un ángulo respecto al punto de inicio menor de 90 grados.
      * @param {number} maxIterations Número máximo de iteraciones para encontrar la distancia 0. Cuanto mayor sea, más preciso será el resultado. Si es muy bajo, se obtendrá una aproximación poco precisa.
-     * @returns {void} Observar la consola del navegador para saber los resultados. En caso de poder cerrarlo, dirá qué radio y con qué ángulo debería ponerse el último arco y, en caso de necesitarlo, también dirá qué longitud tendrá la recta final del circuito.
+     * @returns {string} Texto donde se comenta los resultados. En caso de poder cerrarlo, dirá qué radio y con qué ángulo debería ponerse el último arco y, en caso de necesitarlo, también dirá qué longitud tendrá la recta final del circuito.
      */
     howToCloseCircuit(maxIterations = 100) {
         if (this.segments.length === 0) { throw new Error('No hay segmentos en el circuito'); }
@@ -50,13 +50,11 @@ export class Circuit {
         const distanceSquared = dx * dx + dy * dy;
 
         if (distanceSquared < 1e-6) {
-            console.log("Intento de cerrado de circuito fallido:\n\nEl circuito ya está cerrado");
-            return;
+            return "Intento de cerrado de circuito fallido:\n\nEl circuito ya está cerrado";
         }
         else { // Para cerrar el circuito de forma que no se cambie de forma excesiva la estructura del circuito, no se comprueba cómo añadir un nuevo segmento, solo se comenta cómo se debería cambiar el último segmento para cerrarlo correctamente
             if (lastSegment.type === "straight") {
-                console.log("Intento de cerrado de circuito fallido:\n\nNo se puede cerrar el circuito con una línea recta. Por favor, borra el último segmento y añade un arco como último segmento.");
-                return;
+                return "Intento de cerrado de circuito fallido:\n\nNo se puede cerrar el circuito con una línea recta. Por favor, borra el último segmento y añade un arco como último segmento.";
             }
             else {
                 // Comprobar diferencia de ángulos
@@ -67,8 +65,7 @@ export class Circuit {
                 let newAngle = (lastSegment.data.endAngle - lastSegment.data.startAngle) * 180 / Math.PI;
 
                 if (diffAngle >= 90) {
-                    console.log("Intento de cerrado de circuito fallido:\n\nEl último segmento debe tener una diferencia menor de 90 grados con respecto al punto de cierre para saber cómo cerrar el circuito. Por favor, suma o resta el ángulo al último segmento para que la diferencia sea estrictamente menor de 90 grados.");
-                    return;
+                    return "Intento de cerrado de circuito fallido:\n\nEl último segmento debe tener una diferencia menor de 90 grados con respecto al punto de cierre para saber cómo cerrar el circuito. Por favor, suma o resta el ángulo al último segmento para que la diferencia sea estrictamente menor de 90 grados.";
                 }
                 else if (diffAngle > 0) {
                     // Borrar el último segmento y añadir un nuevo arco con el ángulo correcto
@@ -115,7 +112,7 @@ export class Circuit {
                 dy = lastSegment.ref.coords.y - firstPoint.coords.y;
                 const lineLength = Math.sqrt(dx * dx + dy * dy);
 
-                console.log(
+                return (
                     `Intento de cerrado de circuito terminado en ${iterations} iteraciones:\n\n` +
                     `Para cerrar el circuito, cambia el último segmento a circuit.arc(${newRadius}, ${newAngle}).\n\n` +
                     (lineLength > 0 ? `Después, borra la llamada a este método y añade después del arco anterior el segmento circuit.straightLine(${lineLength}).` : `Después, borra la llamada a este método.`) +

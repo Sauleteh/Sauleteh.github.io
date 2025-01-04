@@ -1,13 +1,25 @@
 import "../css/pages/HtmlProject.css"
 import PropTypes from "prop-types"
+import { useEffect } from "react"
 
 export function HtmlProject({ url }) {
+    useEffect(() => {
+        const handleMessage = (event) => {
+            if (event.data.type === 'invokeHandleHeight') {
+                handleHeight(event, "html");
+            }
+        };
+    
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, []);
+
     function handleLoad(event) {
         handleLightTheme(event);
-        handleHeight(event);
+        handleHeight(event, "react");
 
         addEventListener("resize", function() {
-            handleHeight(event);
+            handleHeight(event, "react");
         });
     }
 
@@ -18,13 +30,20 @@ export function HtmlProject({ url }) {
         else element.removeAttribute("data-theme");
     }
 
-    function handleHeight(event) {
-        const newHeight = event.target.contentDocument.documentElement.offsetHeight;
-        const actualHeight = parseInt(window.getComputedStyle(event.target).height);
+    /**
+     * Modifica la altura del body para que se ajuste al contenido del iframe
+     * @param {*} event Evento de carga o mensaje recibido
+     * @param {string} source Origen del evento ("react" si es desde React, "html" si es desde el iframe)
+     */
+    function handleHeight(event, source) {
+        let target = source === "react" ? event.target : event.source.frameElement;
+
+        const newHeight = target.contentDocument.documentElement.offsetHeight;
+        const actualHeight = parseInt(window.getComputedStyle(target).height);
 
         if (actualHeight < newHeight) {
-            event.target.style.flex = 'inherit';
-            event.target.style.height = `${newHeight}px`;
+            target.style.flex = 'inherit';
+            target.style.height = `${newHeight}px`;
         }
     }
 
