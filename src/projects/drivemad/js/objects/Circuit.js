@@ -23,7 +23,7 @@ export class Circuit {
      * @param {object} segment Es el segmento que se quiere añadir al circuito.
      */
     addSegment(segment) {
-        if (this.startPoint === null) { throw new Error('No se ha indicado punto de inicio'); }
+        if (this.startPoint === null) { throw new Error('There is no start point'); }
         else this.segments.push(segment);
     }
 
@@ -35,7 +35,7 @@ export class Circuit {
      * @returns {string} Texto donde se comenta los resultados. En caso de poder cerrarlo, dirá qué radio y con qué ángulo debería ponerse el último arco y, en caso de necesitarlo, también dirá qué longitud tendrá la recta final del circuito.
      */
     howToCloseCircuit(maxIterations = 100) {
-        if (this.segments.length === 0) { throw new Error('No hay segmentos en el circuito'); }
+        if (this.segments.length === 0) { throw new Error('There is no segment to close the circuit'); }
 
         let lastSegment = structuredClone(this.segments[this.segments.length - 1]);
         const firstPoint = structuredClone(this.startPoint);
@@ -50,11 +50,11 @@ export class Circuit {
         const distanceSquared = dx * dx + dy * dy;
 
         if (distanceSquared < 1e-6) {
-            return "Intento de cerrado de circuito fallido:\n\nEl circuito ya está cerrado";
+            return "Error: The circuit is already closed";
         }
         else { // Para cerrar el circuito de forma que no se cambie de forma excesiva la estructura del circuito, no se comprueba cómo añadir un nuevo segmento, solo se comenta cómo se debería cambiar el último segmento para cerrarlo correctamente
             if (lastSegment.type === "straight") {
-                return "Intento de cerrado de circuito fallido:\n\nNo se puede cerrar el circuito con una línea recta. Por favor, borra el último segmento y añade un arco como último segmento.";
+                return "Error: The circuit cannot be closed with a straight line. Please, delete the last segment and add an arc as the last segment.";
             }
             else {
                 // Comprobar diferencia de ángulos
@@ -65,7 +65,7 @@ export class Circuit {
                 let newAngle = (lastSegment.data.endAngle - lastSegment.data.startAngle) * 180 / Math.PI;
 
                 if (diffAngle >= 90) {
-                    return "Intento de cerrado de circuito fallido:\n\nEl último segmento debe tener una diferencia menor de 90 grados con respecto al punto de cierre para saber cómo cerrar el circuito. Por favor, suma o resta el ángulo al último segmento para que la diferencia sea estrictamente menor de 90 grados.";
+                    return "Error: The last arc must have a difference less than 90 degrees with respect to the starting point.\nPlease, add or subtract the angle to the last arc so the difference is strictly less than 90 degrees.";
                 }
                 else if (diffAngle > 0) {
                     // Borrar el último segmento y añadir un nuevo arco con el ángulo correcto
@@ -110,13 +110,14 @@ export class Circuit {
                 // Calcular la longitud de la línea recta que falta
                 dx = lastSegment.ref.coords.x - firstPoint.coords.x;
                 dy = lastSegment.ref.coords.y - firstPoint.coords.y;
-                const lineLength = Math.sqrt(dx * dx + dy * dy);
+                let lineLength = Math.sqrt(dx * dx + dy * dy);
+                if (lineLength < 1e-6) lineLength = 0;
 
                 return (
-                    `Intento de cerrado de circuito terminado en ${iterations} iteraciones:\n\n` +
-                    `Para cerrar el circuito, cambia el último segmento a circuit.arc(${newRadius}, ${newAngle}).\n\n` +
-                    (lineLength > 0 ? `Después, borra la llamada a este método y añade después del arco anterior el segmento circuit.straightLine(${lineLength}).` : `Después, borra la llamada a este método.`) +
-                    (distance !== 0 ? `\n\nIMPORTANTE: El radio obtenido no es un resultado perfecto sino una aproximación, aumenta el número de iteraciones para solventar esto si es necesario.` : '')
+                    `Closing completed in ${iterations} iterations.\n` +
+                    `To close the circuit, change the last arc to radius ${newRadius}px and angle ${newAngle} degrees.\n` +
+                    (lineLength > 0 ? `After that arc, add a straight line of length ${lineLength}px.` : '') +
+                    (distance !== 0 ? `\n\nWARNING: The radius obtained is not a perfect result but an approximation, increase the number of iterations to solve this if necessary.` : '')
                 );
             }
         }
@@ -207,7 +208,7 @@ export class Circuit {
      * @returns Cadena de texto que representa el lado en el que está el coche: "inside" u "outside".
      */
     getArcSide(car, segment) {
-        if (segment.type !== 'arc') throw new Error('El segmento no es un arco');
+        if (segment.type !== 'arc') throw new Error('The segment is not an arc');
 
         const dx = car.coords.x - segment.data.arcCenter.x;
         const dy = car.coords.y - segment.data.arcCenter.y;
@@ -224,7 +225,7 @@ export class Circuit {
      * @returns Número que representa el ángulo en grados.
      */
     getArcAngle(car, segment) {
-        if (segment.type !== 'arc') throw new Error('El segmento no es un arco');
+        if (segment.type !== 'arc') throw new Error('The segment is not an arc');
 
         const dx = car.coords.x - segment.data.arcCenter.x;
         const dy = car.coords.y - segment.data.arcCenter.y;
@@ -284,7 +285,7 @@ export class Circuit {
      * @returns Objeto que representa el segmento.
      */
     straightLine(length) {
-        if (this.startPoint === null) { throw new Error('No se ha indicado punto de inicio'); }
+        if (this.startPoint === null) { throw new Error('There is no start point'); }
 
         const currentPoint = this.segments.length === 0 ? this.startPoint : this.segments[this.segments.length-1].ref;
 
@@ -319,7 +320,7 @@ export class Circuit {
      * @returns Objeto que representa el segmento.
      */
     arc(radius, angle) {
-        if (this.startPoint === null) { throw new Error('No se ha indicado punto de inicio'); }
+        if (this.startPoint === null) { throw new Error('There is no start point'); }
 
         const currentPoint = this.segments.length === 0 ? this.startPoint : this.segments[this.segments.length-1].ref;
         const angleDirection = angle > 0 ? -90 : 90;
@@ -359,7 +360,20 @@ export class Circuit {
             const segment = segments[i];
             if (segment.type === "straight") this.addSegment(this.straightLine(segment.data.length));
             else if (segment.type === "arc") this.addSegment(this.arc(segment.data.radius, segment.data.angle));
-            else throw new Error("Segmento no reconocido");
+            else throw new Error("Segment type not recognized");
+        }
+    }
+
+    /**
+     * Método para recalcular los datos de los segmentos en caso de que se haya modificado la lista de segmentos o un segmento en concreto.
+     */
+    recalculateSegments() {
+        const segments = structuredClone(this.segments);
+        this.segments = [];
+        for (let i = 0; i < segments.length; i++) {
+            const segment = segments[i];
+            if (segment.type === 'straight') this.addSegment(this.straightLine(segment.data.length));
+            else if (segment.type === 'arc') this.addSegment(this.arc(segment.data.radius, segment.data.angle));
         }
     }
 

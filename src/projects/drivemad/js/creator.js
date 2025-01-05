@@ -13,6 +13,8 @@ const handler = function() {
     let circuit = undefined;
     const camera = new Point(0, 0);
     let scale = 1;
+    let editMode = false;
+    let editIndex = -1;
 
     function initEvents() {
         // Añadir al document los elementos necesarios para crear un circuito
@@ -30,7 +32,7 @@ const handler = function() {
                         <button class="controls-button" id="btnCreateCircuit">Create circuit</button>
                         <input class="controls-input" type="number" placeholder="Angle (degrees)" min="0" max="360"/>
                         <input class="controls-input" type="number" placeholder="Circuit width (px)" min="0"/>
-                        <input class="controls-input" type="number" placeholder="Line width (px)" min="0"/>
+                        <input class="controls-input" type="number" placeholder="Edges width (px)" min="0"/>
                     </div>
                     <div class="controls-straight-line">
                         <button class="controls-button" id="btnStraightLine">Add straight line</button>
@@ -76,7 +78,7 @@ const handler = function() {
     function onCreateCircuitButtonClick() {
         const outDiv = document.querySelector(".controls-output-multiline");
 
-        if (circuit) outDiv.textContent = "You have already created the circuit definition. Start adding segments.";
+        if (circuit && !editMode) outDiv.textContent = "You have already created the circuit definition. Start adding segments.";
         else {
             const angle = parseFloat(document.querySelector(".controls-create-circuit input:nth-of-type(1)").value);
             const circuitWidth = parseFloat(document.querySelector(".controls-create-circuit input:nth-of-type(2)").value);
@@ -86,12 +88,30 @@ const handler = function() {
             else if (!circuitWidth || circuitWidth <= 0) outDiv.textContent = "Please, enter the width of the circuit. It must be greater than 0.";
             else if (!lineWidth || lineWidth <= 0) outDiv.textContent = "Please, enter the width of the edges of the circuit. It must be greater than 0.";
             else {
-                circuit = new Circuit(circuitWidth, lineWidth);
-                circuit.setStartPoint(100, 100, angle);
-                outDiv.textContent = "Circuit created successfully. You can now add segments.";
-                addItemToSegmentList(`Circuit angle: ${circuit.startPoint.direction}º`);
-                addItemToSegmentList(`Circuit width: ${circuit.circuitWidth}px`);
-                addItemToSegmentList(`Edges width: ${circuit.lineWidth}px`);
+                if (editMode) {
+                    document.querySelector(".controls-div").querySelectorAll("input").forEach(input => input.disabled = false);
+                    document.querySelector(".controls-div").querySelectorAll("button").forEach(button => button.disabled = false);
+
+                    circuit.setStartPoint(100, 100, angle);
+                    circuit.circuitWidth = circuitWidth;
+                    circuit.lineWidth = lineWidth;
+                    circuit.recalculateSegments();
+
+                    outDiv.textContent = "Circuit initial arguments updated successfully.";
+                    editItemInSegmentList(`Initial args (A: ${circuit.startPoint.direction}º, CW: ${circuit.circuitWidth}px, EW: ${circuit.lineWidth}px)`, editIndex);
+                    editMode = false;
+                    editIndex = -1;
+                    
+                    const button = document.querySelector(".controls-create-circuit button");
+                    button.textContent = button.textContent.replace("Edit", "Create");
+                }
+                else {
+                    circuit = new Circuit(circuitWidth, lineWidth);
+                    circuit.setStartPoint(100, 100, angle);
+                    outDiv.textContent = "Circuit created successfully. You can now add segments.";
+                    addItemToSegmentList(`Initial args (A: ${circuit.startPoint.direction}º, CW: ${circuit.circuitWidth}px, EW: ${circuit.lineWidth}px)`);
+                }
+                draw();
             }
         }
 
@@ -108,9 +128,26 @@ const handler = function() {
 
             if (!length || length <= 0) outDiv.textContent = "Please, enter the length of the straight line. It must be greater than 0.";
             else {
-                circuit.addSegment(circuit.straightLine(length));
-                outDiv.textContent = "Straight line added successfully.";
-                addItemToSegmentList(`Straight line (L: ${length}px)`);
+                if (editMode) {
+                    document.querySelector(".controls-div").querySelectorAll("input").forEach(input => input.disabled = false);
+                    document.querySelector(".controls-div").querySelectorAll("button").forEach(button => button.disabled = false);
+
+                    circuit.segments[editIndex - 1].data.length = length;
+                    circuit.recalculateSegments();
+
+                    outDiv.textContent = "Straight line updated successfully.";
+                    editItemInSegmentList(`Straight line (L: ${length}px)`, editIndex);
+                    editMode = false;
+                    editIndex = -1;
+
+                    const button = document.querySelector(".controls-straight-line button");
+                    button.textContent = button.textContent.replace("Edit", "Add");
+                }
+                else {
+                    circuit.addSegment(circuit.straightLine(length));
+                    outDiv.textContent = "Straight line added successfully.";
+                    addItemToSegmentList(`Straight line (L: ${length}px)`);
+                }
                 draw();
             }
         }
@@ -130,9 +167,27 @@ const handler = function() {
             if (!radius || (radius - circuit.circuitWidth / 2) <= 0) outDiv.textContent = "Please, enter the radius of the arc. It must be greater than " + (circuit.circuitWidth/2).toFixed(2) + "px.";
             else if (angle === undefined || angle === null || isNaN(angle) || angle === 0 || angle <= -360 || angle >= 360) outDiv.textContent = "Please, enter the angle of the arc. It must be between -360 (excluded) and 360 (excluded).\nIt cannot be 0 either.";
             else {
-                circuit.addSegment(circuit.arc(radius, angle));
-                outDiv.textContent = "Arc added successfully.";
-                addItemToSegmentList(`Arc (R: ${radius}px, A: ${angle}º)`);
+                if (editMode) {
+                    document.querySelector(".controls-div").querySelectorAll("input").forEach(input => input.disabled = false);
+                    document.querySelector(".controls-div").querySelectorAll("button").forEach(button => button.disabled = false);
+
+                    circuit.segments[editIndex - 1].data.radius = radius;
+                    circuit.segments[editIndex - 1].data.angle = angle;
+                    circuit.recalculateSegments();
+
+                    outDiv.textContent = "Arc updated successfully.";
+                    editItemInSegmentList(`Arc (R: ${radius}px, A: ${angle}º)`, editIndex);
+                    editMode = false;
+                    editIndex = -1;
+
+                    const button = document.querySelector(".controls-arc button");
+                    button.textContent = button.textContent.replace("Edit", "Add");
+                }
+                else {
+                    circuit.addSegment(circuit.arc(radius, angle));
+                    outDiv.textContent = "Arc added successfully.";
+                    addItemToSegmentList(`Arc (R: ${radius}px, A: ${angle}º)`);
+                }
                 draw();
             }
         }
@@ -190,8 +245,73 @@ const handler = function() {
         ul.scrollTop = ul.scrollHeight;
     }
 
+    function editItemInSegmentList(item, index) {
+        const ul = document.querySelector(".controls-segment-list");
+        const li = ul.children[index];
+        li.querySelector(".controls-segment-list-item-text").textContent = item;
+    }
+
     function onEditButtonClick(event) {
+        const outDiv = document.querySelector(".controls-output-multiline");
+
         const target = event.target;
+        const li = target.parentElement;
+        const ul = li.parentElement;
+        const index = Array.from(ul.children).indexOf(li); // Índice del elemento en la lista
+
+        // Desactivamos todos los inputs y botones
+        document.querySelector(".controls-div").querySelectorAll("input").forEach(input => input.disabled = true);
+        document.querySelector(".controls-div").querySelectorAll("button").forEach(button => button.disabled = true);
+
+        // Activamos los inputs necesarios y el botón de actualización
+        if (index === 0) {
+            const inputAngle = document.querySelector(".controls-create-circuit input:nth-of-type(1)");
+            inputAngle.disabled = false;
+            inputAngle.value = circuit.startPoint.direction;
+
+            const inputCircuitWidth = document.querySelector(".controls-create-circuit input:nth-of-type(2)");
+            inputCircuitWidth.disabled = false;
+            inputCircuitWidth.value = circuit.circuitWidth;
+
+            const inputLineWidth = document.querySelector(".controls-create-circuit input:nth-of-type(3)");
+            inputLineWidth.disabled = false;
+            inputLineWidth.value = circuit.lineWidth;
+
+            const button = document.querySelector(".controls-create-circuit button");
+            button.disabled = false;
+            button.textContent = button.textContent.replace("Create", "Edit");
+        }
+        else {
+            const segment = circuit.segments[index - 1];
+            if (segment.type === 'straight') {
+                const input = document.querySelector(".controls-straight-line input");
+                input.disabled = false;
+                input.value = segment.data.length;
+
+                const button = document.querySelector(".controls-straight-line button");
+                button.disabled = false;
+                button.textContent = button.textContent.replace("Add", "Edit");
+            }
+            else if (segment.type === 'arc') {
+                const inputRadius = document.querySelector(".controls-arc input:nth-of-type(1)");
+                inputRadius.disabled = false;
+                inputRadius.value = segment.data.radius;
+                
+                const inputAngle = document.querySelector(".controls-arc input:nth-of-type(2)");
+                inputAngle.disabled = false;
+                inputAngle.value = segment.data.angle;
+                
+                const button = document.querySelector(".controls-arc button");
+                button.disabled = false;
+                button.textContent = button.textContent.replace("Add", "Edit");
+            }
+        }
+        
+        outDiv.textContent = "Edit the values and click on the edit button to update it.";
+        editMode = true;
+        editIndex = index;
+
+        invokeHandleHeight();
         return;
     }
 
@@ -204,21 +324,13 @@ const handler = function() {
         const index = Array.from(ul.children).indexOf(li); // Índice del elemento en la lista
 
         // Si se intenta borrar uno de los 3 primeros elementos (Dirección, ancho y grosor del circuito), no se puede borrar
-        if (index >= 0 && index <= 2) outDiv.textContent = "You cannot delete the circuit definition.";
+        if (index === 0) outDiv.textContent = "You cannot delete the circuit definition.";
         else {
-            const segmentIndex = index - 3; // Índice del segmento en el array de segmentos
+            const segmentIndex = index - 1; // Índice del segmento en el array de segmentos
             circuit.segments.splice(segmentIndex, 1);
             ul.removeChild(li);
 
-            // Recalculamos la lista de segmentos: se eliminan todos los segmentos y se vuelven a añadir
-            const segments = structuredClone(circuit.segments);
-            circuit.segments = [];
-            for (let i = 0; i < segments.length; i++) {
-                const segment = segments[i];
-                if (segment.type === 'straight') circuit.addSegment(circuit.straightLine(segment.data.length));
-                else if (segment.type === 'arc') circuit.addSegment(circuit.arc(segment.data.radius, segment.data.angle));
-            }
-
+            circuit.recalculateSegments();
             outDiv.textContent = "Segment deleted successfully.";
             draw();
         }
@@ -323,11 +435,13 @@ const handler = function() {
     function updateCamera() {
         if (!circuit) return;
 
-        const lastSegment = circuit.segments[circuit.segments.length - 1];
-        if (!lastSegment) return; // No hay segmentos, solo el punto de inicio
+        let coords;
+        if (circuit.segments.length === 0 && circuit.startPoint) coords = circuit.startPoint.coords;
+        else if (circuit.segments.length > 0) coords = circuit.segments[circuit.segments.length - 1].ref.coords;
+        else return; // No hay segmentos ni punto de inicio
         
-        camera.x = -lastSegment.ref.coords.x + (canvas.width / (2 * scale));
-        camera.y = -lastSegment.ref.coords.y + (canvas.height / (2 * scale));
+        camera.x = -coords.x + (canvas.width / (2 * scale));
+        camera.y = -coords.y + (canvas.height / (2 * scale));
     }
 
     function draw() {

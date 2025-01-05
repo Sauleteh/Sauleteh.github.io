@@ -59,7 +59,7 @@ canvas.game {
     list-style-type: none;
     padding: 0;
     margin: 0;
-    width: 200px;
+    width: 250px;
     height: 200px;
     background-color: var(--ld-project-circledodger-background-primary);
     border: 1px solid var(--ld-project-circledodger-color-3);
@@ -72,7 +72,7 @@ canvas.game {
 .controls-segment-list-item {
     font-family: 'Raleway', sans-serif;
     color: var(--ld-project-circledodger-text);
-    font-size: 14px;
+    font-size: 12px;
     padding: 5px 10px;
     display: flex;
     flex-direction: row;
@@ -93,19 +93,17 @@ canvas.game {
     height: 16px;
     cursor: pointer;
 
-    &.controls-segment-list-item-button-edit {
-        background: url("/icons/edit-pen-icon.svg");
-        background-size: 14px;
-        background-repeat: no-repeat;
-        filter: invert(1);
-    }
+    background-color: transparent;
+    background-size: 14px;
+    background-repeat: no-repeat;
+    filter: invert(0.6);
 
-    &.controls-segment-list-item-button-delete {
-        background: url("/icons/recycle-bin-icon.svg");
-        background-size: 14px;
-        background-repeat: no-repeat;
-        filter: invert(1);
-    }
+    &.controls-segment-list-item-button-edit { background-image: url("/icons/edit-pen-icon.svg"); }
+    &.controls-segment-list-item-button-delete { background-image: url("/icons/recycle-bin-icon.svg"); }
+
+    &:hover { filter: invert(0.8); }
+    &:active { filter: invert(1); }
+    &:disabled { filter: invert(0.3); cursor: not-allowed; }
 }
 
 .controls-button {
@@ -138,6 +136,11 @@ canvas.game {
         border-right: 0;
         border-radius: 0;
     }
+
+    &:disabled {
+        filter: invert(0.3);
+        cursor: not-allowed;
+    }
 }
 
 .controls-zoom {
@@ -155,6 +158,11 @@ canvas.game {
     font-size: 14px;
     flex-grow: 1;
     width: 130px;
+
+    &:disabled {
+        filter: invert(0.3);
+        cursor: not-allowed;
+    }
 }
 
 .controls-output-multiline {
