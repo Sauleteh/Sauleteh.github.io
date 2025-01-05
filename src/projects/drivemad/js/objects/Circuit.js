@@ -49,77 +49,71 @@ export class Circuit {
         let dy = lastSegment.ref.coords.y - firstPoint.coords.y;
         const distanceSquared = dx * dx + dy * dy;
 
-        if (distanceSquared < 1e-6) {
-            return "Error: The circuit is already closed";
-        }
-        else { // Para cerrar el circuito de forma que no se cambie de forma excesiva la estructura del circuito, no se comprueba cómo añadir un nuevo segmento, solo se comenta cómo se debería cambiar el último segmento para cerrarlo correctamente
-            if (lastSegment.type === "straight") {
-                return "Error: The circuit cannot be closed with a straight line. Please, delete the last segment and add an arc as the last segment.";
+        if (distanceSquared < 1e-6) return "Error: The circuit is already closed";
+        
+        // Para cerrar el circuito de forma que no se cambie de forma excesiva la estructura del circuito, no se comprueba cómo añadir un nuevo segmento, solo se comenta cómo se debería cambiar el último segmento para cerrarlo correctamente
+        if (lastSegment.type === "straight") return "Error: The circuit cannot be closed with a straight line. Please, delete the last segment and add an arc as the last segment.";
+        else if (lastSegment.type === "arc") {
+            // Comprobar diferencia de ángulos
+            let diffAngle = (lastSegment.data.isClockwise) ?
+            ((firstPoint.direction - lastSegment.ref.direction + 360) % 360) :
+            ((lastSegment.ref.direction - firstPoint.direction + 360) % 360);
+
+            let newAngle = (lastSegment.data.endAngle - lastSegment.data.startAngle) * 180 / Math.PI;
+
+            if (diffAngle >= 90) return "Error: The last arc must have a difference less than 90º with respect to the starting point.\nPlease, add or subtract the angle to the last arc so the difference is strictly less than 90º.";
+            else if (diffAngle > 0) {
+                // Borrar el último segmento y añadir un nuevo arco con el ángulo correcto
+                const tempSegment = this.segments.pop();
+                newAngle += diffAngle * (lastSegment.data.isClockwise ? 1 : -1);
+                lastSegment = this.arc(lastSegment.data.radius, newAngle);
+                this.addSegment(tempSegment);
             }
-            else {
-                // Comprobar diferencia de ángulos
-                let diffAngle = (lastSegment.data.isClockwise) ?
-                ((firstPoint.direction - lastSegment.ref.direction + 360) % 360) :
-                ((lastSegment.ref.direction - firstPoint.direction + 360) % 360);
 
-                let newAngle = (lastSegment.data.endAngle - lastSegment.data.startAngle) * 180 / Math.PI;
+            // A partir de aquí, el segmento ya es paralelo al punto de inicio
+            
+            // Calcular la distancia de la curva con respecto al punto de inicio de forma perpendicular
+            const angleTan = Math.tan(firstPoint.direction * Math.PI / 180);
+            let distance = -1;
+            let newRadius = -1;
+            let iterations = 0;
+            let lastDistance = 0; // Distancia del último paso
+            let sign = 1; // Signo de la distancia, ya que no entiendo cómo funciona el signo de la distancia, se invierte si la nueva distancia es mayor que la anterior (ya que se está intentando disminuir la distancia lo máximo posible)
 
-                if (diffAngle >= 90) {
-                    return "Error: The last arc must have a difference less than 90 degrees with respect to the starting point.\nPlease, add or subtract the angle to the last arc so the difference is strictly less than 90 degrees.";
-                }
-                else if (diffAngle > 0) {
-                    // Borrar el último segmento y añadir un nuevo arco con el ángulo correcto
+            while (distance !== 0 && iterations < maxIterations) { // Iterar para encontrar la distancia 0
+                distance = (angleTan * lastSegment.ref.coords.x - lastSegment.ref.coords.y - angleTan * firstPoint.coords.x + firstPoint.coords.y) / Math.sqrt(angleTan * angleTan + 1);
+                newRadius = lastSegment.data.radius + distance / 2 * sign;
+
+                if (iterations === 0) lastDistance = distance; // Esto solo ocurre en la primera iteración para obtener el primer cálculo de la distancia
+                else if (iterations === 1) sign = Math.abs(distance) > Math.abs(lastDistance) ? -sign : sign; // En la segunda iteración se define correctamente el signo de la distancia
+
+                if (distance !== 0) {
                     const tempSegment = this.segments.pop();
-                    newAngle += diffAngle * (lastSegment.data.isClockwise ? 1 : -1);
-                    lastSegment = this.arc(lastSegment.data.radius, newAngle);
+                    lastSegment = this.arc(newRadius, newAngle);
                     this.addSegment(tempSegment);
                 }
 
-                // A partir de aquí, el segmento ya es paralelo al punto de inicio
-                
-                // Calcular la distancia de la curva con respecto al punto de inicio de forma perpendicular
-                const angleTan = Math.tan(firstPoint.direction * Math.PI / 180);
-                let distance = -1;
-                let newRadius = -1;
-                let iterations = 0;
-                let lastDistance = 0; // Distancia del último paso
-                let sign = 1; // Signo de la distancia, ya que no entiendo cómo funciona el signo de la distancia, se invierte si la nueva distancia es mayor que la anterior (ya que se está intentando disminuir la distancia lo máximo posible)
-
-                while (distance !== 0 && iterations < maxIterations) { // Iterar para encontrar la distancia 0
-                    distance = (angleTan * lastSegment.ref.coords.x - lastSegment.ref.coords.y - angleTan * firstPoint.coords.x + firstPoint.coords.y) / Math.sqrt(angleTan * angleTan + 1);
-                    newRadius = lastSegment.data.radius + distance * sign;
-
-                    if (iterations === 0) lastDistance = distance; // Esto solo ocurre en la primera iteración para obtener el primer cálculo de la distancia
-                    else if (iterations === 1) sign = Math.abs(distance) > Math.abs(lastDistance) ? -sign : sign; // En la segunda iteración se define correctamente el signo de la distancia
-
-                    if (distance !== 0) {
-                        const tempSegment = this.segments.pop();
-                        lastSegment = this.arc(newRadius, newAngle);
-                        this.addSegment(tempSegment);
-                    }
-
-                    if (Math.abs(distance) < 1e-6) { // Si la distancia llega a una aproximación suficientemente buena, se considera que es 0
-                        distance = 0;
-                    }
-
-                    iterations++;
+                if (Math.abs(distance) < 1e-6) { // Si la distancia llega a una aproximación suficientemente buena, se considera que es 0
+                    distance = 0;
                 }
 
-                // A partir de aquí, el segmento ya es paralelo al punto de inicio y está en la línea recta que une el punto de inicio con el punto final del segmento
-
-                // Calcular la longitud de la línea recta que falta
-                dx = lastSegment.ref.coords.x - firstPoint.coords.x;
-                dy = lastSegment.ref.coords.y - firstPoint.coords.y;
-                let lineLength = Math.sqrt(dx * dx + dy * dy);
-                if (lineLength < 1e-6) lineLength = 0;
-
-                return (
-                    `Closing completed in ${iterations} iterations.\n` +
-                    `To close the circuit, change the last arc to radius ${newRadius}px and angle ${newAngle} degrees.\n` +
-                    (lineLength > 0 ? `After that arc, add a straight line of length ${lineLength}px.` : '') +
-                    (distance !== 0 ? `\n\nWARNING: The radius obtained is not a perfect result but an approximation, increase the number of iterations to solve this if necessary.` : '')
-                );
+                iterations++;
             }
+
+            // A partir de aquí, el segmento ya es paralelo al punto de inicio y está en la línea recta que une el punto de inicio con el punto final del segmento
+
+            // Calcular la longitud de la línea recta que falta
+            dx = lastSegment.ref.coords.x - firstPoint.coords.x;
+            dy = lastSegment.ref.coords.y - firstPoint.coords.y;
+            let lineLength = Math.sqrt(dx * dx + dy * dy);
+            if (lineLength < 1e-6) lineLength = 0;
+
+            return (
+                `Closing completed in ${iterations} iterations.\n` +
+                `To close the circuit, change the last arc to radius ${parseFloat(newRadius.toFixed(6))}px and angle ${parseFloat(newAngle.toFixed(6))}º.\n` +
+                (lineLength > 0 ? `After that arc, add a straight line of length ${parseFloat(lineLength.toFixed(6))}px.` : '') +
+                (distance !== 0 ? `\n\nWARNING: The radius obtained it's an approximation, increase the number of iterations if necessary.` : '')
+            );
         }
     }
 
