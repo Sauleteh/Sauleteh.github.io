@@ -23,6 +23,11 @@ const handler = function() {
         divControls.classList.add("controls-div");
         divControls.addEventListener("click", handleControlsClick);
         divControls.innerHTML = `
+            <div class="controls-zoom">
+                <button class="controls-button" id="btnZoomOut">−</button>
+                <button class="controls-button" id="btnZoomReset">Zoom</button>
+                <button class="controls-button" id="btnZoomIn">+</button>
+            </div>
             <div class="controls-primary">
                 <div class="controls-primary-left">
                     <ul class="controls-segment-list"></ul>
@@ -50,12 +55,21 @@ const handler = function() {
                 </div>
             </div>
             <div class="controls-secondary">
-                <div class="controls-output-multiline">If there is a problem, it will be displayed here.</div>
-                <div class="controls-zoom">
-                    <button class="controls-button" id="btnZoomOut">−</button>
-                    <button class="controls-button" id="btnZoomReset">Zoom</button>
-                    <button class="controls-button" id="btnZoomIn">+</button>
-                </div>
+                <div class="controls-output-multiline">This is the output box, if there is a problem it will be displayed here.</div>
+            </div>
+            <div class="controls-tertiary">
+                <button class="controls-button" id="btnImport">
+                    <img src="/icons/download-icon.svg" alt="Import icon" class="controls-button-icon"/>
+                    Import
+                </button>
+                <button class="controls-button" id="btnExport">
+                    <img src="/icons/upload-icon.svg" alt="Export icon" class="controls-button-icon"/>
+                    Export
+                </button>
+                <button class="controls-button" id="btnSubmit">
+                    <img src="/icons/send-icon.svg" alt="Submit icon" class="controls-button-icon"/>
+                    Submit the circuit
+                </button>
             </div>
         `;
 
@@ -455,5 +469,17 @@ const handler = function() {
 
     draw();
     initEvents();
+
+    // Escribir en el medio del canvas al entrar en el creador que se tiene que crear el circuito
+    ctx.font = "bold 30px Arial";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "black";
+    ctx.fillText("Create the circuit to show it here", canvas.width / 2, canvas.height / 2);
 };
 document.addEventListener('DOMContentLoaded', handler);
+
+/** TODO list
+ * - [ ] Añadir la acción de importar y exportar el circuito
+ * - [ ] Añadir la acción de enviar el circuito
+ *     - [ ] Abrir un dialog para que el usuario pueda introducir su nombre, el nombre del circuito, etc.
+ */

@@ -36,17 +36,22 @@ canvas.game {
 }
 
 .controls-secondary {
-    margin-top: 10px;
     display: flex;
     flex-direction: row;
     gap: 10px;
 }
 
+.controls-tertiary {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+}
+
 .controls-primary-right {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    margin: 12px 0px;
+    gap: 10px;
 }
 
 .controls-create-circuit, .controls-straight-line, .controls-arc, .controls-howtoclose {
@@ -55,18 +60,25 @@ canvas.game {
     gap: 5px;
 }
 
+.controls-primary-left {
+    display: flex;
+    flex-direction: column;
+    max-height: 182px;
+}
+
 .controls-segment-list {
     list-style-type: none;
     padding: 0;
     margin: 0;
     width: 250px;
-    height: 200px;
+    flex: 1;
+    box-sizing: border-box;
     background-color: var(--ld-project-circledodger-background-primary);
     border: 1px solid var(--ld-project-circledodger-color-3);
     border-radius: 5px;
-    overflow-y: auto;
+    overflow-y: scroll;
     scrollbar-width: thin;
-    scrollbar-color: var(--ld-project-circledodger-color-3) var(--ld-project-circledodger-background-primary);
+    scrollbar-color: var(--ld-project-circledodger-color-3) transparent;
 }
 
 .controls-segment-list-item {
@@ -102,7 +114,7 @@ canvas.game {
     &.controls-segment-list-item-button-delete { background-image: url("/icons/recycle-bin-icon.svg"); }
 
     &:hover { filter: invert(0.8); }
-    &:active { filter: invert(1); }
+    &:active { filter: invert(1); transform: scale(0.95); }
     &:disabled { filter: invert(0.3); cursor: not-allowed; }
 }
 
@@ -117,7 +129,7 @@ canvas.game {
     cursor: pointer;
 
     &:hover { background-color: var(--ld-project-circledodger-background-secondary); }
-    &:active { background-color: var(--ld-project-circledodger-background-tertiary); }
+    &:active { background-color: var(--ld-project-circledodger-background-tertiary); transform: scale(0.95); }
 
     &#btnZoomOut {
         border-right: 0;
@@ -137,6 +149,24 @@ canvas.game {
         border-radius: 0;
     }
 
+    &#btnZoomOut, &#btnZoomIn, &#btnZoomReset {
+        &:active { background-color: var(--ld-project-circledodger-background-tertiary); transform: scale(1); }
+    }
+
+    &#btnImport, &#btnExport, &#btnSubmit {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    &#btnSubmit {
+        background-color: var(--ld-project-circledodger-text);
+        color: var(--ld-project-circledodger-text-invert);
+
+        &:hover { filter: brightness(0.9); }
+        &:active { transform: scale(0.95); }
+    }
+
     &:disabled {
         filter: invert(0.3);
         cursor: not-allowed;
@@ -146,6 +176,7 @@ canvas.game {
 .controls-zoom {
     display: flex;
     flex-direction: row;
+    justify-content: center;
 }
 
 .controls-input {
@@ -159,6 +190,9 @@ canvas.game {
     flex-grow: 1;
     width: 130px;
 
+    &:focus { outline: none; border: 1px solid var(--ld-project-circledodger-text); }
+    &:hover { background-color: var(--ld-project-circledodger-background-secondary); }
+
     &:disabled {
         filter: invert(0.3);
         cursor: not-allowed;
@@ -168,10 +202,11 @@ canvas.game {
 .controls-output-multiline {
     white-space: pre-wrap;
     background-color: var(--ld-project-circledodger-background-primary);
-    color: var(--ld-project-circledodger-color-2);
+    color: orange;
     padding: 10px;
     border-radius: 5px;
-    border: 1px solid var(--ld-project-circledodger-color-3);
+    border: 1px solid var(--ld-project-circledodger-color-1);
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
     font-family: 'Raleway', sans-serif;
     font-size: 14px;
     min-width: 500px;
@@ -180,4 +215,17 @@ canvas.game {
 
 .controls-div {
     margin: 20px 0px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.controls-button-icon {
+    width: 16px;
+    height: 16px;
+    filter: invert(1);
+}
+
+.controls-button#btnSubmit > .controls-button-icon {
+    filter: invert(0);
 }
