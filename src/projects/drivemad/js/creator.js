@@ -87,6 +87,9 @@ const handler = function() {
         else if (target.id === "btnZoomOut") updateScale(-0.1);
         else if (target.id === "btnZoomReset") updateScale(0);
         else if (target.id === "btnZoomIn") updateScale(0.1);
+        else if (target.id === "btnImport") onImportButtonClick();
+        else if (target.id === "btnExport") onExportButtonClick();
+        else if (target.id === "btnSubmit") onSubmitButtonClick();
     }
 
     function onCreateCircuitButtonClick() {
@@ -348,6 +351,90 @@ const handler = function() {
             outDiv.textContent = "Segment deleted successfully.";
             draw();
         }
+
+        invokeHandleHeight();
+        return;
+    }
+
+    function onImportButtonClick() {
+        const outDiv = document.querySelector(".controls-output-multiline");
+
+        const element = document.createElement('input');
+        element.setAttribute('type', 'file');
+        element.setAttribute('accept', '.json');
+        element.style.display = 'none';
+        
+        element.addEventListener('change', function() {
+            const file = element.files[0];
+            const reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = function() {
+                try {
+                    const data = JSON.parse(reader.result);
+                    document.querySelector(".controls-segment-list").innerHTML = "";
+                    circuit = new Circuit(data.circuitWidth, data.lineWidth);
+                    circuit.setStartPoint(data.startPoint.coords.x, data.startPoint.coords.y, data.startPoint.direction);
+                    addItemToSegmentList(`Initial args (A: ${circuit.startPoint.direction}º, CW: ${circuit.circuitWidth}px, EW: ${circuit.lineWidth}px)`);
+
+                    for (let i = 0; i < data.segments.length; i++) {
+                        const segment = data.segments[i];
+                        if (segment.type === 'straight') {
+                            const length = segment.data.length;
+                            circuit.addSegment(circuit.straightLine(length));
+                            addItemToSegmentList(`Straight line (L: ${length}px)`);
+                        }
+                        else if (segment.type === 'arc') {
+                            const radius = segment.data.radius;
+                            const angle = segment.data.angle;
+                            circuit.addSegment(circuit.arc(radius, angle));
+                            addItemToSegmentList(`Arc (R: ${radius}px, A: ${angle}º)`);
+                        }
+                    }
+
+                    outDiv.textContent = "Circuit imported successfully.";
+                    draw();
+                }
+                catch (error) {
+                    document.querySelector(".controls-segment-list").innerHTML = "";
+                    outDiv.textContent = "There was an error importing the circuit.";
+                }
+            };
+        });
+
+        element.addEventListener("cancel", function() {
+            outDiv.textContent = "Circuit import canceled.";
+        });
+
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+        
+        invokeHandleHeight();
+        return;
+    }
+
+    function onExportButtonClick() {
+        const outDiv = document.querySelector(".controls-output-multiline");
+
+        if (!circuit) outDiv.textContent = "There is no circuit to export.";
+        else {
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(circuit)));
+            element.setAttribute('download', "circuit.json");
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+            outDiv.textContent = "Circuit exported successfully.";
+        }
+        
+        invokeHandleHeight();
+        return;
+    }
+
+    function onSubmitButtonClick() {
+        const outDiv = document.querySelector(".controls-output-multiline");
+        outDiv.textContent = "This feature is not available yet.";
 
         invokeHandleHeight();
         return;
