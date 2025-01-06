@@ -398,18 +398,19 @@ const handler = function() {
                     document.querySelector(".controls-segment-list").innerHTML = "";
                     outDiv.textContent = "There was an error importing the circuit.";
                 }
+                invokeHandleHeight();
             };
         });
 
         element.addEventListener("cancel", function() {
             outDiv.textContent = "Circuit import canceled.";
+            invokeHandleHeight();
         });
 
         document.body.appendChild(element);
         element.click();
         document.body.removeChild(element);
         
-        invokeHandleHeight();
         return;
     }
 
@@ -434,9 +435,82 @@ const handler = function() {
 
     function onSubmitButtonClick() {
         const outDiv = document.querySelector(".controls-output-multiline");
-        outDiv.textContent = "This feature is not available yet.";
+        
+        if (!circuit) outDiv.textContent = "There is no circuit to submit.";
+        else {
+            const dialog = document.createElement("dialog");
+            dialog.classList.add("creator-dialog");
+            dialog.innerHTML = `
+                <form method="dialog" class="creator-dialog-form" id="creatorDialogForm">
+                    <input class="controls-input" id="yourName" type="text" placeholder="Your name" required/>
+                    <input class="controls-input" id="circuitName" type="text" placeholder="Circuit name" required/>
+                    <input class="controls-input" id="circuitLocation" type="text" placeholder="Location of the circuit (optional)"/>
+                    <input class="controls-input" id="circuitLength" type="number" placeholder="Real length of the circuit (m) (optional)"/>
+                    <div class="creator-dialog-buttons">
+                        <button class="controls-button" id="btnCancelDialog">
+                            <img src="/icons/close-icon.svg" alt="Close icon" class="controls-button-icon"/>
+                            Cancel
+                        </button>
+                        <button class="controls-button" id="btnSubmitDialog" type="submit">
+                            <img src="/icons/send-icon.svg" alt="Submit icon" class="controls-button-icon"/>
+                            <span id="creatorDialogSubmitText">Submit</span>
+                        </button>
+                    </div>
+                </form>
+            `;
+            document.body.appendChild(dialog);
+            dialog.showModal();
 
-        invokeHandleHeight();
+            dialog.querySelector("#creatorDialogForm").addEventListener("submit", function(event) {
+                event.preventDefault();
+
+                const name = dialog.querySelector("#yourName").value;
+                const circuitName = dialog.querySelector("#circuitName").value;
+                const location = dialog.querySelector("#circuitLocation").value;
+                const length = dialog.querySelector("#circuitLength").value;
+
+                if (name && circuitName) {
+                    const data = {
+                        userName: name,
+                        circuitName: circuitName,
+                        circuitLocation: location,
+                        circuitLength: length,
+                        circuit: circuit
+                    };
+                    
+                    fetch("https://sauleteh.gayofo.com/api/drivemad/circuit-upload", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                    }).then(response => {
+                        if (response.status === 200) {
+                            outDiv.textContent = "Circuit submitted successfully.";
+                            dialog.close();
+                            invokeHandleHeight();
+                        }
+                        else dialog.querySelector("#creatorDialogSubmitText").textContent = "Error, retry";
+                    }).catch(error => {
+                        console.error(error);
+                        dialog.querySelector("#creatorDialogSubmitText").textContent = "Error, retry";
+                    });
+                }
+
+                return;
+            });
+
+            dialog.querySelector("#btnCancelDialog").addEventListener("click", function(event) {
+                event.preventDefault();
+
+                outDiv.textContent = "Circuit submission canceled.";
+                dialog.close();
+
+                invokeHandleHeight();
+                return;
+            });
+        }
+
         return;
     }
 
@@ -564,9 +638,3 @@ const handler = function() {
     ctx.fillText("Create the circuit to show it here", canvas.width / 2, canvas.height / 2);
 };
 document.addEventListener('DOMContentLoaded', handler);
-
-/** TODO list
- * - [ ] Añadir la acción de importar y exportar el circuito
- * - [ ] Añadir la acción de enviar el circuito
- *     - [ ] Abrir un dialog para que el usuario pueda introducir su nombre, el nombre del circuito, etc.
- */

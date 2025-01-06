@@ -153,15 +153,24 @@ canvas.game {
         &:active { background-color: var(--ld-project-circledodger-background-tertiary); transform: scale(1); }
     }
 
-    &#btnImport, &#btnExport, &#btnSubmit {
+    &#btnImport, &#btnExport, &#btnSubmit, &#btnSubmitDialog, &#btnCancelDialog {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 6px;
     }
 
-    &#btnSubmit {
+    &#btnSubmit, &#btnSubmitDialog {
         background-color: var(--ld-project-circledodger-text);
         color: var(--ld-project-circledodger-text-invert);
+
+        &:hover { filter: brightness(0.9); }
+        &:active { transform: scale(0.95); }
+    }
+
+    &#btnCancelDialog {
+        background-color: crimson;
+        color: white;
+        border: 1px solid darkred;
 
         &:hover { filter: brightness(0.9); }
         &:active { transform: scale(0.95); }
@@ -189,6 +198,10 @@ canvas.game {
     font-size: 14px;
     flex-grow: 1;
     width: 130px;
+
+    &#yourName, &#circuitName, &#circuitLocation, &#circuitLength {
+        width: auto;
+    }
 
     &:focus { outline: none; border: 1px solid var(--ld-project-circledodger-text); }
     &:hover { background-color: var(--ld-project-circledodger-background-secondary); }
@@ -226,6 +239,32 @@ canvas.game {
     filter: invert(1);
 }
 
-.controls-button#btnSubmit > .controls-button-icon {
+.controls-button#btnSubmit > .controls-button-icon, .controls-button#btnSubmitDialog > .controls-button-icon {
     filter: invert(0);
+}
+
+.creator-dialog {
+    background-color: var(--ld-project-circledodger-background-primary);
+    border-radius: 5px;
+    border: 1px solid var(--ld-project-circledodger-color-3);
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+
+    &::backdrop {
+        backdrop-filter: blur(2px);
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+}
+
+.creator-dialog-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 300px;
+}
+
+.creator-dialog-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
 }

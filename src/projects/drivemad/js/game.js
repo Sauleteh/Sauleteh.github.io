@@ -915,7 +915,7 @@ document.addEventListener('DOMContentLoaded', handler);
  * - [X] Implementar sistema de aceleración.
  * - [X] Implementar coches con IA.
  * - [ ] Implementar un garaje donde puedas modificar tu coche.
- * - [ ] Implementar un creador de circuitos, donde envíes el circuito al servidor y este lo envíe a los demás jugadores.
+ * - [X] Implementar un creador de circuitos, donde envíes el circuito al servidor.
  * - [ ] Hacer que después de X frames, si no se ha movido el coche dejar de enviar la información al servidor, en vez de enviar info solo cuando se mueva para solucionar el problema de datos imprecisos.
  * - [X] BUG: La detección de la línea de meta no funciona correctamente.
  */
