@@ -7,11 +7,12 @@ const handler = function() {
 
     canvas.width = 960;
     canvas.height = 540;
+    canvas.onselectstart = function () { return false; }  // Desactiva la selección de texto al hacer clic y arrastrar
     ctx.imageSmoothingEnabled = false;  // Desactiva el suavizado de imágenes
 
     const options = [
         new MenuOption("Play online", handlePlayOnline, canvas.width / 12, 200),
-        new MenuOption("Garage", undefined, canvas.width / 12, 250),
+        new MenuOption("Garage", handleGarage, canvas.width / 12, 250),
         new MenuOption("Circuit creator", handleCircuitCreator, canvas.width / 12, 300)
     ];
 
@@ -47,6 +48,12 @@ const handler = function() {
         stopEvents();
         window.removeScript("menu");
         window.loadScript("./js/creator.js", "creator");
+    }
+
+    function handleGarage() {
+        stopEvents();
+        window.removeScript("menu");
+        window.loadScript("./js/garage.js", "garage");
     }
 
     function initEvents() {
