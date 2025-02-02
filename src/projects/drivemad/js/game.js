@@ -32,8 +32,10 @@ const handler = function() {
     const fpsController = new FPSControllerV2(60);
     const controls = new Controls();
     const camera = new Point(0, 0); // La cámara tiene el mismo tamaño que el canvas y la coordenada que se especifica es su esquina superior izquierda. Su movimiento horizontal está invertido (+x => Izq.) y su movimiento vertical es igual al del canvas (+y => Abajo)
-    const socketFrameUpdate = 1; // Cada cuántos frames se envía la actualización de posición al servidor
+    const socketFrameUpdateNumber = 1; // Cada cuántos frames se envía la actualización de posición al servidor
     let socketFrameUpdateCounter = 0; // Contador de frames para enviar la actualización de posición al servidor
+    const controlsFramePressedNumber = 30 // Cuántos frames son necesarios para detectar que si se deja de pulsar una acción, se deje de enviar al servidor
+    let controlsFramePressedCounter = 0; // Contador de frames para detectar que si se deja de pulsar una acción, se deje de enviar al servidor    
     const cars = [];
     const localCarVariables = []; // Variables para los coches, pero que no se envían al servidor. El elemento i son las variables del coche i en el array de coches.
     const carUtils = new CarUtils();
@@ -224,11 +226,13 @@ const handler = function() {
     function initEvents() {
         document.addEventListener("keydown", function(event) {
             const { key } = event;
+            if (document.activeElement === canvas && (key === " " || key === "ArrowUp" || key === "ArrowDown")) event.preventDefault();
             controls.checkControls(key, "down");
         });
 
         document.addEventListener("keyup", function(event) {
             const { key } = event;
+            if (document.activeElement === canvas && (key === " " || key === "ArrowUp" || key === "ArrowDown")) event.preventDefault();
             controls.checkControls(key, "up");
         });
 
@@ -458,18 +462,18 @@ const handler = function() {
         );
         ctx.stroke();
 
-        console.log(`
-                    Id: ${userCar.id}\n
-                    Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)})\n
-                    Direction: ${userCar.direction.toFixed(3)}º [${userCar.lastDirection.toFixed(3)}º] [${turnSensitiveCounter}]\n
-                    Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) ${carUtils.isSpeedNegative(userCar) ? "-" : "+"}[${carUtils.absoluteSpeed(userCar).toFixed(3)}] <= ${carUtils.maxSpeed(userCar, movingAirFriction).toFixed(3)}\n
-                    Speed angle: ${carUtils.speedAngle(userCar).toFixed(3)}º\n
-                    Drifting: ${userCar.isDrifting} [${userCar.driftCancelCounter}]\n
-                    Camera: (${camera.x.toFixed(3)}, ${camera.y.toFixed(3)})\n
-                    IsCarInsideCircuit: ${circuit.isCarInside(userCar)}\n
-                    Remaining boosts: ${userCar.boostCounter} [${userCar.boostLastUsed}]\n
-                    DeltaTime: ${fpsController.deltaTime.toFixed(3)}`
-        ); // Debug
+        // console.log(`
+        //             Id: ${userCar.id}\n
+        //             Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)})\n
+        //             Direction: ${userCar.direction.toFixed(3)}º [${userCar.lastDirection.toFixed(3)}º] [${turnSensitiveCounter}]\n
+        //             Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) ${carUtils.isSpeedNegative(userCar) ? "-" : "+"}[${carUtils.absoluteSpeed(userCar).toFixed(3)}] <= ${carUtils.maxSpeed(userCar, movingAirFriction).toFixed(3)}\n
+        //             Speed angle: ${carUtils.speedAngle(userCar).toFixed(3)}º\n
+        //             Drifting: ${userCar.isDrifting} [${userCar.driftCancelCounter}]\n
+        //             Camera: (${camera.x.toFixed(3)}, ${camera.y.toFixed(3)})\n
+        //             IsCarInsideCircuit: ${circuit.isCarInside(userCar)}\n
+        //             Remaining boosts: ${userCar.boostCounter} [${userCar.boostLastUsed}]\n
+        //             DeltaTime: ${fpsController.deltaTime.toFixed(3)}`
+        // ); // Debug
     }
 
     // MARK: Control de juego
@@ -591,24 +595,30 @@ const handler = function() {
             controls.keys.boost.actionDone = true;
         }
 
-        if (
+        const isControlsPressed = (
             (controls.keys.drift.isPressed && !controls.keys.drift.actionDone) ||
             controls.keys.accelerate.isPressed ||
             controls.keys.brake.isPressed ||
             controls.keys.left.isPressed ||
             controls.keys.right.isPressed ||
             (controls.keys.boost.isPressed && !controls.keys.boost.actionDone && userCar.boostCounter > 0)
-        ) {
+        );
+
+        if (controlsFramePressedCounter <= Math.floor(controlsFramePressedNumber * fpsController.deltaTime)) {
+            if (isControlsPressed) controlsFramePressedCounter = 0;
+            else controlsFramePressedCounter++;
+
             socketFrameUpdateCounter++;
-            if (socketFrameUpdateCounter >= Math.floor(socketFrameUpdate * fpsController.deltaTime)) {
+            if (socketFrameUpdateCounter >= Math.floor(socketFrameUpdateNumber * fpsController.deltaTime)) {
                 const message = JSON.stringify({
                     type: "move",
                     content: userCar
                 });
-                socket.send(message);
+                if (userCar.id !== null) socket.send(message);
                 socketFrameUpdateCounter = 0;
             }
         }
+        else if (isControlsPressed) controlsFramePressedCounter = 0; // Si después de estar sin pulsar las teclas se vuelve a pulsar, se reinicia el contador
     }
 
     function applySpeed() {
@@ -640,7 +650,7 @@ const handler = function() {
                         type: "finished",
                         content: userCar.id
                     });
-                    socket.send(message);
+                    if (userCar.id !== null) socket.send(message);
                 }
             }
         }
@@ -928,6 +938,6 @@ document.addEventListener('DOMContentLoaded', handler);
  * - [X] Implementar sistema de aceleración.
  * - [X] Implementar coches con IA.
  * - [X] Implementar un creador de circuitos, donde envíes el circuito al servidor.
- * - [ ] Hacer que después de X frames, si no se ha movido el coche dejar de enviar la información al servidor, en vez de enviar info solo cuando se mueva para solucionar el problema de datos imprecisos.
+ * - [X] Hacer que después de X frames, si no se ha movido el coche dejar de enviar la información al servidor, en vez de enviar info solo cuando se mueva para solucionar el problema de datos imprecisos.
  * - [X] BUG: La detección de la línea de meta no funciona correctamente.
  */
