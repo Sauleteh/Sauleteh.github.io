@@ -112,11 +112,13 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
     function initEvents() {
         document.addEventListener("keydown", function(event) {
+            if (document.activeElement === canvas) event.preventDefault();
             const { key } = event;
             controls.checkControls(key, "down");
         });
 
         document.addEventListener("keyup", function(event) {
+            if (document.activeElement === canvas) event.preventDefault();
             const { key } = event;
             controls.checkControls(key, "up");
         });
