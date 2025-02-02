@@ -7,7 +7,7 @@ import { Point } from './Point.js';
  * @param {number} direction - La dirección del coche en grados. 0 grados es la derecha, 90 grados es arriba, 180 grados es la izquierda y 270 grados es abajo.
  * @param {number} width - El ancho del coche.
  * @param {number} height - La altura del coche.
- * @param {string} color - El color del coche.
+ * @param {MenuImage} image - El objeto que contiene la información de la imagen del coche.
  * @param {number} speedPower - Poder de velocidad del coche, es decir, lo máximo que puede acelerar el coche.
  * @param {number} accelerationPower - Poder de aceleración del coche, es decir, lo rápido que acelera el coche. Cuanto más alto, más rápido acelera.
  * @param {number} brakingPower - Poder multiplicativo de frenado del coche. Cuanto más bajo, más rápido y mejor frena el coche.
@@ -19,7 +19,7 @@ import { Point } from './Point.js';
  */
 export class Car
 {
-    constructor(name, coords, direction, width, height, color, speedPower, accelerationPower, brakingPower, turnForce, turnForceThreshold, driftingTurnMultiplier, boostMultiplier, boostDuration) {
+    constructor(name, coords, direction, width, height, image, speedPower, accelerationPower, brakingPower, turnForce, turnForceThreshold, driftingTurnMultiplier, boostMultiplier, boostDuration) {
         if (width <= 0 || height <= 0) throw new Error('El ancho y la altura del coche deben ser mayores que 0.');
         if (speedPower <= 0) throw new Error('El poder de velocidad del coche debe ser mayor que 0.');
         if (accelerationPower <= 0) throw new Error('El poder de aceleración del coche debe ser mayor que 0.');
@@ -36,7 +36,7 @@ export class Car
         this.direction = direction;
         this.width = width;
         this.height = height;
-        this.color = color;
+        this.image = image;
         this.speedPower = speedPower;
         this.accelerationPower = accelerationPower;
         this.brakingPower = brakingPower;

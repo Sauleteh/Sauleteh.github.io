@@ -5,7 +5,7 @@ import { Controls } from "./objects/Controls.js";
 import { Circuit } from "./objects/Circuit.js";
 import { CarUtils } from "./objects/CarUtils.js";
 import { LocalCarVariables } from "./objects/LocalCarVariables.js";
-import { Gamemodes } from "./objects/Gamemodes.js";
+import { GAMEMODES } from "./objects/Constants.js";
 
 const handler = function() {
     document.removeEventListener('DOMContentLoaded', handler);
@@ -165,7 +165,7 @@ const handler = function() {
 
             resetGamemodeVariables();
 
-            if (data.content.gamemode === Gamemodes.RACE) {
+            if (data.content.gamemode === GAMEMODES.RACE) {
                 const circuitData = data.content.circuit;
                 circuit = new Circuit(circuitData.data.circuitWidth, circuitData.data.lineWidth);
                 circuit.setStartPoint(circuitData.data.startPoint);
@@ -618,12 +618,12 @@ const handler = function() {
 
     function checkIsColliding() {
         const currentSegment = circuit.getCurrentSegment(userCar);
-        if (currentSegment !== null && gamemode === Gamemodes.RACE) segmentsVisited.add(currentSegment.id); // Si se está en modo carrera, se añade el segmento a los segmentos visitados
+        if (currentSegment !== null && gamemode === GAMEMODES.RACE) segmentsVisited.add(currentSegment.id); // Si se está en modo carrera, se añade el segmento a los segmentos visitados
         userCar.isInsideCircuit = currentSegment !== null;
     }
 
     function checkLapCompletion() {
-        if (gamemode !== Gamemodes.RACE) return;
+        if (gamemode !== GAMEMODES.RACE) return;
 
         // Primero se comprueba si se visitaron todos los segmentos y, en tal caso, se comprueba también si se cruzó la línea de meta
         if (circuit.segments.length === segmentsVisited.size) {

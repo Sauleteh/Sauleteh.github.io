@@ -1,5 +1,5 @@
 /**
- * Clase que representa una opción para el menú.
+ * Clase que representa una opción para el menú (label, clickable).
  */
 export class MenuOption {
     /**
@@ -34,6 +34,9 @@ export class MenuOption {
     }
 }
 
+/**
+ * Clase que representa un botón para el menú (botón sin label con imagen, clickable).
+ */
 export class MenuButton {
     /**
      * Opción representada como un botón.
@@ -42,16 +45,39 @@ export class MenuButton {
      * @param {number} width Ancho del botón
      * @param {number} height Alto del botón
      * @param {*} handler Función a ejecutar al hacer clic en el botón
+     * @param {MenuImage} image Imagen a mostrar en el botón
      */
-    constructor(x, y, width, height, handler) {
+    constructor(x, y, width, height, handler, image) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.handler = handler;
+        this.image = image;
     }
 
     isPointInside(x, y) {
         return x >= this.x && x <= this.x + this.width && y >= this.y && y <= this.y + this.height;
+    }
+}
+
+/**
+ * Clase que representa una imagen (información de la imagen, no clickable).
+ */
+export class MenuImage {
+    /**
+     * Una imagen asociada a una opción de menú.
+     * @param {number} x Es el valor de la coordenada X de la esquina superior izquierda de la imagen en el sprite
+     * @param {number} y Es el valor de la coordenada Y de la esquina superior izquierda de la imagen en el sprite
+     * @param {number} width Es el ancho de la imagen en el sprite
+     * @param {number} height Es el alto de la imagen en el sprite
+     * @param {string} sprite Es el ID del conjunto de imágenes (sprite) que contiene la imagen
+     */
+    constructor(x, y, width, height, sprite) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.sprite = sprite;
     }
 }
