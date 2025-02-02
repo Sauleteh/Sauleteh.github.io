@@ -1,11 +1,10 @@
 import { FPSControllerV2 } from "./objects/FPSControllerV2.js";
-import { Car } from "./objects/Car.js";
 import { Point } from "./objects/Point.js";
 import { Controls } from "./objects/Controls.js";
 import { Circuit } from "./objects/Circuit.js";
 import { CarUtils } from "./objects/CarUtils.js";
 import { LocalCarVariables } from "./objects/LocalCarVariables.js";
-import { GAMEMODES } from "./objects/Constants.js";
+import { GAMEMODES, STORAGE_KEYS, CARS } from "./objects/Constants.js";
 
 const handler = function() {
     document.removeEventListener('DOMContentLoaded', handler);
@@ -23,6 +22,7 @@ const handler = function() {
         
     const canvas = document.querySelector("canvas.game");
     const ctx = canvas.getContext("2d");
+    const $spriteUI = document.querySelector("#spriteUI");
 
     canvas.width = 960;
     canvas.height = 540;
@@ -65,26 +65,14 @@ const handler = function() {
     let lapsCompleted = 0; // Vueltas completadas por el coche
     let lapsToComplete = undefined; // Vueltas necesarias para completar la carrera
 
-    const userCar = new Car(
-        "User", // Nombre del usuario del coche
-        new Point(100, 100), // Posición (del centro del coche) inicial
-        0, // Ángulo (grados)
-        20, // Ancho
-        40, // Alto
-        "red", // Color
-        1.2, // Poder de velocidad
-        1.5, // Poder de aceleración
-        0.3, // Poder al frenar
-        5, // Fuerza de giro
-        4, // Velocidad para alcanzar la máxima fuerza de giro
-        1.5, // Multiplicador de giro derrapando
-        1.05, // Multiplicador de velocidad al usar el turbo
-        1000, // Duración del turbo
-    );
-    cars.push(userCar); //* Debug
+    let userCar = carUtils.defaultCar();
+    carUtils.reset(userCar, circuit.startPoint);
+    cars.push(userCar);
     localCarVariables.push(new LocalCarVariables());
 
-    const aiCar = new Car("Bores", new Point(100, 100), 0, 20, 40, "blue", 1.2, 2, 0.3, 5, 4, 2, 1.1, 1000);
+    const aiCar = carUtils.defaultCar();
+    aiCar.name = "Bores";
+    carUtils.reset(aiCar, circuit.startPoint);
     cars.push(aiCar); //* Debug
     localCarVariables.push(new LocalCarVariables());
 
@@ -181,7 +169,7 @@ const handler = function() {
 
             gamemode = data.content.gamemode;
             canMove = false;
-            userCar.reset(circuit.startPoint);
+            carUtils.reset(userCar, circuit.startPoint);
 
             const message = JSON.stringify({
                 type: "prepared",
@@ -214,7 +202,7 @@ const handler = function() {
             resetGamemodeVariables();
             gamemode = undefined;
             circuit = Circuit.defaultCircuit();
-            userCar.reset(circuit.startPoint);
+            carUtils.reset(userCar, circuit.startPoint);
             canMove = true;
         }
         else if (data.type === "game_end" && data.code === 0) {
@@ -222,7 +210,7 @@ const handler = function() {
             resetGamemodeVariables();
             gamemode = undefined;
             circuit = Circuit.defaultCircuit();
-            userCar.reset(circuit.startPoint);
+            carUtils.reset(userCar, circuit.startPoint);
         }
         else console.error(`Unknown message: ${data}`);
     };
@@ -253,6 +241,13 @@ const handler = function() {
         }
     }
 
+    function stringToVariable(string) {
+        switch (string) {
+            case "spriteUI": return $spriteUI;
+            default: return undefined;
+        }
+    }
+
     function clearCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
@@ -261,10 +256,19 @@ const handler = function() {
     function drawCars() {
         cars.forEach(car => {
             ctx.save();
-            ctx.fillStyle = car.color;
             ctx.translate(car.coords.x + camera.x, car.coords.y + camera.y);
             ctx.rotate(car.direction * Math.PI / 180);
-            ctx.fillRect(-car.height/2, -car.width/2, car.height, car.width); // El rectángulo se hace al revés para que aparezca mirando hacia la derecha (0 grados)
+            ctx.drawImage( // La imagen se hace con el ancho y alto al revés para que aparezca mirando hacia la derecha (0 grados)
+                stringToVariable(car.image.sprite),
+                car.image.x, // Posición X del coche en la imagen
+                car.image.y, // Posición Y del coche en la imagen
+                car.image.width, // Ancho del coche en la imagen
+                car.image.height, // Alto del coche en la imagen
+                -car.height / 2, // Posición X del coche
+                -car.width / 2, // Posición Y del coche
+                car.height, // Ancho del coche
+                car.width // Alto del coche
+            );
             ctx.restore();
         });
     }
@@ -828,6 +832,14 @@ const handler = function() {
         sfxEngineSrc.playbackRate.value = 0.2 + Math.min(1, speedRatio) * 2.5 + (speedRatio > 1 ? (speedRatio % 0.2) * 3 : 0); // El pitch máximo se obtiene al llegar a la máxima velocidad del coche. Si se consigue ir más rápido que la velocidad máxima, el pitch hace un efecto de rebote
     }
 
+    function restoreLocalStorage() {
+        if (localStorage.getItem(STORAGE_KEYS.ACTUAL_CAR_INDEX) !== null) {
+            const index = parseInt(localStorage.getItem(STORAGE_KEYS.ACTUAL_CAR_INDEX));
+            Object.assign(userCar, structuredClone(CARS[index]));
+            carUtils.reset(userCar, circuit.startPoint);
+        }
+    }
+
     function draw(now) {
         window.requestAnimationFrame(draw);
         if (!fpsController.shouldContinue(now)) return;
@@ -861,6 +873,7 @@ const handler = function() {
         fpsController.updateLastTime(now);
     }
 
+    restoreLocalStorage();
     initEvents();
     draw();
 };
@@ -914,7 +927,6 @@ document.addEventListener('DOMContentLoaded', handler);
  * - [X] Hacer que las partículas de desgaste de las ruedas no pasen al servidor.
  * - [X] Implementar sistema de aceleración.
  * - [X] Implementar coches con IA.
- * - [ ] Implementar un garaje donde puedas modificar tu coche.
  * - [X] Implementar un creador de circuitos, donde envíes el circuito al servidor.
  * - [ ] Hacer que después de X frames, si no se ha movido el coche dejar de enviar la información al servidor, en vez de enviar info solo cuando se mueva para solucionar el problema de datos imprecisos.
  * - [X] BUG: La detección de la línea de meta no funciona correctamente.

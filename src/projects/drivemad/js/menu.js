@@ -1,4 +1,4 @@
-import { MenuOption } from "./objects/MenuOption.js";
+import { MenuOption } from "./objects/MenuObjects.js";
 
 const handler = function() {
     document.removeEventListener('DOMContentLoaded', handler);
