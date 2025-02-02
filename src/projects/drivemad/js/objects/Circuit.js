@@ -375,7 +375,9 @@ export class Circuit {
         const circuit = new Circuit(500, 20);
         circuit.setStartPoint(100, 100, 60);
         circuit.addSegment(circuit.arc(300, 180));
+        circuit.addSegment(circuit.straightLine(200));
         circuit.addSegment(circuit.arc(300, 180));
+        circuit.addSegment(circuit.straightLine(200));
         return circuit;
     }
 }

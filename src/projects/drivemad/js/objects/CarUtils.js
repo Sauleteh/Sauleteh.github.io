@@ -54,6 +54,17 @@ export class CarUtils {
     }
 
     /**
+     * Reinicia todos los coches.
+     * @param {Car[]} cars La lista de coches.
+     * @param {PointWithDirection} startPoint Punto de inicio del circuito.
+     */
+    resetAll(cars, startPoint) {
+        for (let i = 0; i < cars.length; i++) {
+            this.reset(cars[i], startPoint);
+        }
+    }
+
+    /**
      * Devuelve un coche por defecto.
      * @returns {Car} Coche por defecto.
      */

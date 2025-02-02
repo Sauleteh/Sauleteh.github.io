@@ -171,7 +171,7 @@ const handler = function() {
 
             gamemode = data.content.gamemode;
             canMove = false;
-            carUtils.reset(userCar, circuit.startPoint);
+            carUtils.resetAll(cars, circuit.startPoint);
 
             const message = JSON.stringify({
                 type: "prepared",
@@ -204,7 +204,7 @@ const handler = function() {
             resetGamemodeVariables();
             gamemode = undefined;
             circuit = Circuit.defaultCircuit();
-            carUtils.reset(userCar, circuit.startPoint);
+            carUtils.resetAll(cars, circuit.startPoint);
             canMove = true;
         }
         else if (data.type === "game_end" && data.code === 0) {
@@ -212,7 +212,7 @@ const handler = function() {
             resetGamemodeVariables();
             gamemode = undefined;
             circuit = Circuit.defaultCircuit();
-            carUtils.reset(userCar, circuit.startPoint);
+            carUtils.resetAll(cars, circuit.startPoint);
         }
         else console.error(`Unknown message: ${data}`);
     };
@@ -334,12 +334,12 @@ const handler = function() {
     }
 
     function drawCircuit() {
-        ctx.strokeStyle = "green";
+        ctx.strokeStyle = "lime";
         ctx.lineWidth = circuit.lineWidth;
         for (let i = 0; i < circuit.segments.length; i++) {
             const segment = circuit.segments[i];
-            if (segmentsVisited.has(segment.id)) ctx.strokeStyle = "lime";
-            else ctx.strokeStyle = "green";
+            if (segmentsVisited.has(segment.id)) ctx.filter = "brightness(1.0)";
+            else ctx.filter = "brightness(0.5)";
 
             if (segment.type === 'straight') {
                 ctx.beginPath();
@@ -363,6 +363,7 @@ const handler = function() {
             }
         }
         ctx.lineWidth = 1;
+        ctx.filter = "brightness(1.0)";
     }
 
     function drawUsername() {
