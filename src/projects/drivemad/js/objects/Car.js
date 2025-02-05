@@ -10,7 +10,7 @@ import { Point } from './Point.js';
  * @param {MenuImage} image - El objeto que contiene la información de la imagen del coche.
  * @param {number} speedPower - Poder de velocidad del coche, es decir, lo máximo que puede acelerar el coche.
  * @param {number} accelerationPower - Poder de aceleración del coche, es decir, lo rápido que acelera el coche. Cuanto más alto, más rápido acelera.
- * @param {number} brakingPower - Poder multiplicativo de frenado del coche. Cuanto más bajo, más rápido y mejor frena el coche.
+ * @param {number} brakingPower - Poder multiplicativo de frenado del coche. Cuanto más alto, más rápido y mejor frena el coche.
  * @param {number} turnForce - Fuerza de giro del coche.
  * @param {number} turnForceThreshold - Velocidad a la que debe llegar el coche para alcanzar la máxima fuerza de giro (ya que cuanta más velocidad, más giro hasta llegado a este límite).
  * @param {number} driftingTurnMultiplier - Al derrapar, se multiplica la fuerza de giro del coche por este valor.
