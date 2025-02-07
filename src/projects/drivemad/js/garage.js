@@ -2,12 +2,12 @@ import { MenuButton, MenuImage } from "./objects/MenuObjects.js";
 import { STORAGE_KEYS, CARS } from "./objects/Constants.js";
 import { FPSControllerV2 } from "./objects/FPSControllerV2.js";
 import { Point } from "./objects/Point.js";
+import { SpriteManager } from "./objects/SpriteManager.js";
 
 const handler = function() {
     document.removeEventListener('DOMContentLoaded', handler);
     const canvas = document.querySelector("canvas.game");
     const ctx = canvas.getContext("2d");
-    const $spriteUI = document.querySelector("#spriteUI");
 
     canvas.width = 960;
     canvas.height = 540;
@@ -38,6 +38,7 @@ const handler = function() {
 
     let actualCar = CARS[0];
     let carAngle = 0;
+    let hueRotation = 0; // Grados de rotación de color para las barras de estadísticas que están por encima del máximo
 
     function initEvents() {
         console.log("Initializing events...");
@@ -65,13 +66,6 @@ const handler = function() {
         carAngle = (carAngle + 1 * fpsController.deltaTime) % 360;
     }
 
-    function stringToVariable(string) {
-        switch (string) {
-            case "spriteUI": return $spriteUI;
-            default: return undefined;
-        }
-    }
-
     function drawActualCar() {
         const scale = 3;
 
@@ -79,7 +73,7 @@ const handler = function() {
         ctx.translate(canvas.width / 2, canvas.height / 3);
         ctx.rotate(carAngle * Math.PI / 180);
         ctx.drawImage(
-            stringToVariable(actualCar.image.sprite),
+            SpriteManager.getSpriteByName(actualCar.image.sprite),
             actualCar.image.x, // Posición X del coche en la imagen
             actualCar.image.y, // Posición Y del coche en la imagen
             actualCar.image.width, // Ancho del coche en la imagen
@@ -147,13 +141,19 @@ const handler = function() {
 
         for (let i = 0; i < stats.length; i++) {
             const fillPercentage = (stats[i].value - stats[i].min) / (stats[i].max - stats[i].min); // Porcentaje al que debe estar rellenada la barra (de 0 a 1)
+            
+            if (fillPercentage > 1) { // Si se excede el máximo, se rota el color de la barra
+                hueRotation = (hueRotation - 2 * fpsController.deltaTime) % 360;
+                ctx.filter = `hue-rotate(${hueRotation}deg)`;
+            }
+            else ctx.filter = "hue-rotate(0deg)";
 
             const pixelsToFill = Math.round(statSpriteOn.width * fillPercentage); // Píxeles a rellenar de la barra
             const pixelsToFillOff = statSpriteOff.width - pixelsToFill; // Píxeles a no rellenar de la barra
 
             // Barra llenada
             ctx.drawImage(
-                stringToVariable(actualCar.image.sprite),
+                SpriteManager.getSpriteByName(statSpriteOn.sprite),
                 statSpriteOn.x, // Posición X del item en la imagen
                 statSpriteOn.y, // Posición Y del item en la imagen
                 pixelsToFill, // Ancho del item en la imagen
@@ -166,7 +166,7 @@ const handler = function() {
 
             // El restante de la barra, sin llenarla
             ctx.drawImage(
-                stringToVariable(actualCar.image.sprite),
+                SpriteManager.getSpriteByName(statSpriteOff.sprite),
                 statSpriteOff.x + pixelsToFill, // Posición X del item en la imagen
                 statSpriteOff.y, // Posición Y del item en la imagen
                 pixelsToFillOff, // Ancho del item en la imagen
@@ -192,7 +192,7 @@ const handler = function() {
             ctx.fillRect(button.x, button.y, button.width, button.height);
 
             ctx.drawImage(
-                stringToVariable(button.image.sprite),
+                SpriteManager.getSpriteByName(button.image.sprite),
                 button.image.x, // Posición X del cuadrado en la imagen
                 button.image.y, // Posición Y del cuadrado en la imagen
                 button.image.width, // Ancho del cuadrado en la imagen

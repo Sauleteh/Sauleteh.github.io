@@ -5,6 +5,7 @@ import { Circuit } from "./objects/Circuit.js";
 import { CarUtils } from "./objects/CarUtils.js";
 import { LocalCarVariables } from "./objects/LocalCarVariables.js";
 import { GAMEMODES, STORAGE_KEYS, CARS } from "./objects/Constants.js";
+import { SpriteManager } from "./objects/SpriteManager.js";
 
 const handler = function() {
     document.removeEventListener('DOMContentLoaded', handler);
@@ -22,7 +23,6 @@ const handler = function() {
         
     const canvas = document.querySelector("canvas.game");
     const ctx = canvas.getContext("2d");
-    const $spriteUI = document.querySelector("#spriteUI");
 
     canvas.width = 960;
     canvas.height = 540;
@@ -245,13 +245,6 @@ const handler = function() {
         }
     }
 
-    function stringToVariable(string) {
-        switch (string) {
-            case "spriteUI": return $spriteUI;
-            default: return undefined;
-        }
-    }
-
     function clearCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
@@ -263,7 +256,7 @@ const handler = function() {
             ctx.translate(car.coords.x + camera.x, car.coords.y + camera.y);
             ctx.rotate(car.direction * Math.PI / 180);
             ctx.drawImage( // La imagen se hace con el ancho y alto al revés para que aparezca mirando hacia la derecha (0 grados)
-                stringToVariable(car.image.sprite),
+                SpriteManager.getSpriteByName(car.image.sprite),
                 car.image.x, // Posición X del coche en la imagen
                 car.image.y, // Posición Y del coche en la imagen
                 car.image.width, // Ancho del coche en la imagen
