@@ -62,10 +62,6 @@ const handler = function() {
         mousePos.y = event.offsetY;
     }
 
-    function rotateCar() {
-        carAngle = (carAngle + 1 * fpsController.deltaTime) % 360;
-    }
-
     function drawActualCar() {
         const scale = 3;
 
@@ -142,10 +138,8 @@ const handler = function() {
         for (let i = 0; i < stats.length; i++) {
             const fillPercentage = (stats[i].value - stats[i].min) / (stats[i].max - stats[i].min); // Porcentaje al que debe estar rellenada la barra (de 0 a 1)
             
-            if (fillPercentage > 1) { // Si se excede el máximo, se rota el color de la barra
-                hueRotation = (hueRotation - 2 * fpsController.deltaTime) % 360;
-                ctx.filter = `hue-rotate(${hueRotation}deg)`;
-            }
+            // Si se excede el máximo, el color de la barra se vuelve multicolor
+            if (fillPercentage > 1) ctx.filter = `hue-rotate(${hueRotation}deg)`;
             else ctx.filter = "hue-rotate(0deg)";
 
             const pixelsToFill = Math.round(statSpriteOn.width * fillPercentage); // Píxeles a rellenar de la barra
@@ -210,6 +204,14 @@ const handler = function() {
         ctx.fillRect(mousePos.x, mousePos.y, 5, 5);
     }
 
+    function rotateCar() {
+        carAngle = (carAngle + 1 * fpsController.deltaTime) % 360;
+    }
+
+    function shiftOverpoweredStatsColor() {
+        hueRotation = (hueRotation - 2 * fpsController.deltaTime) % 360;
+    }
+
     /**
      * Selecciona el siguiente coche en la lista a partir del actual más un offset.
      * @param {number} offset Es el desplazamiento a aplicar al índice del coche actual.
@@ -243,6 +245,7 @@ const handler = function() {
         drawCursor();
 
         rotateCar();
+        shiftOverpoweredStatsColor();
     }
 
     restoreLocalStorage();
@@ -255,6 +258,8 @@ document.addEventListener('DOMContentLoaded', handler);
  * - [X] Mostrar más información de los coches, en forma de barras o numéricamente.
  * - [X] Los stats no muestran bien el porcentaje, no se tiene en cuenta que si el mínimo es 1 y el stat es  1, no se haga ningún rellenado
  * - [ ] Añadir más coches.
+ *     - [X] Añadirlos a la pool del garaje.
+ *     - [ ] Crear sus sprites.
  * - [ ] ¿Coche custom?
  * - [ ] Dejar más bonito el garaje.
  */
