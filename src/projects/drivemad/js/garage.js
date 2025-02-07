@@ -106,28 +106,28 @@ const handler = function() {
         const stats = [{
                 name: "Speed power",
                 value: actualCar.speedPower,
-                min: 0,
+                min: 0.5,
                 max: 2
             }, {
                 name: "Acceleration power",
                 value: actualCar.accelerationPower,
-                min: 1,
+                min: 1.1,
                 max: 2
             }, {
                 name: "Braking power",
                 value: actualCar.brakingPower,
                 min: 0,
-                max: 2
+                max: 1
             }, {
                 name: "Turn force",
                 value: actualCar.turnForce,
-                min: 0,
-                max: 10
+                min: 1,
+                max: 8
             }, {
                 name: "Drifting ability",
                 value: actualCar.driftingTurnMultiplier,
                 min: 1,
-                max: 5
+                max: 3
             }, {
                 name: "Boost power",
                 value: actualCar.boostMultiplier * actualCar.boostDuration,
@@ -146,7 +146,7 @@ const handler = function() {
         ctx.textBaseline = "top";
 
         for (let i = 0; i < stats.length; i++) {
-            const fillPercentage = stats[i].value / (stats[i].min + stats[i].max); // Porcentaje al que debe estar rellenada la barra (de 0 a 1)
+            const fillPercentage = (stats[i].value - stats[i].min) / (stats[i].max - stats[i].min); // Porcentaje al que debe estar rellenada la barra (de 0 a 1)
 
             const pixelsToFill = Math.round(statSpriteOn.width * fillPercentage); // Píxeles a rellenar de la barra
             const pixelsToFillOff = statSpriteOff.width - pixelsToFill; // Píxeles a no rellenar de la barra
@@ -252,7 +252,8 @@ const handler = function() {
 document.addEventListener('DOMContentLoaded', handler);
 
 /** TODO list:
- * - [ ] Mostrar más información de los coches, en forma de barras o numéricamente.
+ * - [X] Mostrar más información de los coches, en forma de barras o numéricamente.
+ * - [X] Los stats no muestran bien el porcentaje, no se tiene en cuenta que si el mínimo es 1 y el stat es  1, no se haga ningún rellenado
  * - [ ] Añadir más coches.
  * - [ ] ¿Coche custom?
  * - [ ] Dejar más bonito el garaje.

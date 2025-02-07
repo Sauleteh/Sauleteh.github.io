@@ -25,13 +25,13 @@ export const CARS = [
     ),
     new Car("Ferfari Pheromosa", new Point(0, 0), 0,
         20, 40, new MenuImage(26*2, 16, 26, 15, "spriteUI"),
-        1.6, 1.8, 0.4,
+        1.6, 1.8, 0.7,
         5, 3, 1.0,
         1.02, 500
     ),
     new Car("Menozda RY-7", new Point(0, 0), 0,
         20, 40, new MenuImage(26*3, 16, 26, 15, "spriteUI"),
-        1.3, 1.4, 0.3,
+        1.3, 1.4, 0.6,
         2, 2, 3.0,
         1.1, 1500
     )

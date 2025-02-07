@@ -21,12 +21,12 @@ export class Car
 {
     constructor(name, coords, direction, width, height, image, speedPower, accelerationPower, brakingPower, turnForce, turnForceThreshold, driftingTurnMultiplier, boostMultiplier, boostDuration) {
         if (width <= 0 || height <= 0) throw new Error('El ancho y la altura del coche deben ser mayores que 0.');
-        if (speedPower <= 0) throw new Error('El poder de velocidad del coche debe ser mayor que 0.');
-        if (accelerationPower <= 0) throw new Error('El poder de aceleración del coche debe ser mayor que 0.');
+        if (speedPower < 0.5) throw new Error('El poder de velocidad del coche debe ser mayor o igual a 0.5.');
+        if (accelerationPower < 1.1) throw new Error('El poder de aceleración del coche debe ser mayor o igual a 1.1.');
         if (brakingPower <= 0) throw new Error('El poder de frenado del coche debe ser mayor que 0.');
         if (turnForce <= 0) throw new Error('La fuerza de giro del coche debe ser mayor que 0.');
         if (turnForceThreshold <= 0) throw new Error('El umbral de velocidad de la fuerza de giro del coche debe ser mayor que 0.');
-        if (driftingTurnMultiplier <= 0) throw new Error('El multiplicador de fuerza de giro al derrapar del coche debe ser mayor que 0.');
+        if (driftingTurnMultiplier < 1.0) throw new Error('El multiplicador de fuerza de giro al derrapar del coche debe ser mayor o igual a 1.0.');
         if (boostMultiplier <= 0) throw new Error('El multiplicador de velocidad al usar el turbo del coche debe ser mayor que 0.');
         if (boostDuration <= 0) throw new Error('La duración del turbo del coche debe ser mayor que 0.');
         if (width * height <= 300) throw new Error('El tamaño del coche es demasiado pequeño.');
