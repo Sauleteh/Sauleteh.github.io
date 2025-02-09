@@ -253,6 +253,7 @@ const handler = function() {
     function drawCars() {
         cars.forEach(car => {
             ctx.save();
+            ctx.filter = `hue-rotate(${car.color}deg)`;
             ctx.translate(car.coords.x + camera.x, car.coords.y + camera.y);
             ctx.rotate(car.direction * Math.PI / 180);
             ctx.drawImage( // La imagen se hace con el ancho y alto al revés para que aparezca mirando hacia la derecha (0 grados)
@@ -841,6 +842,11 @@ const handler = function() {
             const index = parseInt(localStorage.getItem(STORAGE_KEYS.ACTUAL_CAR_INDEX));
             Object.assign(userCar, structuredClone(CARS[index]));
             carUtils.reset(userCar, circuit.startPoint);
+        }
+
+        if (localStorage.getItem(STORAGE_KEYS.ACTUAL_CAR_COLOR_SHIFT) !== null) {
+            const colorShift = parseInt(localStorage.getItem(STORAGE_KEYS.ACTUAL_CAR_COLOR_SHIFT));
+            userCar.color = colorShift;
         }
     }
 

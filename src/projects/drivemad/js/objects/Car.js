@@ -1,25 +1,26 @@
 import { Point } from './Point.js';
 
-/**
- * Un coche es un rectángulo.
- * @param {string} name - El nombre del conductor.
- * @param {Point} coords - Las coordenadas XY del coche.
- * @param {number} direction - La dirección del coche en grados. 0 grados es la derecha, 90 grados es arriba, 180 grados es la izquierda y 270 grados es abajo.
- * @param {number} width - El ancho del coche.
- * @param {number} height - La altura del coche.
- * @param {MenuImage} image - El objeto que contiene la información de la imagen del coche.
- * @param {number} speedPower - Poder de velocidad del coche, es decir, lo máximo que puede acelerar el coche.
- * @param {number} accelerationPower - Poder de aceleración del coche, es decir, lo rápido que acelera el coche. Cuanto más alto, más rápido acelera.
- * @param {number} brakingPower - Poder multiplicativo de frenado del coche. Cuanto más alto, más rápido y mejor frena el coche.
- * @param {number} turnForce - Fuerza de giro del coche.
- * @param {number} turnForceThreshold - Velocidad a la que debe llegar el coche para alcanzar la máxima fuerza de giro (ya que cuanta más velocidad, más giro hasta llegado a este límite).
- * @param {number} driftingTurnMultiplier - Al derrapar, se multiplica la fuerza de giro del coche por este valor.
- * @param {number} boostMultiplier - Multiplicador de velocidad al usar el turbo del coche.
- * @param {number} boostDuration - Duración del turbo del coche en milisegundos.
- */
 export class Car
 {
-    constructor(name, coords, direction, width, height, image, speedPower, accelerationPower, brakingPower, turnForce, turnForceThreshold, driftingTurnMultiplier, boostMultiplier, boostDuration) {
+    /**
+     * Representa un coche en el juego.
+     * @param {string} name - El nombre del conductor.
+     * @param {Point} coords - Las coordenadas XY del coche.
+     * @param {number} direction - La dirección del coche en grados. 0 grados es la derecha, 90 grados es arriba, 180 grados es la izquierda y 270 grados es abajo.
+     * @param {number} width - El ancho del coche.
+     * @param {number} height - La altura del coche.
+     * @param {MenuImage} image - El objeto que contiene la información de la imagen del coche.
+     * @param {number} color - El color del coche como número del 0 al 359, pues se usa para shiftear el color de la imagen del coche.
+     * @param {number} speedPower - Poder de velocidad del coche, es decir, lo máximo que puede acelerar el coche.
+     * @param {number} accelerationPower - Poder de aceleración del coche, es decir, lo rápido que acelera el coche. Cuanto más alto, más rápido acelera.
+     * @param {number} brakingPower - Poder multiplicativo de frenado del coche. Cuanto más alto, más rápido y mejor frena el coche.
+     * @param {number} turnForce - Fuerza de giro del coche.
+     * @param {number} turnForceThreshold - Velocidad a la que debe llegar el coche para alcanzar la máxima fuerza de giro (ya que cuanta más velocidad, más giro hasta llegado a este límite).
+     * @param {number} driftingTurnMultiplier - Al derrapar, se multiplica la fuerza de giro del coche por este valor.
+     * @param {number} boostMultiplier - Multiplicador de velocidad al usar el turbo del coche.
+     * @param {number} boostDuration - Duración del turbo del coche en milisegundos.
+     */
+    constructor(name, coords, direction, width, height, image, color, speedPower, accelerationPower, brakingPower, turnForce, turnForceThreshold, driftingTurnMultiplier, boostMultiplier, boostDuration) {
         if (width <= 0 || height <= 0) throw new Error('El ancho y la altura del coche deben ser mayores que 0.');
         if (speedPower < 0.5) throw new Error('El poder de velocidad del coche debe ser mayor o igual a 0.5.');
         if (accelerationPower < 1.1) throw new Error('El poder de aceleración del coche debe ser mayor o igual a 1.1.');
@@ -37,6 +38,7 @@ export class Car
         this.width = width;
         this.height = height;
         this.image = image;
+        this.color = color;
         this.speedPower = speedPower;
         this.accelerationPower = accelerationPower;
         this.brakingPower = brakingPower;
