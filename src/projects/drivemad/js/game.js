@@ -329,14 +329,54 @@ const handler = function() {
     }
 
     function drawCircuit() {
-        ctx.strokeStyle = "lime";
-        ctx.lineWidth = circuit.lineWidth;
+        // Dibujar suelo del circuito
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+        ctx.lineWidth = circuit.circuitWidth;
         for (let i = 0; i < circuit.segments.length; i++) {
-            const segment = circuit.segments[i];
-            if (segmentsVisited.has(segment.id)) ctx.filter = "brightness(1.0)";
-            else ctx.filter = "brightness(0.5)";
+            const segment = circuit.segments[i];            
+
+            ctx.beginPath();
+            if (segment.type === 'straight') {
+                ctx.moveTo(segment.data.start.x + camera.x, segment.data.start.y + camera.y);
+                ctx.lineTo(segment.data.end.x + camera.x, segment.data.end.y + camera.y);
+            }
+            else if (segment.type === 'arc') {
+                ctx.arc(
+                    segment.data.arcCenter.x + camera.x,
+                    segment.data.arcCenter.y + camera.y,
+                    segment.data.radius,
+                    segment.data.startAngle,
+                    segment.data.endAngle,
+                    !segment.data.isClockwise
+                );
+            }
+            ctx.stroke();
+        }
+
+        // Dibujar línea de meta
+        ctx.strokeStyle = circuit.hasCrossedFinishLine(userCar) ? "white" : "red";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(
+            circuit.leftFinishLine.x + camera.x,
+            circuit.leftFinishLine.y + camera.y
+        );
+        ctx.lineTo(
+            circuit.rightFinishLine.x + camera.x,
+            circuit.rightFinishLine.y + camera.y
+        );
+        ctx.stroke();
+
+        for (let i = 0; i < circuit.segments.length; i++) {
+            const segment = circuit.segments[i];            
 
             if (segment.type === 'straight') {
+                // Bordes de la pista
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = circuit.lineWidth;
+                if (segmentsVisited.has(segment.id)) ctx.filter = "brightness(1.0)";
+                else ctx.filter = "brightness(0.5)";
+
                 ctx.beginPath();
                 ctx.moveTo(segment.data.start.x - segment.data.widthSin + camera.x, segment.data.start.y + segment.data.widthCos + camera.y);
                 ctx.lineTo(segment.data.end.x - segment.data.widthSin + camera.x, segment.data.end.y + segment.data.widthCos + camera.y);
@@ -346,8 +386,24 @@ const handler = function() {
                 ctx.moveTo(segment.data.start.x + segment.data.widthSin + camera.x, segment.data.start.y - segment.data.widthCos + camera.y);
                 ctx.lineTo(segment.data.end.x + segment.data.widthSin + camera.x, segment.data.end.y - segment.data.widthCos + camera.y);
                 ctx.stroke();
+
+                // Línea central de la pista
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = 1;
+                ctx.filter = "none";
+
+                ctx.beginPath();
+                ctx.moveTo(segment.data.start.x + camera.x, segment.data.start.y + camera.y);
+                ctx.lineTo(segment.data.end.x + camera.x, segment.data.end.y + camera.y);
+                ctx.stroke();
             }
             else if (segment.type === 'arc') {
+                // Bordes de la pista
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = circuit.lineWidth;
+                if (segmentsVisited.has(segment.id)) ctx.filter = "brightness(1.0)";
+                else ctx.filter = "brightness(0.5)";
+
                 ctx.beginPath();
                 ctx.arc(segment.data.arcCenter.x + camera.x, segment.data.arcCenter.y + camera.y, segment.data.radius - circuit.circuitWidth / 2, segment.data.startAngle, segment.data.endAngle, !segment.data.isClockwise);
                 ctx.stroke();
@@ -355,16 +411,25 @@ const handler = function() {
                 ctx.beginPath();
                 ctx.arc(segment.data.arcCenter.x + camera.x, segment.data.arcCenter.y + camera.y, segment.data.radius + circuit.circuitWidth / 2, segment.data.startAngle, segment.data.endAngle, !segment.data.isClockwise);
                 ctx.stroke();
+
+                // Línea central de la pista
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = 1;
+                ctx.filter = "none";
+
+                ctx.beginPath();
+                ctx.arc(segment.data.arcCenter.x + camera.x, segment.data.arcCenter.y + camera.y, segment.data.radius, segment.data.startAngle, segment.data.endAngle, !segment.data.isClockwise);
+                ctx.stroke();
             }
         }
         ctx.lineWidth = 1;
-        ctx.filter = "brightness(1.0)";
+        ctx.filter = "none";
     }
 
     function drawUsername() {
         // Dibujar debajo del coche el nombre de usuario
         cars.forEach(car => {
-            ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+            ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
             ctx.font = "12px Arial";
             ctx.textAlign = "center";
             ctx.textBaseline = "alphabetic";
@@ -373,7 +438,7 @@ const handler = function() {
     }
 
     function drawUserInterface() {
-        ctx.fillStyle = "black";
+        ctx.fillStyle = "white";
         ctx.font = "bold 24px Arial";
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
@@ -384,13 +449,14 @@ const handler = function() {
         ctx.fillText(`Laps: ${lapsCompleted} / ${lapsToComplete ? lapsToComplete : "?"}`, 10, 130);
     }
 
+    // eslint-disable-next-line no-unused-vars
     function drawDebug() {
         cars.forEach(car => {
             ctx.beginPath();
             ctx.fillStyle = "rgb(175, 175, 175)";
             ctx.arc(car.coords.x + camera.x, car.coords.y + camera.y, 6, 0, 2 * Math.PI);
             ctx.fill();
-            ctx.strokeStyle = "black";
+            ctx.strokeStyle = "white";
             ctx.beginPath();
             ctx.moveTo(car.coords.x + camera.x, car.coords.y + camera.y);
             ctx.lineTo(car.coords.x + car.speed.x * 5 + camera.x, car.coords.y + car.speed.y * 5 + camera.y);
@@ -439,24 +505,11 @@ const handler = function() {
                 ctx.arc(circuit.segments[i].data.arcCenter.x + camera.x, circuit.segments[i].data.arcCenter.y + camera.y, 6, 0, 2 * Math.PI);
             }
             ctx.stroke();
-            ctx.fillStyle = "black";
+            ctx.fillStyle = "white";
             ctx.beginPath();
             ctx.arc(circuit.segments[i].ref.coords.x + camera.x, circuit.segments[i].ref.coords.y + camera.y, 6, 0, 2 * Math.PI);
             ctx.fill();
         }
-
-        // Dibujar línea de meta
-        ctx.strokeStyle = circuit.hasCrossedFinishLine(userCar) ? "white" : "red";
-        ctx.beginPath();
-        ctx.moveTo(
-            circuit.leftFinishLine.x + camera.x,
-            circuit.leftFinishLine.y + camera.y
-        );
-        ctx.lineTo(
-            circuit.rightFinishLine.x + camera.x,
-            circuit.rightFinishLine.y + camera.y
-        );
-        ctx.stroke();
 
         // console.log(`
         //             Id: ${userCar.id}\n
@@ -891,7 +944,7 @@ const handler = function() {
         drawCars();
         drawBoostEffects();
         drawUsername();
-        drawDebug();
+        // drawDebug();
 
         restoreScale();
         drawUserInterface(); // La interfaz de usuario no se escala
