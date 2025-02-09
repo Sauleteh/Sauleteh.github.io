@@ -7,7 +7,8 @@ export const GAMEMODES = {
 };
 
 export const STORAGE_KEYS = {
-    ACTUAL_CAR_INDEX: "drivemad_actual_car_index"
+    ACTUAL_CAR_INDEX: "drivemad_actual_car_index",
+    ACTUAL_CAR_COLOR_SHIFT: "drivemad_actual_car_color_shift"
 }
 
 export const CARS = [

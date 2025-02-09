@@ -16,27 +16,37 @@ const handler = function() {
 
     const fpsController = new FPSControllerV2(60);
     const mousePos = new Point(0, 0);
-    const size = 50;
+    const changeCarButtonSize = 50;
+    const changeColorButtonSize = 130;
     const buttons = [
         new MenuButton(
-            canvas.width / 2 - size / 2 + canvas.width / 4,
-            canvas.height / 3 - size / 2,
-            size,
-            size,
+            canvas.width / 2 - changeCarButtonSize / 2 + canvas.width / 4,
+            canvas.height / 3 - changeCarButtonSize / 2,
+            changeCarButtonSize,
+            changeCarButtonSize,
             () => changeActualCar(1),
             new MenuImage(0, 0, 16, 16, "spriteUI")
         ),
         new MenuButton(
-            canvas.width / 2 - size / 2 - canvas.width / 4,
-            canvas.height / 3 - size / 2,
-            size,
-            size,
+            canvas.width / 2 - changeCarButtonSize / 2 - canvas.width / 4,
+            canvas.height / 3 - changeCarButtonSize / 2,
+            changeCarButtonSize,
+            changeCarButtonSize,
             () => changeActualCar(-1),
             new MenuImage(16, 0, 16, 16, "spriteUI")
+        ),
+        new MenuButton(
+            canvas.width / 2 - changeColorButtonSize / 2,
+            canvas.height / 3 - changeColorButtonSize / 2,
+            changeColorButtonSize,
+            changeColorButtonSize,
+            () => changeCarColor(),
+            "transparent"
         )
     ];
 
     let actualCar = CARS[0];
+    let actualColorShift = 0;
     let carAngle = 0;
     let hueRotation = 0; // Grados de rotación de color para las barras de estadísticas que están por encima del máximo
 
@@ -66,6 +76,7 @@ const handler = function() {
         const scale = 3;
 
         ctx.save();
+        ctx.filter = `hue-rotate(${actualColorShift}deg)`;
         ctx.translate(canvas.width / 2, canvas.height / 3);
         ctx.rotate(carAngle * Math.PI / 180);
         ctx.drawImage(
@@ -94,12 +105,12 @@ const handler = function() {
 
     function drawStats() {
         const stats = [{
-                name: "Speed power",
+                name: "Max speed",
                 value: actualCar.speedPower,
                 min: 0.5,
                 max: 2
             }, {
-                name: "Acceleration power",
+                name: "Acceleration",
                 value: actualCar.accelerationPower,
                 min: 1.1,
                 max: 2
@@ -144,6 +155,11 @@ const handler = function() {
 
             const pixelsToFill = Math.round(statSpriteOn.width * fillPercentage); // Píxeles a rellenar de la barra
             const pixelsToFillOff = statSpriteOff.width - pixelsToFill; // Píxeles a no rellenar de la barra
+            const center = new Point( // Centro de la estadística (label + barra)
+                canvas.width / 2,
+                canvas.height / 1.9 + i * 35
+            );
+            const offset = 20; // Separación entre la barra y el texto
 
             // Barra llenada
             ctx.drawImage(
@@ -152,8 +168,8 @@ const handler = function() {
                 statSpriteOn.y, // Posición Y del item en la imagen
                 pixelsToFill, // Ancho del item en la imagen
                 statSpriteOn.height, // Alto del item en la imagen
-                Math.floor(canvas.width / 2 + 20), // Posición X del item
-                Math.floor(canvas.height / 1.9 + i * 35), // Posición Y del item
+                Math.floor(center.x + offset), // Posición X del item
+                Math.floor(center.y), // Posición Y del item
                 pixelsToFill * scale, // Ancho del item en el canvas
                 statSpriteOn.height * scale // Alto del item en el canvas
             );
@@ -165,8 +181,8 @@ const handler = function() {
                 statSpriteOff.y, // Posición Y del item en la imagen
                 pixelsToFillOff, // Ancho del item en la imagen
                 statSpriteOff.height, // Alto del item en la imagen
-                Math.floor(canvas.width / 2 + 20 + pixelsToFill * scale), // Posición X del item
-                Math.floor(canvas.height / 1.9 + i * 35), // Posición Y del item
+                Math.floor(center.x + offset + pixelsToFill * scale), // Posición X del item
+                Math.floor(center.y), // Posición Y del item
                 pixelsToFillOff * scale, // Ancho del item en el canvas
                 statSpriteOff.height * scale // Alto del item en el canvas
             );
@@ -174,29 +190,49 @@ const handler = function() {
             // Texto de la barra
             ctx.fillText(
                 stats[i].name,
-                canvas.width / 2 - 20,
-                canvas.height / 1.9 + i * 35
+                center.x - offset,
+                center.y
             );
         }
+
+        ctx.filter = "none";
     }
 
-    function drawChangeCarButtons() {
+    function drawButtons() {
+        ctx.fillStyle = "transparent";
         for (const button of buttons) {
-            ctx.fillStyle = button.isPointInside(mousePos.x, mousePos.y) ? "white" : "black";
+            ctx.filter = button.isPointInside(mousePos.x, mousePos.y) ? "brightness(0.8)" : "brightness(1.0)";
             ctx.fillRect(button.x, button.y, button.width, button.height);
 
-            ctx.drawImage(
-                SpriteManager.getSpriteByName(button.image.sprite),
-                button.image.x, // Posición X del cuadrado en la imagen
-                button.image.y, // Posición Y del cuadrado en la imagen
-                button.image.width, // Ancho del cuadrado en la imagen
-                button.image.height, // Alto del cuadrado en la imagen
-                button.x, // Posición X del cuadrado
-                button.y, // Posición Y del cuadrado
-                button.width, // Ancho del cuadrado
-                button.height // Alto del cuadrado
-            );
+            if (button.image instanceof MenuImage) {
+                ctx.drawImage(
+                    SpriteManager.getSpriteByName(button.image.sprite),
+                    button.image.x, // Posición X del cuadrado en la imagen
+                    button.image.y, // Posición Y del cuadrado en la imagen
+                    button.image.width, // Ancho del cuadrado en la imagen
+                    button.image.height, // Alto del cuadrado en la imagen
+                    button.x, // Posición X del cuadrado
+                    button.y, // Posición Y del cuadrado
+                    button.width, // Ancho del cuadrado
+                    button.height // Alto del cuadrado
+                );
+            }
         }
+
+        ctx.filter = "none";
+    }
+
+    function drawTips() {
+        ctx.fillStyle = "lightgray";
+        ctx.font = "bold 14px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.fillText(
+            "Tip: You can change the car color by clicking the car",
+            canvas.width / 2,
+            canvas.height - 30
+        );
     }
 
     function drawCursor() {
@@ -221,12 +257,27 @@ const handler = function() {
         const newIndex = (currentIndex + offset + CARS.length) % CARS.length;
         actualCar = CARS[newIndex];
         localStorage.setItem(STORAGE_KEYS.ACTUAL_CAR_INDEX, newIndex);
+
+        actualColorShift = 0;
+        localStorage.setItem(STORAGE_KEYS.ACTUAL_CAR_COLOR_SHIFT, actualColorShift);
+    }
+
+    /**
+     * Cambia el color del coche actual mediante un selector de colores.
+     */
+    function changeCarColor() {
+        actualColorShift = (actualColorShift + 24) % 360;
+        localStorage.setItem(STORAGE_KEYS.ACTUAL_CAR_COLOR_SHIFT, actualColorShift);
     }
 
     function restoreLocalStorage() {
         if (localStorage.getItem(STORAGE_KEYS.ACTUAL_CAR_INDEX) !== null) {
             const index = parseInt(localStorage.getItem(STORAGE_KEYS.ACTUAL_CAR_INDEX));
             actualCar = CARS[index];
+        }
+
+        if (localStorage.getItem(STORAGE_KEYS.ACTUAL_CAR_COLOR_SHIFT) !== null) {
+            actualColorShift = parseInt(localStorage.getItem(STORAGE_KEYS.ACTUAL_CAR_COLOR_SHIFT));
         }
     }
 
@@ -241,7 +292,8 @@ const handler = function() {
         clearCanvas();
         drawActualCar();
         drawStats();
-        drawChangeCarButtons();
+        drawButtons();
+        drawTips();
         drawCursor();
 
         rotateCar();
@@ -261,5 +313,6 @@ document.addEventListener('DOMContentLoaded', handler);
  *     - [X] Añadirlos a la pool del garaje.
  *     - [ ] Crear sus sprites.
  * - [ ] ¿Coche custom?
+ * - [X] Posibilidad de elegir color para el coche.
  * - [ ] Dejar más bonito el garaje.
  */
