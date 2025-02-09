@@ -37,7 +37,8 @@ const handler = function() {
     let socketFrameUpdateCounter = 0; // Contador de frames para enviar la actualización de posición al servidor
     const controlsFramePressedNumber = 30 // Cuántos frames son necesarios para detectar que si se deja de pulsar una acción, se deje de enviar al servidor
     let controlsFramePressedCounter = 0; // Contador de frames para detectar que si se deja de pulsar una acción, se deje de enviar al servidor    
-    const cars = [];
+    const cars = []; // Contiene todos los coches, ya sea del usuario, IA o de otros jugadores
+    const aiCars = []; // Contiene solo los coches de la IA
     const localCarVariables = []; // Variables para los coches, pero que no se envían al servidor. El elemento i son las variables del coche i en el array de coches.
     const carUtils = new CarUtils();
     let circuit = Circuit.defaultCircuit(); // Circuito por defecto para jugar mientras se espera a que empiece la carrera
@@ -68,16 +69,22 @@ const handler = function() {
     let lapsCompleted = 0; // Vueltas completadas por el coche
     let lapsToComplete = undefined; // Vueltas necesarias para completar la carrera
 
+    // Inicialización para el jugador
     let userCar = carUtils.defaultCar();
     carUtils.reset(userCar, circuit.startPoint);
     cars.push(userCar);
     localCarVariables.push(new LocalCarVariables());
 
-    const aiCar = carUtils.defaultCar();
-    aiCar.name = "Bores";
-    carUtils.reset(aiCar, circuit.startPoint);
-    cars.push(aiCar); //* Debug
-    localCarVariables.push(new LocalCarVariables());
+    // Inicialización para la IA
+    for (let i = 0; i < 10; i++) {
+        const aiCar = carUtils.defaultCar();
+        aiCar.name = `Bores ${i+1}`;
+        aiCar.speedPower *= Math.random() * 0.5 + 0.5; // La velocidad de la IA es aleatoria entre 0.5 y 1
+        carUtils.reset(aiCar, circuit.startPoint);
+        aiCars.push(aiCar);
+        cars.push(aiCar);
+        localCarVariables.push(new LocalCarVariables());
+    }
 
     // MARK: Conexión server
     const socket = new WebSocket('wss://sauleteh.gayofo.com/wss/drivemad');
@@ -527,54 +534,58 @@ const handler = function() {
 
     // MARK: Control de juego
     function checkAiNextMove() {
-        let precision = 0.1;
-        let segment = circuit.getCurrentSegment(aiCar, precision);
-        while (segment === null && precision < 1) {
-            precision += 0.1;
-            if (precision > 1) precision = 1;
-            segment = circuit.getCurrentSegment(aiCar, precision);
-        }
+        for (let i = 0; i < aiCars.length; i++) {
+            const aiCar = aiCars[i];
 
-        const rads = aiCar.direction * Math.PI / 180;
-        aiCar.speed.x += Math.cos(rads) * aiCar.speedPower;
-        aiCar.speed.y += Math.sin(rads) * aiCar.speedPower;
-        aiCar.isAccelerating = true;
-        aiCar.isPressingAccelerateOrBrake = true;
+            let precision = 0.1;
+            let segment = circuit.getCurrentSegment(aiCar, precision);
+            while (segment === null && precision < 1) {
+                precision += 0.1;
+                if (precision > 1) precision = 1;
+                segment = circuit.getCurrentSegment(aiCar, precision);
+            }
 
-        if (segment !== null) {
-            if (Math.abs(segment.ref.direction - aiCar.direction) !== 0) {
-                aiCar.direction = (aiCar.direction % 360 + 360) % 360; // Normaliza los ángulos al rango [0, 360)
-                segment.ref.direction = (segment.ref.direction % 360 + 360) % 360;
-                let diffClockwise = (segment.ref.direction - aiCar.direction + 360) % 360; // Calcula la diferencia en ambos sentidos
+            const rads = aiCar.direction * Math.PI / 180;
+            aiCar.speed.x += Math.cos(rads) * aiCar.speedPower;
+            aiCar.speed.y += Math.sin(rads) * aiCar.speedPower;
+            aiCar.isAccelerating = true;
+            aiCar.isPressingAccelerateOrBrake = true;
 
-                let arcDivider = 1;
-                let sideMultiplier = 1;
-                let angleMultiplier = null;
-                let diffCircuitClockwise = null;
-                if (segment.type === "arc") {
-                    arcDivider = Math.max(0.5, segment.data.radius / 400); // Ajuste para que el coche no se salga del círculo
+            if (segment !== null) {
+                if (Math.abs(segment.ref.direction - aiCar.direction) !== 0) {
+                    aiCar.direction = (aiCar.direction % 360 + 360) % 360; // Normaliza los ángulos al rango [0, 360)
+                    segment.ref.direction = (segment.ref.direction % 360 + 360) % 360;
+                    let diffClockwise = (segment.ref.direction - aiCar.direction + 360) % 360; // Calcula la diferencia en ambos sentidos
 
-                    const side = circuit.getArcSide(aiCar, segment);
-                    if (side === "inside") sideMultiplier = 0.5;
-                    else if (side === "outside") sideMultiplier = 1.5;
+                    let arcDivider = 1;
+                    let sideMultiplier = 1;
+                    let angleMultiplier = null;
+                    let diffCircuitClockwise = null;
+                    if (segment.type === "arc") {
+                        arcDivider = Math.max(0.5, segment.data.radius / 400); // Ajuste para que el coche no se salga del círculo
 
-                    let currentAngle = circuit.getArcAngle(aiCar, segment) + (segment.data.isClockwise ? 90 : -90);
-                    currentAngle = (currentAngle % 360 + 360) % 360;
-                    diffCircuitClockwise = (currentAngle - aiCar.direction + 360) % 360;
-                    let diffCircuitCounterClockwise = (aiCar.direction - currentAngle + 360) % 360;
+                        const side = circuit.getArcSide(aiCar, segment);
+                        if (side === "inside") sideMultiplier = 0.5;
+                        else if (side === "outside") sideMultiplier = 1.5;
 
-                    angleMultiplier = Math.min(diffCircuitClockwise, diffCircuitCounterClockwise);
-                }
+                        let currentAngle = circuit.getArcAngle(aiCar, segment) + (segment.data.isClockwise ? 90 : -90);
+                        currentAngle = (currentAngle % 360 + 360) % 360;
+                        diffCircuitClockwise = (currentAngle - aiCar.direction + 360) % 360;
+                        let diffCircuitCounterClockwise = (aiCar.direction - currentAngle + 360) % 360;
 
-                if ((segment.type === "arc" && segment.data.isClockwise && angleMultiplier === diffCircuitClockwise) || (segment.type === "straight" && diffClockwise <= 180)) { // Girar derecha
-                    aiCar.direction += aiCar.turnForce * precision * fpsController.deltaTime / arcDivider * sideMultiplier * (angleMultiplier !== null ? Math.min(aiCar.speedPower * 1.5, angleMultiplier) : 1);
-                    aiCar.direction = aiCar.direction % 360;
-                    if (aiCar.direction < 0) aiCar.direction += 360;
-                }
-                else if ((segment.type === "arc" && !segment.data.isClockwise && angleMultiplier !== diffCircuitClockwise) || (segment.type === "straight" && diffClockwise > 180)) { // Girar izquierda
-                    aiCar.direction -= aiCar.turnForce * precision * fpsController.deltaTime / arcDivider * sideMultiplier * (angleMultiplier !== null ? Math.min(aiCar.speedPower * 1.5, angleMultiplier) : 1);
-                    aiCar.direction = aiCar.direction % 360;
-                    if (aiCar.direction < 0) aiCar.direction += 360;
+                        angleMultiplier = Math.min(diffCircuitClockwise, diffCircuitCounterClockwise);
+                    }
+
+                    if ((segment.type === "arc" && segment.data.isClockwise && angleMultiplier === diffCircuitClockwise) || (segment.type === "straight" && diffClockwise <= 180)) { // Girar derecha
+                        aiCar.direction += aiCar.turnForce * precision * fpsController.deltaTime / arcDivider * sideMultiplier * (angleMultiplier !== null ? Math.min(aiCar.speedPower * 1.5, angleMultiplier) : 1);
+                        aiCar.direction = aiCar.direction % 360;
+                        if (aiCar.direction < 0) aiCar.direction += 360;
+                    }
+                    else if ((segment.type === "arc" && !segment.data.isClockwise && angleMultiplier !== diffCircuitClockwise) || (segment.type === "straight" && diffClockwise > 180)) { // Girar izquierda
+                        aiCar.direction -= aiCar.turnForce * precision * fpsController.deltaTime / arcDivider * sideMultiplier * (angleMultiplier !== null ? Math.min(aiCar.speedPower * 1.5, angleMultiplier) : 1);
+                        aiCar.direction = aiCar.direction % 360;
+                        if (aiCar.direction < 0) aiCar.direction += 360;
+                    }
                 }
             }
         }
