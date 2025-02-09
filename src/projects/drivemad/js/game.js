@@ -32,6 +32,7 @@ const handler = function() {
     const fpsController = new FPSControllerV2(60);
     const controls = new Controls();
     const camera = new Point(0, 0); // La cámara tiene el mismo tamaño que el canvas y la coordenada que se especifica es su esquina superior izquierda. Su movimiento horizontal está invertido (+x => Izq.) y su movimiento vertical es igual al del canvas (+y => Abajo)
+    let canvasScale = 1; // Escala a aplicar en el canvas
     const socketFrameUpdateNumber = 1; // Cada cuántos frames se envía la actualización de posición al servidor
     let socketFrameUpdateCounter = 0; // Contador de frames para enviar la actualización de posición al servidor
     const controlsFramePressedNumber = 30 // Cuántos frames son necesarios para detectar que si se deja de pulsar una acción, se deje de enviar al servidor
@@ -828,13 +829,40 @@ const handler = function() {
     // En cada frame, la cámara se sitúa en el centro del coche del jugador
     function updateCamera() {
         let shakingValue = carUtils.absoluteSpeed(userCar) * (userCar.boostLastUsed === 0 ? 1 : 2) / 8; // Si se está usando el turbo, el valor de shaking es el doble
-        camera.x = -userCar.coords.x + canvas.width / 2 - userCar.speed.x * 5 - Math.floor(Math.random() * shakingValue) + shakingValue / 2;
-        camera.y = -userCar.coords.y + canvas.height / 2 - userCar.speed.y * 5 - Math.floor(Math.random() * shakingValue) + shakingValue / 2;
+        camera.x = -userCar.coords.x + canvas.width / 2 / canvasScale - userCar.speed.x * 5 - Math.floor(Math.random() * shakingValue) + shakingValue / 2;
+        camera.y = -userCar.coords.y + canvas.height / 2 / canvasScale - userCar.speed.y * 5 - Math.floor(Math.random() * shakingValue) + shakingValue / 2;
     }
 
     function updatePlaybackRate() {
         const speedRatio = carUtils.absoluteSpeed(userCar) / carUtils.maxSpeed(userCar, movingAirFriction);
         sfxEngineSrc.playbackRate.value = 0.2 + Math.min(1, speedRatio) * 2.5 + (speedRatio > 1 ? (speedRatio % 0.2) * 3 : 0); // El pitch máximo se obtiene al llegar a la máxima velocidad del coche. Si se consigue ir más rápido que la velocidad máxima, el pitch hace un efecto de rebote
+    }
+
+    /**
+     * Aplica la escala al canvas
+     */
+    function setScale() {
+        ctx.save();
+        ctx.scale(canvasScale, canvasScale);
+    }
+
+    /**
+     * Restaura la escala del canvas
+     */
+    function restoreScale() {
+        ctx.restore();
+    }
+    
+    /**
+     * Actualiza la escala del canvas dependiendo de varios factores
+     */
+    function updateScale() {
+        // Si se está usando el turbo, la cámara se aleja con respecto a la velocidad
+        if (userCar.boostLastUsed !== 0) {
+            const speedRatio = carUtils.absoluteSpeed(userCar) / carUtils.maxSpeed(userCar, movingAirFriction);
+            canvasScale = 1 - (speedRatio - 1) / 10;
+        }
+        else canvasScale = 1;
     }
 
     function restoreLocalStorage() {
@@ -856,13 +884,17 @@ const handler = function() {
         // console.log(fpsController.elapsed);
         
         clearCanvas();
+        setScale();
+
         drawCircuit();
         drawDriftParticles();
         drawCars();
         drawBoostEffects();
         drawUsername();
-        drawUserInterface();
         drawDebug();
+
+        restoreScale();
+        drawUserInterface(); // La interfaz de usuario no se escala
 
         checkAiNextMove();
         checkCarControls();
@@ -878,6 +910,7 @@ const handler = function() {
         updateSmokeParticles();
         updateBoostEffects();
         updatePlaybackRate();
+        updateScale();
         updateCamera();
 
         fpsController.updateLastTime(now);
