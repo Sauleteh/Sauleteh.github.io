@@ -55,6 +55,7 @@ const handler = function() {
     // Variables de juego
     const wheelWear = [[], []]; // Dos arrays, una para cada rueda donde se guarda los distintos puntos "point" donde ha estado la rueda y "isNewSegment" si es un nuevo segmento de derrape o no
     let createNewWheelWearSegment = false; // True si se debe crear un nuevo segmento de desgaste de ruedas, false en caso contrario
+    let boostAirParticles = []; // Array de Point. Partículas de aire que aparecen al usar el boost. A diferencia de las partículas del turbo, estas no tienen vida límite sino que desaparecen al salirse del canvas
     let turnSensitiveCounter = 0; // La sensibilidad del giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
     let waitCountdownCount = undefined; // Contador de tiempo para empezar la carrera
     let waitCountdownInterval = undefined; // Intervalo para contar el tiempo restante para empezar la carrera
@@ -315,6 +316,7 @@ const handler = function() {
     }
 
     function drawBoostEffects() {
+        // Fuego que sale del tubo de escape
         cars.forEach((car, index) => {
             const localCarVars = localCarVariables[index];
             for (let i = 0; i < localCarVars.boostParticles.length; i++) {
@@ -333,6 +335,18 @@ const handler = function() {
                 );
             }
         });
+
+        // Partículas de aire que salen al usar el boost
+        ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+        for (let i = 0; i < boostAirParticles.length; i++) {
+            const boostAirParticle = boostAirParticles[i];
+            ctx.fillRect(
+                boostAirParticle.x - userCar.particleSize / 2,
+                boostAirParticle.y - userCar.particleSize / 2,
+                userCar.particleSize,
+                userCar.particleSize
+            );
+        }
     }
 
     function drawCircuit() {
@@ -518,18 +532,18 @@ const handler = function() {
             ctx.fill();
         }
 
-        // console.log(`
-        //             Id: ${userCar.id}\n
-        //             Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)})\n
-        //             Direction: ${userCar.direction.toFixed(3)}º [${userCar.lastDirection.toFixed(3)}º] [${turnSensitiveCounter}]\n
-        //             Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) ${carUtils.isSpeedNegative(userCar) ? "-" : "+"}[${carUtils.absoluteSpeed(userCar).toFixed(3)}] <= ${carUtils.maxSpeed(userCar, movingAirFriction).toFixed(3)}\n
-        //             Speed angle: ${carUtils.speedAngle(userCar).toFixed(3)}º\n
-        //             Drifting: ${userCar.isDrifting} [${userCar.driftCancelCounter}]\n
-        //             Camera: (${camera.x.toFixed(3)}, ${camera.y.toFixed(3)})\n
-        //             IsCarInsideCircuit: ${circuit.isCarInside(userCar)}\n
-        //             Remaining boosts: ${userCar.boostCounter} [${userCar.boostLastUsed}]\n
-        //             DeltaTime: ${fpsController.deltaTime.toFixed(3)}`
-        // ); // Debug
+        console.log(`
+                    Id: ${userCar.id}\n
+                    Pos: (${userCar.coords.x.toFixed(3)}, ${userCar.coords.y.toFixed(3)})\n
+                    Direction: ${userCar.direction.toFixed(3)}º [${userCar.lastDirection.toFixed(3)}º] [${turnSensitiveCounter}]\n
+                    Speed: (${userCar.speed.x.toFixed(3)}, ${userCar.speed.y.toFixed(3)}) ${carUtils.isSpeedNegative(userCar) ? "-" : "+"}[${carUtils.absoluteSpeed(userCar).toFixed(3)}] <= ${carUtils.maxSpeed(userCar, movingAirFriction).toFixed(3)}\n
+                    Speed angle: ${carUtils.speedAngle(userCar).toFixed(3)}º\n
+                    Drifting: ${userCar.isDrifting} [${userCar.driftCancelCounter}]\n
+                    Camera: (${camera.x.toFixed(3)}, ${camera.y.toFixed(3)})\n
+                    IsCarInsideCircuit: ${circuit.isCarInside(userCar)}\n
+                    Remaining boosts: ${userCar.boostCounter} [${userCar.boostLastUsed}]\n
+                    DeltaTime: ${fpsController.deltaTime.toFixed(3)}`
+        ); // Debug
     }
 
     // MARK: Control de juego
@@ -853,6 +867,7 @@ const handler = function() {
     }
 
     function updateBoostEffects() {
+        // Fuego que sale del tubo de escape
         cars.forEach((car, index) => {
             const localCarVars = localCarVariables[index];
 
@@ -888,6 +903,41 @@ const handler = function() {
                 });
             }
         });
+
+        // Partículas de aire que se mueven al revés que el coche al usar el turbo
+        if (userCar.boostLastUsed === 0) boostAirParticles = []; // Si no se está usando el turbo, no existen partículas de aire
+        else {
+            for (let i = 0; i < boostAirParticles.length; i++) {
+                const boostAirParticle = boostAirParticles[i];
+
+                // Las partículas que se vayan fuera del canvas serán borradas
+                if (
+                    boostAirParticle.x < (0 + userCar.speed.x) / canvasScale ||
+                    boostAirParticle.x > (canvas.width + userCar.speed.x) / canvasScale ||
+                    boostAirParticle.y < (0 + userCar.speed.y) / canvasScale ||
+                    boostAirParticle.y > (canvas.height + userCar.speed.y) / canvasScale
+                ) {
+                    boostAirParticles.splice(i, 1);
+                    i--;
+                    continue;
+                }
+
+                // Actualizar la posición de las partículas de aire para que se muevan en dirección contraria a la del coche
+                const negativeSpeed = new Point(-userCar.speed.x, -userCar.speed.y);
+                boostAirParticle.x += negativeSpeed.x * 2;
+                boostAirParticle.y += negativeSpeed.y * 2;
+            }
+
+            // Si se está usando el turbo, crear partículas de aire
+            if (carUtils.absoluteSpeed(userCar) > 2) {
+                const newParticle = new Point(
+                    Math.random() * (canvas.width + userCar.speed.x) / canvasScale,
+                    Math.random() * (canvas.height + userCar.speed.y) / canvasScale
+                );
+                boostAirParticles.push(newParticle);
+            }
+            else boostAirParticles.splice(0, 1); // Si la velocidad es muy baja, se borran todas las partículas de aire
+        }
     }
 
     // En cada frame, la cámara se sitúa en el centro del coche del jugador
@@ -1000,7 +1050,7 @@ document.addEventListener('DOMContentLoaded', handler);
  *     - [X] Se hace mediante un botón.
  *     - [X] La forma de obtener el turbo depende del modo de juego en el que se esté: ya sea mediante objetos del suelo o completando vueltas en el circuito.
  *     - [X] Mientras se usa el boost, hacer que en la pantalla aparezcan partículas de fuego en la parte trasera del coche.
- *     - [ ] Al usar el boost, aparecen partículas por la pantalla de color blanco que van en la dirección contraria a la velocidad del coche.
+ *     - [X] Al usar el boost, aparecen partículas por la pantalla de color blanco que van en la dirección contraria a la velocidad del coche.
  * - [-] Implementar un creador de circuitos.
  *     - [X] Se podrán crear circuitos con líneas rectas y curvas.
  *     - [-] El circuito debería "unirse" entre segmentos. DELETED: No es necesario unir los segmentos de momento
