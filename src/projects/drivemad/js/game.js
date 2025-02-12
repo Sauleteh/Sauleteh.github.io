@@ -9,6 +9,7 @@ import { SpriteManager } from "./objects/SpriteManager.js";
 
 const handler = function() {
     document.removeEventListener('DOMContentLoaded', handler);
+
     const sfxEngineCtx = new window.AudioContext();
     const sfxEngineSrc = sfxEngineCtx.createBufferSource();
     fetch("./assets/audio/car_engine.wav")
@@ -20,7 +21,24 @@ const handler = function() {
         sfxEngineSrc.start();
         sfxEngineSrc.connect(sfxEngineCtx.destination);
     });
-        
+
+    const musicCtx = new window.AudioContext();
+    const musicAnalyser = musicCtx.createAnalyser();
+    musicAnalyser.fftSize = 256;
+    const musicBufferLength = musicAnalyser.frequencyBinCount;
+    const musicDataArray = new Uint8Array(musicBufferLength);
+    const musicSrc = musicCtx.createBufferSource();
+    fetch("./assets/audio/music/MOON_Hydrogen.wav")
+    .then(response => response.arrayBuffer())
+    .then(arrayBuffer => musicCtx.decodeAudioData(arrayBuffer))
+    .then(audioBuffer => {
+        musicSrc.buffer = audioBuffer;
+        musicSrc.loop = true;
+        musicSrc.start();
+        musicSrc.connect(musicAnalyser);
+        musicAnalyser.connect(musicCtx.destination);
+    });
+
     const canvas = document.querySelector("canvas.game");
     const ctx = canvas.getContext("2d");
 
@@ -33,6 +51,7 @@ const handler = function() {
     const controls = new Controls();
     const camera = new Point(0, 0); // La cámara tiene el mismo tamaño que el canvas y la coordenada que se especifica es su esquina superior izquierda. Su movimiento horizontal está invertido (+x => Izq.) y su movimiento vertical es igual al del canvas (+y => Abajo)
     let canvasScale = 1; // Escala a aplicar en el canvas
+    let musicBassPower = 0; // Potencia del bajo de la música
     const socketFrameUpdateNumber = 1; // Cada cuántos frames se envía la actualización de posición al servidor
     let socketFrameUpdateCounter = 0; // Contador de frames para enviar la actualización de posición al servidor
     const controlsFramePressedNumber = 30 // Cuántos frames son necesarios para detectar que si se deja de pulsar una acción, se deje de enviar al servidor
@@ -351,7 +370,7 @@ const handler = function() {
 
     function drawCircuit() {
         // Dibujar suelo del circuito
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+        ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 + Math.min(0.5, musicBassPower / 1200)})`;
         ctx.lineWidth = circuit.circuitWidth;
         for (let i = 0; i < circuit.segments.length; i++) {
             const segment = circuit.segments[i];            
@@ -396,7 +415,7 @@ const handler = function() {
                 ctx.strokeStyle = "white";
                 ctx.lineWidth = circuit.lineWidth;
                 if (segmentsVisited.has(segment.id)) ctx.filter = "brightness(1.0)";
-                else ctx.filter = "brightness(0.5)";
+                else ctx.filter = `brightness(${0.5 + Math.min(0.5, musicBassPower / 500)})`;
 
                 ctx.beginPath();
                 ctx.moveTo(segment.data.start.x - segment.data.widthSin + camera.x, segment.data.start.y + segment.data.widthCos + camera.y);
@@ -410,7 +429,7 @@ const handler = function() {
 
                 // Línea central de la pista
                 ctx.strokeStyle = "white";
-                ctx.lineWidth = 1;
+                ctx.lineWidth = Math.max(1, musicBassPower / 20);
                 ctx.filter = "none";
 
                 ctx.beginPath();
@@ -423,7 +442,7 @@ const handler = function() {
                 ctx.strokeStyle = "white";
                 ctx.lineWidth = circuit.lineWidth;
                 if (segmentsVisited.has(segment.id)) ctx.filter = "brightness(1.0)";
-                else ctx.filter = "brightness(0.5)";
+                else ctx.filter = `brightness(${0.5 + Math.min(0.5, musicBassPower / 500)})`;
 
                 ctx.beginPath();
                 ctx.arc(segment.data.arcCenter.x + camera.x, segment.data.arcCenter.y + camera.y, segment.data.radius - circuit.circuitWidth / 2, segment.data.startAngle, segment.data.endAngle, !segment.data.isClockwise);
@@ -435,7 +454,7 @@ const handler = function() {
 
                 // Línea central de la pista
                 ctx.strokeStyle = "white";
-                ctx.lineWidth = 1;
+                ctx.lineWidth = Math.max(1, musicBassPower / 20);
                 ctx.filter = "none";
 
                 ctx.beginPath();
@@ -758,6 +777,8 @@ const handler = function() {
                 }
             }
         });
+
+        
     }
 
     function checkIsDrifting() {
@@ -952,6 +973,20 @@ const handler = function() {
         sfxEngineSrc.playbackRate.value = 0.2 + Math.min(1, speedRatio) * 2.5 + (speedRatio > 1 ? (speedRatio % 0.2) * 3 : 0); // El pitch máximo se obtiene al llegar a la máxima velocidad del coche. Si se consigue ir más rápido que la velocidad máxima, el pitch hace un efecto de rebote
     }
 
+    function updateMusicBassPower() {
+        musicAnalyser.getByteFrequencyData(musicDataArray);
+    
+        let bassPower = 0;
+        let bassRange = 10; // Aproximadamente las primeras 10 bandas (ajustar según la FFT)
+        
+        for (let i = 0; i < bassRange; i++) {
+            bassPower += musicDataArray[i];
+        }
+        
+        bassPower /= bassRange; // Promedio
+        musicBassPower = bassPower;
+    }
+
     /**
      * Aplica la escala al canvas
      */
@@ -995,7 +1030,6 @@ const handler = function() {
     function draw(now) {
         window.requestAnimationFrame(draw);
         if (!fpsController.shouldContinue(now)) return;
-        // console.log(fpsController.elapsed);
         
         clearCanvas();
         setScale();
@@ -1024,6 +1058,7 @@ const handler = function() {
         updateSmokeParticles();
         updateBoostEffects();
         updatePlaybackRate();
+        updateMusicBassPower();
         updateScale();
         updateCamera();
 
