@@ -416,15 +416,18 @@ const handler = function() {
         );
         ctx.stroke();
 
+        // Brillo que debe tener los bordes de la pista dependiendo de la música
+        const brightness = (0.5 + Math.min(0.5, musicBassPower / 500)) * 255;
+
         for (let i = 0; i < circuit.segments.length; i++) {
-            const segment = circuit.segments[i];            
+            const segment = circuit.segments[i];        
 
             if (segment.type === 'straight') {
                 // Bordes de la pista
-                ctx.strokeStyle = "white";
                 ctx.lineWidth = circuit.lineWidth;
-                if (segmentsVisited.has(segment.id)) ctx.filter = "brightness(1.0)";
-                else ctx.filter = `brightness(${0.5 + Math.min(0.5, musicBassPower / 500)})`;
+
+                if (segmentsVisited.has(segment.id)) ctx.strokeStyle = "white";
+                else ctx.strokeStyle = `rgb(${brightness}, ${brightness}, ${brightness})`;
 
                 const calculatedSin = segment.data.widthSin * circuit.circuitWidth / 2;
                 const calculatedCos = segment.data.widthCos * circuit.circuitWidth / 2;
@@ -454,7 +457,6 @@ const handler = function() {
                 // Línea central de la pista
                 ctx.strokeStyle = "white";
                 ctx.lineWidth = Math.max(1, musicBassPower / 20);
-                ctx.filter = "none";
 
                 ctx.beginPath();
                 ctx.moveTo(segment.data.start.x + camera.x, segment.data.start.y + camera.y);
@@ -463,10 +465,9 @@ const handler = function() {
             }
             else if (segment.type === 'arc') {
                 // Bordes de la pista
-                ctx.strokeStyle = "white";
                 ctx.lineWidth = circuit.lineWidth;
-                if (segmentsVisited.has(segment.id)) ctx.filter = "brightness(1.0)";
-                else ctx.filter = `brightness(${0.5 + Math.min(0.5, musicBassPower / 500)})`;
+                if (segmentsVisited.has(segment.id)) ctx.strokeStyle = "white";
+                else ctx.strokeStyle = `rgb(${brightness}, ${brightness}, ${brightness})`;
 
                 ctx.beginPath();
                 ctx.arc(
@@ -493,15 +494,20 @@ const handler = function() {
                 // Línea central de la pista
                 ctx.strokeStyle = "white";
                 ctx.lineWidth = Math.max(1, musicBassPower / 20);
-                ctx.filter = "none";
 
                 ctx.beginPath();
-                ctx.arc(segment.data.arcCenter.x + camera.x, segment.data.arcCenter.y + camera.y, segment.data.radius, segment.data.startAngle, segment.data.endAngle, !segment.data.isClockwise);
+                ctx.arc(
+                    segment.data.arcCenter.x + camera.x,
+                    segment.data.arcCenter.y + camera.y,
+                    segment.data.radius,
+                    segment.data.startAngle,
+                    segment.data.endAngle,
+                    !segment.data.isClockwise
+                );
                 ctx.stroke();
             }
         }
         ctx.lineWidth = 1;
-        ctx.filter = "none";
     }
 
     function drawMusicCircuitEdges() {
@@ -1193,6 +1199,22 @@ const handler = function() {
 document.addEventListener('DOMContentLoaded', handler);
 
 /** MARK: TODO list
+ * - [ ] Implementar modos de juego
+ *     - [X] El juego será solo online, podrán unirse tantas personas como quieran en una sola sala.
+ *     - [X] Entre juego y juego, se estará un par de minutos en la sala de espera.
+ *         - [X] Si hay más de X personas, el contador se reducirá a un número mucho menor.
+ *     - [X] Cuando se termine el tiempo de sala de espera, empezará un modo de juego aleatorio.
+ *     - [ ] Modo de juego resistencia: Aguanta el mayor tiempo posible en un circuito proceduralmente generado donde tu coche irá cada vez más rápido.
+ *     - [Comprobar que funciona] Modo de juego carrera: Llega antes que cualquier otro a la meta después de X vueltas.
+ *     - [ ] Modo de juego supervivencia: Sé el último en pie en el circuito empujando a tus rivales. Al completar una vuelta ganas un super empuje.
+ *     - [ ] Modo de juego time trial: Completa el circuito en el menor tiempo posible bajo un tiempo límite y sé el que tarde menos en completarlo.
+ *     - [ ] Excepto si está expresamente indicado, los circuitos están previamente definidos (¿feedback de circuitos?).
+ * - [ ] Tienes que poder pitar.
+ * - [ ] Condiciones meteorológicas.
+ * - [ ] Mejorar la UI.
+ *     - [ ] Mostrar una barra de velocidad.
+ *     - [ ] La cuenta atrás al empezar una partida es más vistosa.
+ *     - [ ] La cuenta atrás de esperar a más personas para empezar la partida debe estar centrada arriba del todo.
  * - [X] Implementar sistema de frenado en vez de que al frenar se sume el vector de freno (que no es suficiente potencia para frenados más grandes).
  * - [X] Implementar el sistema de derrape.
  *     - [X] Se hará con el botón espacio.
@@ -1217,22 +1239,10 @@ document.addEventListener('DOMContentLoaded', handler);
  * - [X] La marcha atrás + derrape debería de ser más satisfactoria.
  * - [X] Mejorar las partículas de humo.
  * - [X] BUG: El derrape ahora en 180 grados detecta que se está marcha atrás.
- * - [ ] Implementar modos de juego
- *     - [X] El juego será solo online, podrán unirse tantas personas como quieran en una sola sala.
- *     - [X] Entre juego y juego, se estará un par de minutos en la sala de espera.
- *         - [X] Si hay más de X personas, el contador se reducirá a un número mucho menor.
- *     - [X] Cuando se termine el tiempo de sala de espera, empezará un modo de juego aleatorio.
- *     - [ ] Modo de juego resistencia: Aguanta el mayor tiempo posible en un circuito proceduralmente generado donde tu coche irá cada vez más rápido.
- *     - [Comprobar que funciona] Modo de juego carrera: Llega antes que cualquier otro a la meta después de X vueltas.
- *     - [ ] Modo de juego supervivencia: Sé el último en pie en el circuito empujando a tus rivales. Al completar una vuelta ganas un super empuje.
- *     - [ ] Modo de juego time trial: Completa el circuito en el menor tiempo posible bajo un tiempo límite y sé el que tarde menos en completarlo.
- *     - [ ] Excepto si está expresamente indicado, los circuitos están previamente definidos (¿feedback de circuitos?).
  * - [X] Implementar música.
  * - [X] Implementar efectos de sonido.
  * - [X] BUG: Cuantos más FPS vaya el juego, más rápido va el coche (hay que implementar el delta time).
  * - [X] BUG: Al poner el último arco al revés, no se detecta si se está dentro de dicho arco.
- * - [ ] Tienes que poder pitar.
- * - [ ] Condiciones meteorológicas.
  * - [X] Realizar el giro del coche de forma más suave si no se mantienen pulsadas las teclas.
  * - [X] Optimizar el servidor evitando que se envíen: el array del rastro en el suelo (solo se verán las del propio usuario).
  * - [X] BUG: Al cambiar de ventana y volver, el delta time se vuelve muy grande.
