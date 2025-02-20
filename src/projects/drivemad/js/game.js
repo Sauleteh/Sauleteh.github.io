@@ -52,10 +52,12 @@ const handler = function() {
     const camera = new Point(0, 0); // La cámara tiene el mismo tamaño que el canvas y la coordenada que se especifica es su esquina superior izquierda. Su movimiento horizontal está invertido (+x => Izq.) y su movimiento vertical es igual al del canvas (+y => Abajo)
     let canvasScale = 1; // Escala a aplicar en el canvas
     let musicBassPower = 0; // Potencia del bajo de la música
+
     const socketFrameUpdateNumber = 1; // Cada cuántos frames se envía la actualización de posición al servidor
     let socketFrameUpdateCounter = 0; // Contador de frames para enviar la actualización de posición al servidor
     const controlsFramePressedNumber = 30 // Cuántos frames son necesarios para detectar que si se deja de pulsar una acción, se deje de enviar al servidor
     let controlsFramePressedCounter = 0; // Contador de frames para detectar que si se deja de pulsar una acción, se deje de enviar al servidor    
+    
     const cars = []; // Contiene todos los coches, ya sea del usuario, IA o de otros jugadores
     const aiCars = []; // Contiene solo los coches de la IA
     const localCarVariables = []; // Variables para los coches, pero que no se envían al servidor. El elemento i son las variables del coche i en el array de coches.
@@ -76,6 +78,13 @@ const handler = function() {
     let createNewWheelWearSegment = false; // True si se debe crear un nuevo segmento de desgaste de ruedas, false en caso contrario
     let boostAirParticles = []; // Array de Point. Partículas de aire que aparecen al usar el boost. A diferencia de las partículas del turbo, estas no tienen vida límite sino que desaparecen al salirse del canvas
     let turnSensitiveCounter = 0; // La sensibilidad del giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
+
+    // Variables de detalles para el circuito
+    let musicCircuitEdges = []; // Array de offsets de líneas que aparecen en los bordes del circuito sincronizados con la música
+    let musicEdgesLimiter = 0; // Contador para limitar el número de pulsos que aparecen en el circuito
+    const musicEdgesMaxOffset = 50;
+    const musicEdgesMaxLimiter = 20; // Cuántos frames como mínimo entre pulsos para no saturar los detalles
+
     let waitCountdownCount = undefined; // Contador de tiempo para empezar la carrera
     let waitCountdownInterval = undefined; // Intervalo para contar el tiempo restante para empezar la carrera
     let startCountdownCount = undefined; // Contador de tiempo para empezar la carrera
@@ -417,14 +426,29 @@ const handler = function() {
                 if (segmentsVisited.has(segment.id)) ctx.filter = "brightness(1.0)";
                 else ctx.filter = `brightness(${0.5 + Math.min(0.5, musicBassPower / 500)})`;
 
+                const calculatedSin = segment.data.widthSin * circuit.circuitWidth / 2;
+                const calculatedCos = segment.data.widthCos * circuit.circuitWidth / 2;
+
                 ctx.beginPath();
-                ctx.moveTo(segment.data.start.x - segment.data.widthSin + camera.x, segment.data.start.y + segment.data.widthCos + camera.y);
-                ctx.lineTo(segment.data.end.x - segment.data.widthSin + camera.x, segment.data.end.y + segment.data.widthCos + camera.y);
+                ctx.moveTo(
+                    segment.data.start.x - calculatedSin + camera.x,
+                    segment.data.start.y + calculatedCos + camera.y
+                );
+                ctx.lineTo(
+                    segment.data.end.x - calculatedSin + camera.x,
+                    segment.data.end.y + calculatedCos + camera.y
+                );
                 ctx.stroke();
 
                 ctx.beginPath();
-                ctx.moveTo(segment.data.start.x + segment.data.widthSin + camera.x, segment.data.start.y - segment.data.widthCos + camera.y);
-                ctx.lineTo(segment.data.end.x + segment.data.widthSin + camera.x, segment.data.end.y - segment.data.widthCos + camera.y);
+                ctx.moveTo(
+                    segment.data.start.x + calculatedSin + camera.x,
+                    segment.data.start.y - calculatedCos + camera.y
+                );
+                ctx.lineTo(
+                    segment.data.end.x + calculatedSin + camera.x,
+                    segment.data.end.y - calculatedCos + camera.y
+                );
                 ctx.stroke();
 
                 // Línea central de la pista
@@ -445,11 +469,25 @@ const handler = function() {
                 else ctx.filter = `brightness(${0.5 + Math.min(0.5, musicBassPower / 500)})`;
 
                 ctx.beginPath();
-                ctx.arc(segment.data.arcCenter.x + camera.x, segment.data.arcCenter.y + camera.y, segment.data.radius - circuit.circuitWidth / 2, segment.data.startAngle, segment.data.endAngle, !segment.data.isClockwise);
+                ctx.arc(
+                    segment.data.arcCenter.x + camera.x,
+                    segment.data.arcCenter.y + camera.y,
+                    segment.data.radius - circuit.circuitWidth / 2,
+                    segment.data.startAngle,
+                    segment.data.endAngle,
+                    !segment.data.isClockwise
+                );
                 ctx.stroke();
 
                 ctx.beginPath();
-                ctx.arc(segment.data.arcCenter.x + camera.x, segment.data.arcCenter.y + camera.y, segment.data.radius + circuit.circuitWidth / 2, segment.data.startAngle, segment.data.endAngle, !segment.data.isClockwise);
+                ctx.arc(
+                    segment.data.arcCenter.x + camera.x,
+                    segment.data.arcCenter.y + camera.y,
+                    segment.data.radius + circuit.circuitWidth / 2,
+                    segment.data.startAngle,
+                    segment.data.endAngle,
+                    !segment.data.isClockwise
+                );
                 ctx.stroke();
 
                 // Línea central de la pista
@@ -464,6 +502,70 @@ const handler = function() {
         }
         ctx.lineWidth = 1;
         ctx.filter = "none";
+    }
+
+    function drawMusicCircuitEdges() {
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+
+        musicCircuitEdges.forEach(edge => {
+            const edgeStart = circuit.lineWidth / 2 + edge;
+            ctx.globalAlpha = 1 - edge / musicEdgesMaxOffset; // La opacidad disminuye cuanto más se aleja
+
+            for (let i = 0; i < circuit.segments.length; i++) {
+                const segment = circuit.segments[i];
+
+                if (segment.type === 'straight') {
+                    const calculatedSin = segment.data.widthSin * (circuit.circuitWidth / 2 + edgeStart);
+                    const calculatedCos = segment.data.widthCos * (circuit.circuitWidth / 2 + edgeStart);
+
+                    ctx.beginPath();
+                    ctx.moveTo(
+                        segment.data.start.x - calculatedSin + camera.x,
+                        segment.data.start.y + calculatedCos + camera.y
+                    );
+                    ctx.lineTo(
+                        segment.data.end.x - calculatedSin + camera.x,
+                        segment.data.end.y + calculatedCos + camera.y
+                    );
+                    ctx.stroke();
+    
+                    ctx.beginPath();
+                    ctx.moveTo(
+                        segment.data.start.x + calculatedSin + camera.x,
+                        segment.data.start.y - calculatedCos + camera.y
+                    );
+                    ctx.lineTo(
+                        segment.data.end.x + calculatedSin + camera.x,
+                        segment.data.end.y - calculatedCos + camera.y
+                    );
+                    ctx.stroke();
+                }
+                else if (segment.type === 'arc') {
+                    ctx.beginPath();
+                    ctx.arc(
+                        segment.data.arcCenter.x + camera.x,
+                        segment.data.arcCenter.y + camera.y,
+                        Math.max(0, segment.data.radius - circuit.circuitWidth / 2 - edgeStart),
+                        segment.data.startAngle, segment.data.endAngle,
+                        !segment.data.isClockwise
+                    );
+                    ctx.stroke();
+    
+                    ctx.beginPath();
+                    ctx.arc(
+                        segment.data.arcCenter.x + camera.x,
+                        segment.data.arcCenter.y + camera.y,
+                        segment.data.radius + circuit.circuitWidth / 2 + edgeStart,
+                        segment.data.startAngle, segment.data.endAngle,
+                        !segment.data.isClockwise
+                    );
+                    ctx.stroke();
+                }
+            }
+        });
+        ctx.lineWidth = 1;
+        ctx.globalAlpha = 1.0;
     }
 
     function drawUsername() {
@@ -777,8 +879,6 @@ const handler = function() {
                 }
             }
         });
-
-        
     }
 
     function checkIsDrifting() {
@@ -973,6 +1073,25 @@ const handler = function() {
         sfxEngineSrc.playbackRate.value = 0.2 + Math.min(1, speedRatio) * 2.5 + (speedRatio > 1 ? (speedRatio % 0.2) * 3 : 0); // El pitch máximo se obtiene al llegar a la máxima velocidad del coche. Si se consigue ir más rápido que la velocidad máxima, el pitch hace un efecto de rebote
     }
 
+    /**
+     * Crea, elimina y actualiza los "pulsos" de los bordes del circuitos que van al ritmo de la música.
+     */
+    function updateMusicCircuitEdges() {
+        for (let i = 0; i < musicCircuitEdges.length; i++) {
+            // Si se alcanza el offset máximo, se elimina el pulso. Si no, se aumenta el offset
+            if (musicCircuitEdges[i] >= musicEdgesMaxOffset) musicCircuitEdges.splice(i, 1);
+            else musicCircuitEdges[i] += 2;
+        }
+
+        // Añadir un pulso si la potencia del bajo supera un cierto umbral
+        if (musicBassPower / 100 > 2 && musicEdgesLimiter * fpsController.deltaTime >= musicEdgesMaxLimiter) {
+            musicCircuitEdges.push(0);
+            musicEdgesLimiter = 0;
+        }
+
+        if (musicEdgesLimiter * fpsController.deltaTime < musicEdgesMaxLimiter) musicEdgesLimiter++;
+    }
+
     function updateMusicBassPower() {
         musicAnalyser.getByteFrequencyData(musicDataArray);
     
@@ -1035,6 +1154,7 @@ const handler = function() {
         setScale();
 
         drawCircuit();
+        drawMusicCircuitEdges();
         drawDriftParticles();
         drawCars();
         drawBoostEffects();
@@ -1058,6 +1178,7 @@ const handler = function() {
         updateSmokeParticles();
         updateBoostEffects();
         updatePlaybackRate();
+        updateMusicCircuitEdges();
         updateMusicBassPower();
         updateScale();
         updateCamera();
@@ -1106,7 +1227,7 @@ document.addEventListener('DOMContentLoaded', handler);
  *     - [ ] Modo de juego supervivencia: Sé el último en pie en el circuito empujando a tus rivales. Al completar una vuelta ganas un super empuje.
  *     - [ ] Modo de juego time trial: Completa el circuito en el menor tiempo posible bajo un tiempo límite y sé el que tarde menos en completarlo.
  *     - [ ] Excepto si está expresamente indicado, los circuitos están previamente definidos (¿feedback de circuitos?).
- * - [ ] Implementar música.
+ * - [X] Implementar música.
  * - [X] Implementar efectos de sonido.
  * - [X] BUG: Cuantos más FPS vaya el juego, más rápido va el coche (hay que implementar el delta time).
  * - [X] BUG: Al poner el último arco al revés, no se detecta si se está dentro de dicho arco.

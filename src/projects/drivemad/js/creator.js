@@ -525,15 +525,30 @@ const handler = function() {
             const segment = circuit.segments[i];
 
             if (segment.type === 'straight') {
+                const calculatedSin = segment.data.widthSin * circuit.circuitWidth / 2;
+                const calculatedCos = segment.data.widthCos * circuit.circuitWidth / 2;
+                
                 ctx.strokeStyle = "green";
                 ctx.lineWidth = circuit.lineWidth;
                 ctx.beginPath();
-                ctx.moveTo(segment.data.start.x - segment.data.widthSin + camera.x, segment.data.start.y + segment.data.widthCos + camera.y);
-                ctx.lineTo(segment.data.end.x - segment.data.widthSin + camera.x, segment.data.end.y + segment.data.widthCos + camera.y);
+                ctx.moveTo(
+                    segment.data.start.x - calculatedSin + camera.x,
+                    segment.data.start.y + calculatedCos + camera.y
+                );
+                ctx.lineTo(
+                    segment.data.end.x - calculatedSin + camera.x,
+                    segment.data.end.y + calculatedCos + camera.y
+                );
                 ctx.stroke();
                 ctx.beginPath();
-                ctx.moveTo(segment.data.start.x + segment.data.widthSin + camera.x, segment.data.start.y - segment.data.widthCos + camera.y);
-                ctx.lineTo(segment.data.end.x + segment.data.widthSin + camera.x, segment.data.end.y - segment.data.widthCos + camera.y);
+                ctx.moveTo(
+                    segment.data.start.x + calculatedSin + camera.x,
+                    segment.data.start.y - calculatedCos + camera.y
+                );
+                ctx.lineTo(
+                    segment.data.end.x + calculatedSin + camera.x,
+                    segment.data.end.y - calculatedCos + camera.y
+                );
                 ctx.stroke();
 
                 ctx.strokeStyle = "gray";
@@ -550,24 +565,53 @@ const handler = function() {
                 ctx.strokeStyle = "green";
                 ctx.lineWidth = circuit.lineWidth;
                 ctx.beginPath();
-                ctx.arc(segment.data.arcCenter.x + camera.x, segment.data.arcCenter.y + camera.y, segment.data.radius - circuit.circuitWidth / 2, segment.data.startAngle, segment.data.endAngle, !segment.data.isClockwise);
+                ctx.arc(
+                    segment.data.arcCenter.x + camera.x,
+                    segment.data.arcCenter.y + camera.y,
+                    segment.data.radius - circuit.circuitWidth / 2,
+                    segment.data.startAngle,
+                    segment.data.endAngle,
+                    !segment.data.isClockwise
+                );
                 ctx.stroke();
                 ctx.beginPath();
-                ctx.arc(segment.data.arcCenter.x + camera.x, segment.data.arcCenter.y + camera.y, segment.data.radius + circuit.circuitWidth / 2, segment.data.startAngle, segment.data.endAngle, !segment.data.isClockwise);
+                ctx.arc(
+                    segment.data.arcCenter.x + camera.x,
+                    segment.data.arcCenter.y + camera.y,
+                    segment.data.radius + circuit.circuitWidth / 2,
+                    segment.data.startAngle,
+                    segment.data.endAngle,
+                    !segment.data.isClockwise
+                );
                 ctx.stroke();
 
                 ctx.strokeStyle = "gray";
                 ctx.lineWidth = 1;
                 ctx.beginPath();
-                ctx.arc(segment.data.arcCenter.x + camera.x, segment.data.arcCenter.y + camera.y, segment.data.radius, segment.data.startAngle, segment.data.endAngle, !segment.data.isClockwise);
+                ctx.arc(
+                    segment.data.arcCenter.x + camera.x,
+                    segment.data.arcCenter.y + camera.y,
+                    segment.data.radius,
+                    segment.data.startAngle,
+                    segment.data.endAngle,
+                    !segment.data.isClockwise
+                );
                 ctx.stroke();
                 ctx.beginPath();
-                ctx.arc(segment.data.arcCenter.x + camera.x, segment.data.arcCenter.y + camera.y, 6, 0, 2 * Math.PI);
+                ctx.arc(
+                    segment.data.arcCenter.x + camera.x,
+                    segment.data.arcCenter.y + camera.y,
+                    6, 0, 2 * Math.PI
+                );
             }
             ctx.stroke();
             ctx.fillStyle = "black";
             ctx.beginPath();
-            ctx.arc(segment.ref.coords.x + camera.x, segment.ref.coords.y + camera.y, 6, 0, 2 * Math.PI);
+            ctx.arc(
+                segment.ref.coords.x + camera.x,
+                segment.ref.coords.y + camera.y,
+                6, 0, 2 * Math.PI
+            );
             ctx.fill();
         }
         

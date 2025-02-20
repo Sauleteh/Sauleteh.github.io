@@ -300,8 +300,8 @@ export class Circuit {
             data: {
                 start: startCoords,
                 end: endCoords,
-                widthSin: this.circuitWidth * Math.sin(currentPoint.direction * Math.PI / 180) / 2,
-                widthCos: this.circuitWidth * Math.cos(currentPoint.direction * Math.PI / 180) / 2,
+                widthSin: Math.sin(currentPoint.direction * Math.PI / 180),
+                widthCos: Math.cos(currentPoint.direction * Math.PI / 180),
                 length: length
             }
         }
