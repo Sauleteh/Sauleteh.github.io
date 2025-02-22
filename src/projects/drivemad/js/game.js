@@ -6,6 +6,7 @@ import { CarUtils } from "./objects/CarUtils.js";
 import { LocalCarVariables } from "./objects/LocalCarVariables.js";
 import { GAMEMODES, STORAGE_KEYS, CARS } from "./objects/Constants.js";
 import { SpriteManager } from "./objects/SpriteManager.js";
+import { MenuImage } from "./objects/MenuObjects.js";
 
 const handler = function() {
     document.removeEventListener('DOMContentLoaded', handler);
@@ -592,14 +593,7 @@ const handler = function() {
         });
     }
 
-    function drawUserInterface() {
-        ctx.fillStyle = "white";
-        ctx.font = "bold 24px Arial";
-        ctx.textAlign = "left";
-        ctx.textBaseline = "top";
-        ctx.fillText(`Boosts: ${userCar.boostCounter}`, 10, 10);
-        ctx.fillText(`Laps: ${lapsCompleted} / ${lapsToComplete ? lapsToComplete : "?"}`, 10, 130);
-        
+    function drawUserInterface() {        
         // Cuenta atrás para la espera de jugadores en la sala
         ctx.fillStyle = "white";
         ctx.font = "bold 24px Arial";
@@ -654,15 +648,120 @@ const handler = function() {
         }
 
         // Velocidad
+        const speedSpriteOn = new MenuImage(32, 0, 48, 8, "spriteUI");
+        const speedSpriteOff = new MenuImage(32, 8, 48, 8, "spriteUI");
+        const scale = 4;
+
         ctx.fillStyle = "white";
-        ctx.font = "bold 24px Arial";
-        ctx.textAlign = "center";
+        ctx.font = "bold 18px Arial";
+        ctx.textAlign = "left";
         ctx.textBaseline = "middle";
-        ctx.fillText(
-            `Speed: ${(carUtils.absoluteSpeed(userCar) * 5).toFixed(1)} km/h`,
-            canvas.width / 1.2,
-            canvas.height / 1.2
+
+        const fillPercentage = carUtils.absoluteSpeed(userCar) / carUtils.maxSpeed(userCar, movingAirFriction); // Porcentaje al que debe estar rellenada la barra (de 0 a 1)
+        const pixelsToFill = Math.round(speedSpriteOn.width * fillPercentage); // Píxeles a rellenar de la barra
+        const pixelsToFillOff = speedSpriteOff.width - pixelsToFill; // Píxeles a no rellenar de la barra
+        const topLeft = new Point( // Localización de la esquina superior izquierda de la barra
+            canvas.width / 1.5,
+            canvas.height / 1.12
         );
+
+        ctx.globalAlpha = 0.8;
+
+        // Barra llenada
+        ctx.drawImage(
+            SpriteManager.getSpriteByName(speedSpriteOn.sprite),
+            speedSpriteOn.x, // Posición X del item en la imagen
+            speedSpriteOn.y, // Posición Y del item en la imagen
+            pixelsToFill, // Ancho del item en la imagen
+            speedSpriteOn.height, // Alto del item en la imagen
+            Math.floor(topLeft.x), // Posición X del item
+            Math.floor(topLeft.y), // Posición Y del item
+            pixelsToFill * scale, // Ancho del item en el canvas
+            speedSpriteOn.height * scale // Alto del item en el canvas
+        );
+
+        // El restante de la barra, sin llenarla
+        ctx.drawImage(
+            SpriteManager.getSpriteByName(speedSpriteOff.sprite),
+            speedSpriteOff.x + pixelsToFill, // Posición X del item en la imagen
+            speedSpriteOff.y, // Posición Y del item en la imagen
+            pixelsToFillOff, // Ancho del item en la imagen
+            speedSpriteOff.height, // Alto del item en la imagen
+            Math.floor(topLeft.x + pixelsToFill * scale), // Posición X del item
+            Math.floor(topLeft.y), // Posición Y del item
+            pixelsToFillOff * scale, // Ancho del item en el canvas
+            speedSpriteOff.height * scale // Alto del item en el canvas
+        );
+        
+        ctx.fillText(
+            `${(carUtils.absoluteSpeed(userCar) * 5).toFixed(1)} km/h`,
+            topLeft.x + speedSpriteOn.width * scale + 10,
+            topLeft.y + speedSpriteOn.height * scale / 2
+        );
+
+        // Turbo
+        ctx.textAlign = "right";
+        ctx.fillText(
+            userCar.boostCounter,
+            topLeft.x - 10,
+            topLeft.y + speedSpriteOn.height * scale / 2
+        );
+
+        ctx.globalAlpha = 1.0;
+
+        if (gamemode === GAMEMODES.RACE) {
+            const minimapSize = 180;
+            const circuitScale = 10;
+            const minimapTopLeft = new Point(
+                30,
+                canvas.height - minimapSize - 30
+            );
+
+            // Fondo del minimapa
+            ctx.fillStyle = "rgba(30, 30, 30, 0.5)";
+            ctx.fillRect(minimapTopLeft.x, minimapTopLeft.y, minimapSize, minimapSize);
+
+            // Circuito en el minimapa
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 1;
+            for (let i = 0; i < circuit.segments.length; i++) {
+                const segment = circuit.segments[i];
+                ctx.beginPath();
+                if (segment.type === 'straight') {
+                    ctx.moveTo(
+                        segment.data.start.x / circuitScale + minimapTopLeft.x + minimapSize / 2 - circuit.startPoint.coords.x / circuitScale,
+                        segment.data.start.y / circuitScale + minimapTopLeft.y + minimapSize / 2 - circuit.startPoint.coords.y / circuitScale
+                    );
+                    ctx.lineTo(
+                        segment.data.end.x / circuitScale + minimapTopLeft.x + minimapSize / 2 - circuit.startPoint.coords.x / circuitScale,
+                        segment.data.end.y / circuitScale + minimapTopLeft.y + minimapSize / 2 - circuit.startPoint.coords.y / circuitScale
+                    );
+                }
+                else if (segment.type === 'arc') {
+                    ctx.arc(
+                        segment.data.arcCenter.x / circuitScale + minimapTopLeft.x + minimapSize / 2 - circuit.startPoint.coords.x / circuitScale,
+                        segment.data.arcCenter.y / circuitScale + minimapTopLeft.y + minimapSize / 2 - circuit.startPoint.coords.y / circuitScale,
+                        segment.data.radius / circuitScale,
+                        segment.data.startAngle,
+                        segment.data.endAngle,
+                        !segment.data.isClockwise
+                    );
+                }
+                ctx.stroke();
+            }
+            ctx.lineWidth = 1;
+
+            // Vueltas completadas
+            ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+            ctx.font = "bold 16px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "bottom";
+            ctx.fillText(
+                `Laps: ${lapsCompleted} / ${lapsToComplete ? lapsToComplete : "?"}`,
+                minimapTopLeft.x + minimapSize / 2,
+                minimapTopLeft.y - 10
+            );
+        }
     }
 
     // eslint-disable-next-line no-unused-vars
@@ -1279,10 +1378,11 @@ document.addEventListener('DOMContentLoaded', handler);
  *     - [ ] Excepto si está expresamente indicado, los circuitos están previamente definidos (¿feedback de circuitos?).
  * - [ ] Tienes que poder pitar.
  * - [ ] Condiciones meteorológicas.
- * - [ ] Mejorar la UI.
- *     - [ ] Mostrar una barra de velocidad.
- *     - [ ] La cuenta atrás al empezar una partida es más vistosa.
- *     - [ ] La cuenta atrás de esperar a más personas para empezar la partida debe estar centrada arriba del todo.
+ * - [X] Mejorar la UI.
+ *     - [X] Mostrar una barra de velocidad junto con los km/h y turbos restantes
+ *     - [X] La cuenta atrás al empezar una partida es más vistosa.
+ *     - [X] La cuenta atrás de esperar a más personas para empezar la partida debe estar centrada arriba del todo.
+ *     - [X] Mostrar un minimapa del circuito abajo a la izquierda junto con las vueltas restantes.
  * - [X] Implementar sistema de frenado en vez de que al frenar se sume el vector de freno (que no es suficiente potencia para frenados más grandes).
  * - [X] Implementar el sistema de derrape.
  *     - [X] Se hará con el botón espacio.
