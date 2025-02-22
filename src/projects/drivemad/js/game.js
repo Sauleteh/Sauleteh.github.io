@@ -97,6 +97,7 @@ const handler = function() {
     const segmentsVisited = new Set(); // Para que cuente la vuelta como válida, se deben visitar todos los segmentos del circuito
     let lapsCompleted = 0; // Vueltas completadas por el coche
     let lapsToComplete = undefined; // Vueltas necesarias para completar la carrera
+    let circuitDisplayInfo = undefined; // Objeto que contiene el nombre (name), la longitud (length) del circuito y si está invertido
 
     // Inicialización para el jugador
     let userCar = carUtils.defaultCar();
@@ -198,6 +199,11 @@ const handler = function() {
                 circuit.setStartPoint(circuitData.data.startPoint);
                 circuit.addInfoSegments(circuitData.data.segments);
                 lapsToComplete = data.content.laps;
+                circuitDisplayInfo = {
+                    name: circuitData.name,
+                    length: circuitData.length,
+                    inverted: data.content.inverted
+                }
                 if (data.content.inverted) {
                     // Si está el circuito invertido, se invierte la dirección de salida después de añadir los segmentos para que lo único que gire sean los coches
                     circuit.startPoint.direction += 180;
@@ -222,7 +228,7 @@ const handler = function() {
             else if (startCountdownInterval) throw new Error("The start countdown is not stopped");
             else if (waitCountdownCount || startCountdownCount) throw new Error("There is a countdown count already running");
 
-            startCountdownCount = 5;
+            startCountdownCount = 10;
             startCountdownInterval = setInterval(() => {
                 if (--startCountdownCount <= 0) {
                     clearInterval(startCountdownInterval);
@@ -258,6 +264,7 @@ const handler = function() {
         segmentsVisited.clear();
         lapsCompleted = 0;
         lapsToComplete = undefined;
+        circuitDisplayInfo = undefined;
     }
 
     function initEvents() {
@@ -591,10 +598,71 @@ const handler = function() {
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
         ctx.fillText(`Boosts: ${userCar.boostCounter}`, 10, 10);
-        ctx.fillText(`Speed: ${(carUtils.absoluteSpeed(userCar) * 5).toFixed(1)} km/h`, 10, 40);
-        ctx.fillText(`Until next game: ${waitCountdownCount ? (waitCountdownCount + " seconds") : "Waiting for players"}`, 10, 70);
-        ctx.fillText(`Start countdown: ${startCountdownCount ? (startCountdownCount + " seconds") : "Waiting for start"}`, 10, 100);
         ctx.fillText(`Laps: ${lapsCompleted} / ${lapsToComplete ? lapsToComplete : "?"}`, 10, 130);
+        
+        // Cuenta atrás para la espera de jugadores en la sala
+        ctx.fillStyle = "white";
+        ctx.font = "bold 24px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        if (waitCountdownCount) ctx.fillText(`${waitCountdownCount} seconds`, canvas.width / 2, canvas.height / 10);
+        else if (!gamemode) ctx.fillText(`Waiting for players`, canvas.width / 2, canvas.height / 10);
+
+        if (startCountdownCount) {
+            // Cuenta atrás para empezar la carrera al cargar el circuito
+            if (startCountdownCount === 1) ctx.fillStyle = "lime";
+            else if (startCountdownCount === 2) ctx.fillStyle = "yellow";
+            else ctx.fillStyle = "red";
+            ctx.font = "bold 82px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(startCountdownCount, canvas.width / 2, canvas.height / 4);
+
+            // Información del circuito (solo aparece antes de la cuenta atrás)
+            if (startCountdownCount > 5) {
+                if (gamemode === GAMEMODES.RACE) {
+                    ctx.fillStyle = "black";
+                    ctx.font = "bold 42px Arial";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    const border = 2;
+                    const text = circuitDisplayInfo.name + (circuitDisplayInfo.inverted ? " (Inverted)" : "");
+                    
+                    // Bordes del nombre del circuito
+                    ctx.fillText(text, canvas.width / 2 - border, canvas.height / 2);
+                    ctx.fillText(text, canvas.width / 2, canvas.height / 2 - border);
+                    ctx.fillText(text, canvas.width / 2 + border, canvas.height / 2);
+                    ctx.fillText(text, canvas.width / 2, canvas.height / 2 + border);
+
+                    // Nombre del circuito
+                    ctx.fillStyle = "white";
+                    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+                    // Bordes de la longitud del circuito
+                    ctx.fillStyle = "black";
+                    ctx.font = "bold 28px Arial";
+                    ctx.fillText(circuitDisplayInfo.length, canvas.width / 2 - border, canvas.height / 2 + 50);
+                    ctx.fillText(circuitDisplayInfo.length, canvas.width / 2, canvas.height / 2 + 50 - border);
+                    ctx.fillText(circuitDisplayInfo.length, canvas.width / 2 + border, canvas.height / 2 + 50);
+                    ctx.fillText(circuitDisplayInfo.length, canvas.width / 2, canvas.height / 2 + 50 + border);
+
+                    // Longitud del circuito
+                    ctx.fillStyle = "white";
+                    ctx.fillText(circuitDisplayInfo.length, canvas.width / 2, canvas.height / 2 + 50);
+                }
+            }
+        }
+
+        // Velocidad
+        ctx.fillStyle = "white";
+        ctx.font = "bold 24px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(
+            `Speed: ${(carUtils.absoluteSpeed(userCar) * 5).toFixed(1)} km/h`,
+            canvas.width / 1.2,
+            canvas.height / 1.2
+        );
     }
 
     // eslint-disable-next-line no-unused-vars
