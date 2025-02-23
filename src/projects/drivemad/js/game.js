@@ -89,6 +89,11 @@ const handler = function() {
     let foregroundColorAngle = 0; // Ángulo del filtro de color en grados (0-360)
     let foregroundColorOpacity = 0; // Opacidad del filtro de color (0-1)
 
+    const bgCircles = []; // Círculos de fondo que aparecen en el canvas
+    const bgCircleMaxRadius = 400; // Radio máximo de los círculos de fondo
+    const bgCicleMaxOpacity = 0.05; // Opacidad máxima de los círculos de fondo
+    const bgCircleSpawnSize = { width: canvas.width * 4, height: canvas.height * 4 }; // Tamaño de la zona de spawn de los círculos de fondo
+
     // Variables del online
     let waitCountdownCount = undefined; // Contador de tiempo para empezar la carrera
     let waitCountdownInterval = undefined; // Intervalo para contar el tiempo restante para empezar la carrera
@@ -395,6 +400,43 @@ const handler = function() {
                 userCar.particleSize,
                 userCar.particleSize
             );
+        }
+    }
+
+    function drawBackgroundCircles() {
+        // Dibujar círculos de fondo
+        for (let i = 0; i < bgCircles.length; i++) {
+            const circle = bgCircles[i];
+            const fillPercentage = circle.radius / bgCircleMaxRadius;
+            ctx.fillStyle = `hsla(${circle.colorAngle}, 100%, 50%, ${bgCicleMaxOpacity - fillPercentage * bgCicleMaxOpacity})`;
+            ctx.beginPath();
+            ctx.arc(circle.x + camera.x, circle.y + camera.y, circle.radius * musicBassPower / 200, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Se añaden círculos si no hay suficientes
+        if (bgCircles.length < 50 && Math.random() < 0.1 + musicBassPower / 1000) {
+            bgCircles.push({
+                x: Math.random() * bgCircleSpawnSize.width + userCar.coords.x - bgCircleSpawnSize.width / 2,
+                y: Math.random() * bgCircleSpawnSize.height + userCar.coords.y - bgCircleSpawnSize.height / 2,
+                radius: 0,
+                colorAngle: Math.random() * 360
+            });
+        }
+
+        // Se eliminan círculos si ya no se ven
+        for (let i = 0; i < bgCircles.length; i++) {
+            const circle = bgCircles[i];
+            if (circle.radius > bgCircleMaxRadius) bgCircles.splice(i--, 1);
+        }
+
+        // Se actualizan los círculos
+        for (let i = 0; i < bgCircles.length; i++) {
+            const circle = bgCircles[i];
+            circle.radius += 8 * fpsController.deltaTime;
+
+            circle.x += Math.random() * 2 - 1;
+            circle.y += Math.random() * 2 - 1;
         }
     }
 
@@ -1380,6 +1422,7 @@ const handler = function() {
         clearCanvas();
         setScale();
 
+        drawBackgroundCircles();
         drawCircuit();
         drawMusicCircuitEdges();
         drawDriftParticles();
@@ -1443,7 +1486,7 @@ document.addEventListener('DOMContentLoaded', handler);
  *     - [ ] Flechas que están en el suelo que indican la dirección de la pista que van al ritmo de la música.
  *     - [ ] Mejorar el efecto del viento al usar el turbo.
  *     - [X] Flashes de colores en la pantalla al ritmo de la música.
- *     - [ ] Círculos de fondo que van aumentando de tamaño y después de cierto tamaño van desapareciendo. También van latiendo al ritmo de la música.
+ *     - [X] Círculos de fondo que van aumentando de tamaño y después de cierto tamaño van desapareciendo. También van latiendo al ritmo de la música.
  *     - [X] Los coches tienen por debajo luces de neón.
  * - [ ] Poder obtener turbo.
  *     - [ ] De forma normal, se obtendrá turbo derrapando.
