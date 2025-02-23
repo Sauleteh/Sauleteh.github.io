@@ -23,6 +23,21 @@ const handler = function() {
         sfxEngineSrc.connect(sfxEngineCtx.destination);
     });
 
+    const sfxHornCtx = new window.AudioContext();
+    const sfxHornGain = sfxHornCtx.createGain();
+    sfxHornGain.gain.value = 0;
+    const sfxHornSrc = sfxHornCtx.createBufferSource();
+    fetch("./assets/audio/car_horn.wav")
+    .then(response => response.arrayBuffer())
+    .then(arrayBuffer => sfxHornCtx.decodeAudioData(arrayBuffer))
+    .then(audioBuffer => {
+        sfxHornSrc.buffer = audioBuffer;
+        sfxHornSrc.loop = true;
+        sfxHornSrc.start();
+        sfxHornSrc.connect(sfxHornGain);
+        sfxHornGain.connect(sfxHornCtx.destination);
+    });
+
     const musicCtx = new window.AudioContext();
     const musicAnalyser = musicCtx.createAnalyser();
     musicAnalyser.fftSize = 256;
@@ -991,6 +1006,9 @@ const handler = function() {
     }
 
     function checkCarControls() {
+        if (controls.keys.horn.isPressed) sfxHornGain.gain.value = 1;
+        else sfxHornGain.gain.value = 0;
+
         if (!canMove) return;
 
         if (controls.keys.drift.isPressed && !controls.keys.drift.actionDone) {
@@ -1475,7 +1493,8 @@ document.addEventListener('DOMContentLoaded', handler);
  *     - [ ] Modo de juego time trial: Completa el circuito en el menor tiempo posible bajo un tiempo límite y sé el que tarde menos en completarlo.
  *     - [ ] Excepto si está expresamente indicado, los circuitos están previamente definidos (¿feedback de circuitos?).
  * - [ ] Tienes que poder pitar.
- *     - [ ] Según la distancia a la que esté el coche del oyente, el pitido será más fuerte o más débil.
+ *     - [X] Al pulsar una tecla, se pita.
+ *     - [ ] Puedes escuchar los pitidos de los demás y según la distancia a la que esté el pitido del oyente, el pitido será más fuerte o más débil.
  * - [ ] Condiciones meteorológicas.
  *     - [ ] Lluvia: El coche estará siempre derrapando.
  *     - [ ] Nieve: El coche tendrá menos agarre.

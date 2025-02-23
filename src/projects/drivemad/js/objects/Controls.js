@@ -42,6 +42,11 @@ export class Controls
                 isPressed: false,
                 actionDone: false,
                 check: (key) => { return key === "z"; }
+            },
+            horn: {
+                isPressed: false,
+                actionDone: false,
+                check: (key) => { return key === "x"; }
             }
         };
     }
