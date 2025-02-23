@@ -92,6 +92,7 @@ const handler = function() {
     let startCountdownInterval = undefined; // Intervalo para contar el tiempo restante para empezar la carrera
     let canMove = true; // Si es false, no se puede mover el coche
     let gamemode = undefined; // Modo de juego actual
+    let winnerPlayerName = undefined; // Nombre del jugador ganador
 
     // Variables especiales para cada modo de juego
     // Modo de juego carrera
@@ -252,11 +253,13 @@ const handler = function() {
             canMove = true;
         }
         else if (data.type === "game_end" && data.code === 0) {
-            // Cuando se acaba la carrera, se recibe este evento sin recibir nada
+            // Cuando se acaba la carrera, se recibe este evento con el ID del jugador ganador
+            winnerPlayerName = cars.find(car => car.id === data.content).name;
             resetGamemodeVariables();
             gamemode = undefined;
             circuit = Circuit.defaultCircuit();
             carUtils.resetAll(cars, circuit.startPoint);
+            setTimeout(() => { winnerPlayerName = undefined; }, 5000);
         }
         else console.error(`Unknown message: ${data}`);
     };
@@ -764,6 +767,27 @@ const handler = function() {
         }
     }
 
+    function drawWinnerPlayer() {
+        if (winnerPlayerName) {
+            const text = `Winner: ${winnerPlayerName}`;
+            const border = 2;
+
+            // Bordes de las letras
+            ctx.fillStyle = "black";
+            ctx.font = "bold 52px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(text, canvas.width / 2 - border, canvas.height / 2);
+            ctx.fillText(text, canvas.width / 2, canvas.height / 2 - border);
+            ctx.fillText(text, canvas.width / 2 + border, canvas.height / 2);
+            ctx.fillText(text, canvas.width / 2, canvas.height / 2 + border);
+
+            // Fill de las letras
+            ctx.fillStyle = "white";
+            ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+        }
+    }
+
     // eslint-disable-next-line no-unused-vars
     function drawDebug() {
         cars.forEach(car => {
@@ -1012,6 +1036,7 @@ const handler = function() {
             if (circuit.hasCrossedFinishLine(userCar)) {
                 segmentsVisited.clear();
                 lapsCompleted++;
+                userCar.boostCounter++; // Se obtiene un turbo al completar una vuelta
 
                 if (lapsCompleted >= lapsToComplete) {
                     const message = JSON.stringify({
@@ -1334,8 +1359,9 @@ const handler = function() {
         drawUsername();
         // drawDebug();
 
-        restoreScale();
-        drawUserInterface(); // La interfaz de usuario no se escala
+        restoreScale(); // Las funciones draw después de esta línea no se verán afectadas por la escala
+        drawUserInterface();
+        drawWinnerPlayer();
 
         checkAiNextMove();
         checkCarControls();
@@ -1372,17 +1398,32 @@ document.addEventListener('DOMContentLoaded', handler);
  *         - [X] Si hay más de X personas, el contador se reducirá a un número mucho menor.
  *     - [X] Cuando se termine el tiempo de sala de espera, empezará un modo de juego aleatorio.
  *     - [ ] Modo de juego resistencia: Aguanta el mayor tiempo posible en un circuito proceduralmente generado donde tu coche irá cada vez más rápido.
- *     - [Comprobar que funciona] Modo de juego carrera: Llega antes que cualquier otro a la meta después de X vueltas.
+ *     - [X] Modo de juego carrera: Llega antes que cualquier otro a la meta después de X vueltas.
  *     - [ ] Modo de juego supervivencia: Sé el último en pie en el circuito empujando a tus rivales. Al completar una vuelta ganas un super empuje.
  *     - [ ] Modo de juego time trial: Completa el circuito en el menor tiempo posible bajo un tiempo límite y sé el que tarde menos en completarlo.
  *     - [ ] Excepto si está expresamente indicado, los circuitos están previamente definidos (¿feedback de circuitos?).
  * - [ ] Tienes que poder pitar.
+ *     - [ ] Según la distancia a la que esté el coche del oyente, el pitido será más fuerte o más débil.
  * - [ ] Condiciones meteorológicas.
- * - [X] Mejorar la UI.
+ *     - [ ] Lluvia: El coche estará siempre derrapando.
+ *     - [ ] Nieve: El coche tendrá menos agarre.
+ *     - [ ] Viento inestable: El coche es empujado de forma aleatoria.
+ *     - [ ] Niebla: La visibilidad es reducida.
+ * - [ ] Implementar más efectos visuales.
+ *     - [ ] Flechas que están en el suelo que indican la dirección de la pista que van al ritmo de la música.
+ *     - [ ] Mejorar el efecto del viento al usar el turbo.
+ *     - [ ] Flashes de colores en la pantalla al ritmo de la música.
+ *     - [ ] Círculos de fondo que van aumentando de tamaño y después de cierto tamaño van desapareciendo. También van latiendo al ritmo de la música.
+ * - [ ] Poder obtener turbo.
+ *     - [ ] De forma normal, se obtendrá turbo derrapando.
+ *     - [X] En el modo carrera, cada vez que se completa una vuelta se obtiene un turbo.
+ * - [ ] Mejorar la UI.
  *     - [X] Mostrar una barra de velocidad junto con los km/h y turbos restantes
  *     - [X] La cuenta atrás al empezar una partida es más vistosa.
  *     - [X] La cuenta atrás de esperar a más personas para empezar la partida debe estar centrada arriba del todo.
- *     - [X] Mostrar un minimapa del circuito abajo a la izquierda junto con las vueltas restantes.
+ *     - [ ] Mostrar un minimapa del circuito abajo a la izquierda junto con las vueltas restantes.
+ *         - [ ] El minimapa debe mostrar la posición de los coches.
+ *         - [ ] Debe estar bien centrado. Para ello, calcular cómo de ancho y alto es el circuito y ajustarlo en el minimapa.
  * - [X] Implementar sistema de frenado en vez de que al frenar se sume el vector de freno (que no es suficiente potencia para frenados más grandes).
  * - [X] Implementar el sistema de derrape.
  *     - [X] Se hará con el botón espacio.
