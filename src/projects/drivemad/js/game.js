@@ -427,14 +427,13 @@ const handler = function() {
         // Se eliminan círculos si ya no se ven
         for (let i = 0; i < bgCircles.length; i++) {
             const circle = bgCircles[i];
-            if (circle.radius > bgCircleMaxRadius) bgCircles.splice(i--, 1);
-        }
+            if (circle.radius > bgCircleMaxRadius) {
+                bgCircles.splice(i--, 1);
+                continue;
+            }
 
-        // Se actualizan los círculos
-        for (let i = 0; i < bgCircles.length; i++) {
-            const circle = bgCircles[i];
+            // Se actualizan los círculos
             circle.radius += 8 * fpsController.deltaTime;
-
             circle.x += Math.random() * 2 - 1;
             circle.y += Math.random() * 2 - 1;
         }
