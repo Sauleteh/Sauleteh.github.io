@@ -109,7 +109,7 @@ const handler = function() {
     let userCar = carUtils.defaultCar();
     carUtils.reset(userCar, circuit.startPoint);
     cars.push(userCar);
-    localCarVariables.push(new LocalCarVariables());
+    localCarVariables.push(new LocalCarVariables(userCar, ctx));
 
     // Inicialización para la IA
     for (let i = 0; i < 10; i++) {
@@ -119,7 +119,7 @@ const handler = function() {
         carUtils.reset(aiCar, circuit.startPoint);
         aiCars.push(aiCar);
         cars.push(aiCar);
-        localCarVariables.push(new LocalCarVariables());
+        localCarVariables.push(new LocalCarVariables(aiCar, ctx));
     }
 
     // MARK: Conexión server
@@ -149,7 +149,7 @@ const handler = function() {
         else if (data.type === "login_new_car" && data.code === 0) {
             // Aquí se reciben los coches recién conectados al servidor o la lista de coches si se acaba de entrar
             cars.push(data.content);
-            localCarVariables.push(new LocalCarVariables());
+            localCarVariables.push(new LocalCarVariables(data.content, ctx));
         }
         else if (data.type === "move" && data.code === 0) {
             // Aquí se reciben las actualizaciones de posición de los coches
@@ -303,11 +303,17 @@ const handler = function() {
 
     // MARK: Dibujado
     function drawCars() {
-        cars.forEach(car => {
+        cars.forEach((car, index) => {
             ctx.save();
             ctx.filter = `hue-rotate(${car.color}deg)`;
             ctx.translate(car.coords.x + camera.x, car.coords.y + camera.y);
             ctx.rotate(car.direction * Math.PI / 180);
+
+            ctx.fillStyle = localCarVariables[index].neonGlow;
+            ctx.beginPath();
+            ctx.arc(0, 0, 50, 0, Math.PI * 2);
+            ctx.fill();
+
             ctx.drawImage( // La imagen se hace con el ancho y alto al revés para que aparezca mirando hacia la derecha (0 grados)
                 SpriteManager.getSpriteByName(car.image.sprite),
                 car.image.x, // Posición X del coche en la imagen
@@ -1362,6 +1368,9 @@ const handler = function() {
             const colorShift = parseInt(localStorage.getItem(STORAGE_KEYS.ACTUAL_CAR_COLOR_SHIFT));
             userCar.color = colorShift;
         }
+
+        // Actualizar las variables locales del coche
+        localCarVariables[cars.indexOf(userCar)].reset(userCar, ctx);
     }
 
     function draw(now) {
@@ -1435,6 +1444,7 @@ document.addEventListener('DOMContentLoaded', handler);
  *     - [ ] Mejorar el efecto del viento al usar el turbo.
  *     - [X] Flashes de colores en la pantalla al ritmo de la música.
  *     - [ ] Círculos de fondo que van aumentando de tamaño y después de cierto tamaño van desapareciendo. También van latiendo al ritmo de la música.
+ *     - [X] Los coches tienen por debajo luces de neón.
  * - [ ] Poder obtener turbo.
  *     - [ ] De forma normal, se obtendrá turbo derrapando.
  *     - [X] En el modo carrera, cada vez que se completa una vuelta se obtiene un turbo.
