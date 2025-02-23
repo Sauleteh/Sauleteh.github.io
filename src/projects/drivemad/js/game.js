@@ -86,6 +86,10 @@ const handler = function() {
     const musicEdgesMaxOffset = 50;
     const musicEdgesMaxLimiter = 20; // Cuántos frames como mínimo entre pulsos para no saturar los detalles
 
+    let foregroundColorAngle = 0; // Ángulo del filtro de color en grados (0-360)
+    let foregroundColorOpacity = 0; // Opacidad del filtro de color (0-1)
+
+    // Variables del online
     let waitCountdownCount = undefined; // Contador de tiempo para empezar la carrera
     let waitCountdownInterval = undefined; // Intervalo para contar el tiempo restante para empezar la carrera
     let startCountdownCount = undefined; // Contador de tiempo para empezar la carrera
@@ -136,7 +140,7 @@ const handler = function() {
 
     socket.onmessage = function (event) {
         const data = JSON.parse(event.data);
-        console.log(data);
+        // console.log(data);
 
         if (data.type === "login_id" && data.code === 0) {
             // Aquí se recibe el id del usuario proporcionado por el servidor
@@ -594,6 +598,22 @@ const handler = function() {
             ctx.textBaseline = "alphabetic";
             ctx.fillText(car.name, car.coords.x + camera.x, car.coords.y + camera.y + car.width + 12);
         });
+    }
+
+    function drawForegroundColor() {
+        // Si la música tiene suficiente potencia, hace que aparezca el filtro de color, el cual se va desvaneciendo (como si de un flash se tratara)
+        if (musicBassPower / 100 >= 1.8) foregroundColorOpacity = 0.1;
+        else foregroundColorOpacity = Math.max(0, foregroundColorOpacity - 0.01 * fpsController.deltaTime);
+
+        // Dibujar el filtro de color
+        if (foregroundColorOpacity > 0) {
+            ctx.fillStyle = `hsla(${foregroundColorAngle}, 100%, 50%, ${foregroundColorOpacity})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Actualizar el color
+        foregroundColorAngle += Math.round(musicBassPower / 100 * fpsController.deltaTime);
+        if (foregroundColorAngle >= 360) foregroundColorAngle -= 360;
     }
 
     function drawUserInterface() {        
@@ -1360,6 +1380,7 @@ const handler = function() {
         // drawDebug();
 
         restoreScale(); // Las funciones draw después de esta línea no se verán afectadas por la escala
+        drawForegroundColor();
         drawUserInterface();
         drawWinnerPlayer();
 
@@ -1412,7 +1433,7 @@ document.addEventListener('DOMContentLoaded', handler);
  * - [ ] Implementar más efectos visuales.
  *     - [ ] Flechas que están en el suelo que indican la dirección de la pista que van al ritmo de la música.
  *     - [ ] Mejorar el efecto del viento al usar el turbo.
- *     - [ ] Flashes de colores en la pantalla al ritmo de la música.
+ *     - [X] Flashes de colores en la pantalla al ritmo de la música.
  *     - [ ] Círculos de fondo que van aumentando de tamaño y después de cierto tamaño van desapareciendo. También van latiendo al ritmo de la música.
  * - [ ] Poder obtener turbo.
  *     - [ ] De forma normal, se obtendrá turbo derrapando.
