@@ -63,6 +63,7 @@ export class Car
         this.boostCounter = 1; // Número de turbos disponibles. Al principio, todos los coches comienzan con un turbo disponible
         this.boostLastUsed = 0; // Último momento en el que se usó el turbo (0 si no se está usando, mayor que 0 en caso contrario)
         this.isPressingAccelerateOrBrake = false; // True si se está pulsando el acelerador o el freno, false en caso contrario
+        this.isPressingHorn = false; // True si se está pulsando el claxon, false en caso contrario
     }
 
     //! IMPORTANTE: No añadir métodos de obtención de datos aquí, no se enviarán al servidor. Para añadir métodos de obtención de datos, añadirlos en el archivo CarUtils.js.

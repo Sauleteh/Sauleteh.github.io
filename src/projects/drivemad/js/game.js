@@ -533,7 +533,7 @@ const handler = function() {
 
                 // Línea central de la pista
                 ctx.strokeStyle = "white";
-                ctx.lineWidth = Math.max(1, musicBassPower / 20);
+                ctx.lineWidth = Math.max(1, musicBassPower / 20 * circuit.circuitWidth / 500);
 
                 ctx.beginPath();
                 ctx.moveTo(segment.data.start.x + camera.x, segment.data.start.y + camera.y);
@@ -570,7 +570,7 @@ const handler = function() {
 
                 // Línea central de la pista
                 ctx.strokeStyle = "white";
-                ctx.lineWidth = Math.max(1, musicBassPower / 20);
+                ctx.lineWidth = Math.max(1, musicBassPower / 20 * circuit.circuitWidth / 500);
 
                 ctx.beginPath();
                 ctx.arc(
@@ -1006,70 +1006,69 @@ const handler = function() {
     }
 
     function checkCarControls() {
-        if (controls.keys.horn.isPressed) sfxHornGain.gain.value = 1;
-        else sfxHornGain.gain.value = 0;
+        userCar.isPressingHorn = controls.keys.horn.isPressed; // Puedes tocar el claxon aunque no estés moviéndote
 
-        if (!canMove) return;
-
-        if (controls.keys.drift.isPressed && !controls.keys.drift.actionDone) {
-            if (carUtils.isSpeedNegative(userCar)) return; // Si la velocidad es negativa, no se puede derrapar
-            userCar.isDrifting = true;
-            controls.keys.drift.actionDone = true;
-        }
-
-        if (controls.keys.accelerate.isPressed) {
-            const rads = userCar.direction * Math.PI / 180;
-            let accelerationMultiplier = Math.min(1, Math.max(0.1, (carUtils.absoluteSpeed(userCar) / carUtils.maxSpeed(userCar, movingAirFriction) * userCar.accelerationPower))); // El multiplicador está entre 0.1 y 1 para poder arrancar el coche
-            if (!userCar.isInsideCircuit) accelerationMultiplier = 1; // Si está fuera del circuito, no se aplica la multiplicación de la aceleración
-
-            userCar.speed.x += Math.cos(rads) * userCar.speedPower * accelerationMultiplier;
-            userCar.speed.y += Math.sin(rads) * userCar.speedPower * accelerationMultiplier;
-            userCar.isAccelerating = true;
-            userCar.isPressingAccelerateOrBrake = true;
-        }
-        else if (controls.keys.brake.isPressed) {
-            if (carUtils.isSpeedNegative(userCar)) userCar.isDrifting = false; // Si la velocidad es negativa, no se puede derrapar
-            const rads = userCar.direction * Math.PI / 180;
-
-            userCar.speed.x -= Math.cos(rads) * userCar.brakingPower;
-            userCar.speed.y -= Math.sin(rads) * userCar.brakingPower;
-            userCar.isAccelerating = false;
-            userCar.isPressingAccelerateOrBrake = true;
-        }
-        else userCar.isPressingAccelerateOrBrake = false;
-        
-        if (controls.keys.left.isPressed) {
-            if (userCar.speed.x != 0 || userCar.speed.y != 0) {
-                turnSensitiveCounter++;
-                userCar.direction -= (!userCar.isAccelerating && carUtils.isSpeedNegative(userCar) ? -1 : 1) * // Comprobar marcha atrás
-                    (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * // El giro es mayor si se está derrapando
-                    (carUtils.absoluteSpeed(userCar) < userCar.turnForceThreshold ? carUtils.absoluteSpeed(userCar) / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
-                    (Math.min(turnSensitiveCounter / Math.floor(turnSensitiveLimit * fpsController.deltaTime), 1)) * // El giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
-                    fpsController.deltaTime;
-                userCar.direction = userCar.direction % 360;
-                if (userCar.direction < 0) userCar.direction += 360;
+        if (canMove) {
+            if (controls.keys.drift.isPressed && !controls.keys.drift.actionDone) {
+                if (carUtils.isSpeedNegative(userCar)) return; // Si la velocidad es negativa, no se puede derrapar
+                userCar.isDrifting = true;
+                controls.keys.drift.actionDone = true;
             }
-        }
-        else if (controls.keys.right.isPressed) {
-            if (userCar.speed.x != 0 || userCar.speed.y != 0) {
-                turnSensitiveCounter++;
-                userCar.direction += (!userCar.isAccelerating && carUtils.isSpeedNegative(userCar) ? -1 : 1) * // Comprobar marcha atrás
-                    (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * // El giro es mayor si se está derrapando
-                    (carUtils.absoluteSpeed(userCar) < userCar.turnForceThreshold ? carUtils.absoluteSpeed(userCar) / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
-                    (Math.min(turnSensitiveCounter / Math.floor(turnSensitiveLimit * fpsController.deltaTime), 1)) * // El giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
-                    fpsController.deltaTime;
-                userCar.direction = userCar.direction % 360;
-                if (userCar.direction < 0) userCar.direction += 360;
+    
+            if (controls.keys.accelerate.isPressed) {
+                const rads = userCar.direction * Math.PI / 180;
+                let accelerationMultiplier = Math.min(1, Math.max(0.1, (carUtils.absoluteSpeed(userCar) / carUtils.maxSpeed(userCar, movingAirFriction) * userCar.accelerationPower))); // El multiplicador está entre 0.1 y 1 para poder arrancar el coche
+                if (!userCar.isInsideCircuit) accelerationMultiplier = 1; // Si está fuera del circuito, no se aplica la multiplicación de la aceleración
+    
+                userCar.speed.x += Math.cos(rads) * userCar.speedPower * accelerationMultiplier;
+                userCar.speed.y += Math.sin(rads) * userCar.speedPower * accelerationMultiplier;
+                userCar.isAccelerating = true;
+                userCar.isPressingAccelerateOrBrake = true;
             }
-        }
-        else {
-            turnSensitiveCounter = 0;
-        }
-
-        if (controls.keys.boost.isPressed && !controls.keys.boost.actionDone && userCar.boostCounter > 0) {
-            userCar.boostCounter--;
-            userCar.boostLastUsed = Date.now();
-            controls.keys.boost.actionDone = true;
+            else if (controls.keys.brake.isPressed) {
+                if (carUtils.isSpeedNegative(userCar)) userCar.isDrifting = false; // Si la velocidad es negativa, no se puede derrapar
+                const rads = userCar.direction * Math.PI / 180;
+    
+                userCar.speed.x -= Math.cos(rads) * userCar.brakingPower;
+                userCar.speed.y -= Math.sin(rads) * userCar.brakingPower;
+                userCar.isAccelerating = false;
+                userCar.isPressingAccelerateOrBrake = true;
+            }
+            else userCar.isPressingAccelerateOrBrake = false;
+            
+            if (controls.keys.left.isPressed) {
+                if (userCar.speed.x != 0 || userCar.speed.y != 0) {
+                    turnSensitiveCounter++;
+                    userCar.direction -= (!userCar.isAccelerating && carUtils.isSpeedNegative(userCar) ? -1 : 1) * // Comprobar marcha atrás
+                        (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * // El giro es mayor si se está derrapando
+                        (carUtils.absoluteSpeed(userCar) < userCar.turnForceThreshold ? carUtils.absoluteSpeed(userCar) / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
+                        (Math.min(turnSensitiveCounter / Math.floor(turnSensitiveLimit * fpsController.deltaTime), 1)) * // El giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
+                        fpsController.deltaTime;
+                    userCar.direction = userCar.direction % 360;
+                    if (userCar.direction < 0) userCar.direction += 360;
+                }
+            }
+            else if (controls.keys.right.isPressed) {
+                if (userCar.speed.x != 0 || userCar.speed.y != 0) {
+                    turnSensitiveCounter++;
+                    userCar.direction += (!userCar.isAccelerating && carUtils.isSpeedNegative(userCar) ? -1 : 1) * // Comprobar marcha atrás
+                        (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * // El giro es mayor si se está derrapando
+                        (carUtils.absoluteSpeed(userCar) < userCar.turnForceThreshold ? carUtils.absoluteSpeed(userCar) / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
+                        (Math.min(turnSensitiveCounter / Math.floor(turnSensitiveLimit * fpsController.deltaTime), 1)) * // El giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
+                        fpsController.deltaTime;
+                    userCar.direction = userCar.direction % 360;
+                    if (userCar.direction < 0) userCar.direction += 360;
+                }
+            }
+            else {
+                turnSensitiveCounter = 0;
+            }
+    
+            if (controls.keys.boost.isPressed && !controls.keys.boost.actionDone && userCar.boostCounter > 0) {
+                userCar.boostCounter--;
+                userCar.boostLastUsed = Date.now();
+                controls.keys.boost.actionDone = true;
+            }
         }
 
         const isControlsPressed = (
@@ -1078,7 +1077,8 @@ const handler = function() {
             controls.keys.brake.isPressed ||
             controls.keys.left.isPressed ||
             controls.keys.right.isPressed ||
-            (controls.keys.boost.isPressed && !controls.keys.boost.actionDone && userCar.boostCounter > 0)
+            (controls.keys.boost.isPressed && !controls.keys.boost.actionDone && userCar.boostCounter > 0) ||
+            controls.keys.horn.isPressed
         );
 
         if (controlsFramePressedCounter <= Math.floor(controlsFramePressedNumber * fpsController.deltaTime)) {
@@ -1132,6 +1132,17 @@ const handler = function() {
                 }
             }
         }
+    }
+
+    function checkIsPressingHorn() {
+        let shouldPlay = false;
+        for (let i = 0; i < cars.length; i++) {
+            const car = cars[i];
+            if (car.isPressingHorn) shouldPlay = true;
+        }
+
+        if (shouldPlay) sfxHornGain.gain.value = 1;
+        else sfxHornGain.gain.value = 0;
     }
 
     function applyRotationToSpeed() {
@@ -1458,6 +1469,7 @@ const handler = function() {
         checkIsDrifting();
         checkIsColliding();
         checkLapCompletion();
+        checkIsPressingHorn();
 
         applyRotationToSpeed();
         applyBoostMultiplier();
@@ -1494,7 +1506,8 @@ document.addEventListener('DOMContentLoaded', handler);
  *     - [ ] Excepto si está expresamente indicado, los circuitos están previamente definidos (¿feedback de circuitos?).
  * - [ ] Tienes que poder pitar.
  *     - [X] Al pulsar una tecla, se pita.
- *     - [ ] Puedes escuchar los pitidos de los demás y según la distancia a la que esté el pitido del oyente, el pitido será más fuerte o más débil.
+ *     - [X] Puedes escuchar los pitidos de los demás.
+ *     - [ ] Según la distancia a la que esté el pitido del que lo escucha, el pitido será más fuerte o más débil.
  * - [ ] Condiciones meteorológicas.
  *     - [ ] Lluvia: El coche estará siempre derrapando.
  *     - [ ] Nieve: El coche tendrá menos agarre.
