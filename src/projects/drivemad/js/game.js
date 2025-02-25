@@ -1135,14 +1135,22 @@ const handler = function() {
     }
 
     function checkIsPressingHorn() {
-        let shouldPlay = false;
+        let gainValue = 0;
         for (let i = 0; i < cars.length; i++) {
             const car = cars[i];
-            if (car.isPressingHorn) shouldPlay = true;
+            if (car.isPressingHorn) {
+                const distance = Math.sqrt(
+                    Math.pow(car.coords.x - userCar.coords.x, 2) +
+                    Math.pow(car.coords.y - userCar.coords.y, 2)
+                );
+
+                const newGainValue = Math.max(0, 1 - Math.max(0, distance - 50) / 500);
+                if (newGainValue > gainValue) gainValue = newGainValue;
+            }
         }
 
-        if (shouldPlay) sfxHornGain.gain.value = 1;
-        else sfxHornGain.gain.value = 0;
+        sfxHornGain.gain.value = gainValue; // Más volumen cuanto más cerca esté el sonido
+        sfxHornSrc.playbackRate.value = 1 + gainValue / 20; // Más pitch cuanto más cerca esté el sonido
     }
 
     function applyRotationToSpeed() {
@@ -1504,10 +1512,10 @@ document.addEventListener('DOMContentLoaded', handler);
  *     - [ ] Modo de juego supervivencia: Sé el último en pie en el circuito empujando a tus rivales. Al completar una vuelta ganas un super empuje.
  *     - [ ] Modo de juego time trial: Completa el circuito en el menor tiempo posible bajo un tiempo límite y sé el que tarde menos en completarlo.
  *     - [ ] Excepto si está expresamente indicado, los circuitos están previamente definidos (¿feedback de circuitos?).
- * - [ ] Tienes que poder pitar.
+ * - [X] Tienes que poder pitar.
  *     - [X] Al pulsar una tecla, se pita.
  *     - [X] Puedes escuchar los pitidos de los demás.
- *     - [ ] Según la distancia a la que esté el pitido del que lo escucha, el pitido será más fuerte o más débil.
+ *     - [X] Según la distancia a la que esté el pitido del que lo escucha, el pitido será más fuerte o más débil.
  * - [ ] Condiciones meteorológicas.
  *     - [ ] Lluvia: El coche estará siempre derrapando.
  *     - [ ] Nieve: El coche tendrá menos agarre.
