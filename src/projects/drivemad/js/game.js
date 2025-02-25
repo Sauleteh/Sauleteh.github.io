@@ -94,6 +94,7 @@ const handler = function() {
     let createNewWheelWearSegment = false; // True si se debe crear un nuevo segmento de desgaste de ruedas, false en caso contrario
     let boostAirParticles = []; // Array de Point. Partículas de aire que aparecen al usar el boost. A diferencia de las partículas del turbo, estas no tienen vida límite sino que desaparecen al salirse del canvas
     let turnSensitiveCounter = 0; // La sensibilidad del giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
+    let boostFillCounter = 0; // Contador para rellenar el turbo
 
     // Variables de detalles para el circuito
     let musicCircuitEdges = []; // Array de offsets de líneas que aparecen en los bordes del circuito sincronizados con la música
@@ -1408,6 +1409,16 @@ const handler = function() {
         musicBassPower = bassPower;
     }
 
+    function updateBoostFillCounter() {
+        if (userCar.isDrifting) {
+            boostFillCounter += 1 * fpsController.deltaTime * Math.min(180, Math.abs(carUtils.speedAngle(userCar) - userCar.direction)) / 25;
+            if (boostFillCounter >= 100) {
+                boostFillCounter -= 100;
+                userCar.boostCounter++;
+            }
+        }
+    }
+
     /**
      * Aplica la escala al canvas
      */
@@ -1489,6 +1500,7 @@ const handler = function() {
         updatePlaybackRate();
         updateMusicCircuitEdges();
         updateMusicBassPower();
+        updateBoostFillCounter();
         updateScale();
         updateCamera();
 
@@ -1527,8 +1539,8 @@ document.addEventListener('DOMContentLoaded', handler);
  *     - [X] Flashes de colores en la pantalla al ritmo de la música.
  *     - [X] Círculos de fondo que van aumentando de tamaño y después de cierto tamaño van desapareciendo. También van latiendo al ritmo de la música.
  *     - [X] Los coches tienen por debajo luces de neón.
- * - [ ] Poder obtener turbo.
- *     - [ ] De forma normal, se obtendrá turbo derrapando.
+ * - [X] Poder obtener turbo.
+ *     - [X] De forma normal, se obtendrá turbo derrapando.
  *     - [X] En el modo carrera, cada vez que se completa una vuelta se obtiene un turbo.
  * - [ ] Mejorar la UI.
  *     - [X] Mostrar una barra de velocidad junto con los km/h y turbos restantes

@@ -124,7 +124,7 @@ const handler = function() {
         ctx.textBaseline = "bottom";
         ctx.fillStyle = "gray";
         ctx.font = "12px Arial";
-        ctx.fillText("v0.1 Beta, by Sauleteh", 10, canvas.height - 30);
+        ctx.fillText("v0.2 Beta, by Sauleteh", 10, canvas.height - 30);
         ctx.fillText("Powered by Gayofo.com", 10, canvas.height - 10);
 
         // Cursor
