@@ -1,15 +1,60 @@
-import { FPSControllerV2 } from "./FPSControllerV2.js";
-import { Car } from "./Car.js";
-import { Point } from "./Point.js";
-import { Controls } from "./Controls.js";
-import { Circuit } from "./Circuit.js";
-import { CarUtils } from "./CarUtils.js";
-import { LocalCarVariables } from "./LocalCarVariables.js";
+import { FPSControllerV2 } from "./objects/FPSControllerV2.js";
+import { Point } from "./objects/Point.js";
+import { Controls } from "./objects/Controls.js";
+import { Circuit } from "./objects/Circuit.js";
+import { CarUtils } from "./objects/CarUtils.js";
+import { LocalCarVariables } from "./objects/LocalCarVariables.js";
+import { GAMEMODES, STORAGE_KEYS, CARS } from "./objects/Constants.js";
+import { SpriteManager } from "./objects/SpriteManager.js";
+import { MenuImage } from "./objects/MenuObjects.js";
 
-document.addEventListener('DOMContentLoaded', function() {
-    const sfxEngine = document.querySelector("#sfxEngine");
-    sfxEngine.preservesPitch = false;
-    sfxEngine.volume = 0.5;
+const handler = function() {
+    document.removeEventListener('DOMContentLoaded', handler);
+
+    const sfxEngineCtx = new window.AudioContext();
+    const sfxEngineSrc = sfxEngineCtx.createBufferSource();
+    fetch("./assets/audio/car_engine.wav")
+    .then(response => response.arrayBuffer())
+    .then(arrayBuffer => sfxEngineCtx.decodeAudioData(arrayBuffer))
+    .then(audioBuffer => {
+        sfxEngineSrc.buffer = audioBuffer;
+        sfxEngineSrc.loop = true;
+        sfxEngineSrc.start();
+        sfxEngineSrc.connect(sfxEngineCtx.destination);
+    });
+
+    const sfxHornCtx = new window.AudioContext();
+    const sfxHornGain = sfxHornCtx.createGain();
+    sfxHornGain.gain.value = 0;
+    const sfxHornSrc = sfxHornCtx.createBufferSource();
+    fetch("./assets/audio/car_horn.wav")
+    .then(response => response.arrayBuffer())
+    .then(arrayBuffer => sfxHornCtx.decodeAudioData(arrayBuffer))
+    .then(audioBuffer => {
+        sfxHornSrc.buffer = audioBuffer;
+        sfxHornSrc.loop = true;
+        sfxHornSrc.start();
+        sfxHornSrc.connect(sfxHornGain);
+        sfxHornGain.connect(sfxHornCtx.destination);
+    });
+
+    const musicCtx = new window.AudioContext();
+    const musicAnalyser = musicCtx.createAnalyser();
+    musicAnalyser.fftSize = 256;
+    const musicBufferLength = musicAnalyser.frequencyBinCount;
+    const musicDataArray = new Uint8Array(musicBufferLength);
+    const musicSrc = musicCtx.createBufferSource();
+    fetch("./assets/audio/music/MOON_Hydrogen.wav")
+    .then(response => response.arrayBuffer())
+    .then(arrayBuffer => musicCtx.decodeAudioData(arrayBuffer))
+    .then(audioBuffer => {
+        musicSrc.buffer = audioBuffer;
+        musicSrc.loop = true;
+        musicSrc.start();
+        musicSrc.connect(musicAnalyser);
+        musicAnalyser.connect(musicCtx.destination);
+    });
+
     const canvas = document.querySelector("canvas.game");
     const ctx = canvas.getContext("2d");
 
@@ -17,65 +62,88 @@ document.addEventListener('DOMContentLoaded', function() {
     canvas.height = 540;
     ctx.imageSmoothingEnabled = false;  // Desactiva el suavizado de imágenes
 
+    // Inicialización de variables base para el juego
     const fpsController = new FPSControllerV2(60);
     const controls = new Controls();
     const camera = new Point(0, 0); // La cámara tiene el mismo tamaño que el canvas y la coordenada que se especifica es su esquina superior izquierda. Su movimiento horizontal está invertido (+x => Izq.) y su movimiento vertical es igual al del canvas (+y => Abajo)
-    const socketFrameUpdate = 1; // Cada cuántos frames se envía la actualización de posición al servidor
-    let socketFrameUpdateCounter = 0; // Contador de frames para enviar la actualización de posición al servidor
+    let canvasScale = 1; // Escala a aplicar en el canvas
+    let musicBassPower = 0; // Potencia del bajo de la música
 
+    const socketFrameUpdateNumber = 1; // Cada cuántos frames se envía la actualización de posición al servidor
+    let socketFrameUpdateCounter = 0; // Contador de frames para enviar la actualización de posición al servidor
+    const controlsFramePressedNumber = 30 // Cuántos frames son necesarios para detectar que si se deja de pulsar una acción, se deje de enviar al servidor
+    let controlsFramePressedCounter = 0; // Contador de frames para detectar que si se deja de pulsar una acción, se deje de enviar al servidor    
+    
+    const cars = []; // Contiene todos los coches, ya sea del usuario, IA o de otros jugadores
+    const aiCars = []; // Contiene solo los coches de la IA
+    const localCarVariables = []; // Variables para los coches, pero que no se envían al servidor. El elemento i son las variables del coche i en el array de coches.
+    const carUtils = new CarUtils();
+    let circuit = Circuit.defaultCircuit(); // Circuito por defecto para jugar mientras se espera a que empiece la carrera
+
+    // Constantes de juego
     const movingAirFriction = 0.1;
     const idleAirFriction = 0.008;
     const outsideCircuitMultiplier = 0.8;
-    const wheelWear = [[], []]; // Dos arrays, una para cada rueda donde se guarda los distintos puntos "point" donde ha estado la rueda y "isNewSegment" si es un nuevo segmento de derrape o no
-    const wheelWearLimit = 150; // Límite de rastros del suelo
     const smokeParticleMaxLife = 10; // Vida máxima de las partículas de humo
     const boostParticleMaxLife = 7; // Vida máxima de las partículas del boost
-    let createNewWheelWearSegment = false; // True si se debe crear un nuevo segmento de desgaste de ruedas, false en caso contrario
+    const wheelWearLimit = 150; // Límite de rastros del suelo
     const turnSensitiveLimit = 6; // Frames para alcanzar la máxima sensibilidad de giro
+
+    // Variables de juego
+    const wheelWear = [[], []]; // Dos arrays, una para cada rueda donde se guarda los distintos puntos "point" donde ha estado la rueda y "isNewSegment" si es un nuevo segmento de derrape o no
+    let createNewWheelWearSegment = false; // True si se debe crear un nuevo segmento de desgaste de ruedas, false en caso contrario
+    let boostAirParticles = []; // Array de Point. Partículas de aire que aparecen al usar el boost. A diferencia de las partículas del turbo, estas no tienen vida límite sino que desaparecen al salirse del canvas
     let turnSensitiveCounter = 0; // La sensibilidad del giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
+    let boostFillCounter = 0; // Contador para rellenar el turbo
 
-    const cars = [];
-    const localCarVariables = []; // Variables para los coches, pero que no se envían al servidor. El elemento i son las variables del coche i en el array de coches.
-    const carUtils = new CarUtils();
-    const circuit = new Circuit(160, 12);
-    circuit.setStartPoint(100, 100, -90);
-    circuit.addSegment(circuit.arc(500, 180));
-    circuit.addSegment(circuit.straightLine(650));
-    circuit.addSegment(circuit.arc(180, 90));
-    circuit.addSegment(circuit.straightLine(150));
-    circuit.addSegment(circuit.arc(120, -90));
-    circuit.addSegment(circuit.arc(300, 270));
-    circuit.addSegment(circuit.straightLine(280));
-    circuit.addSegment(circuit.arc(200, -90));
-    circuit.addSegment(circuit.straightLine(500));
-    circuit.addSegment(circuit.arc(200, -225));
-    circuit.addSegment(circuit.arc(200, 225));
-    circuit.addSegment(circuit.arc(300, -23));
-    circuit.addSegment(circuit.arc(300, 23));
+    // Variables de detalles para el circuito
+    let musicCircuitEdges = []; // Array de offsets de líneas que aparecen en los bordes del circuito sincronizados con la música
+    let musicEdgesLimiter = 0; // Contador para limitar el número de pulsos que aparecen en el circuito
+    const musicEdgesMaxOffset = 50;
+    const musicEdgesMaxLimiter = 20; // Cuántos frames como mínimo entre pulsos para no saturar los detalles
 
-    const userCar = new Car(
-        "User", // Nombre del usuario del coche
-        new Point(100, 100), // Posición (del centro del coche) inicial
-        -90, // Ángulo (grados)
-        20, // Ancho
-        40, // Alto
-        "red", // Color
-        1.2, // Poder de velocidad
-        1.5, // Poder de aceleración
-        0.3, // Poder al frenar
-        5, // Fuerza de giro
-        4, // Velocidad para alcanzar la máxima fuerza de giro
-        1.5, // Multiplicador de giro derrapando
-        1.05, // Multiplicador de velocidad al usar el turbo
-        1000, // Duración del turbo
-    );
-    cars.push(userCar); //* Debug
-    localCarVariables.push(new LocalCarVariables());
+    let foregroundColorAngle = 0; // Ángulo del filtro de color en grados (0-360)
+    let foregroundColorOpacity = 0; // Opacidad del filtro de color (0-1)
 
-    const aiCar = new Car("Bores", new Point(100, 100), -90, 20, 40, "blue", 1.2, 2, 0.3, 5, 4, 2, 1.1, 1000);
-    cars.push(aiCar); //* Debug
-    localCarVariables.push(new LocalCarVariables());
+    const bgCircles = []; // Círculos de fondo que aparecen en el canvas
+    const bgCircleMaxRadius = 400; // Radio máximo de los círculos de fondo
+    const bgCicleMaxOpacity = 0.05; // Opacidad máxima de los círculos de fondo
+    const bgCircleSpawnSize = { width: canvas.width * 4, height: canvas.height * 4 }; // Tamaño de la zona de spawn de los círculos de fondo
 
+    // Variables del online
+    let waitCountdownCount = undefined; // Contador de tiempo para empezar la carrera
+    let waitCountdownInterval = undefined; // Intervalo para contar el tiempo restante para empezar la carrera
+    let startCountdownCount = undefined; // Contador de tiempo para empezar la carrera
+    let startCountdownInterval = undefined; // Intervalo para contar el tiempo restante para empezar la carrera
+    let canMove = true; // Si es false, no se puede mover el coche
+    let gamemode = undefined; // Modo de juego actual
+    let winnerPlayerName = undefined; // Nombre del jugador ganador
+
+    // Variables especiales para cada modo de juego
+    // Modo de juego carrera
+    const segmentsVisited = new Set(); // Para que cuente la vuelta como válida, se deben visitar todos los segmentos del circuito
+    let lapsCompleted = 0; // Vueltas completadas por el coche
+    let lapsToComplete = undefined; // Vueltas necesarias para completar la carrera
+    let circuitDisplayInfo = undefined; // Objeto que contiene el nombre (name), la longitud (length) del circuito y si está invertido
+
+    // Inicialización para el jugador
+    let userCar = carUtils.defaultCar();
+    carUtils.reset(userCar, circuit.startPoint);
+    cars.push(userCar);
+    localCarVariables.push(new LocalCarVariables(userCar, ctx));
+
+    // Inicialización para la IA
+    for (let i = 0; i < 10; i++) {
+        const aiCar = carUtils.defaultCar();
+        aiCar.name = `Bores ${i+1}`;
+        aiCar.speedPower *= Math.random() * 0.5 + 0.5; // La velocidad de la IA es aleatoria entre 0.5 y 1
+        carUtils.reset(aiCar, circuit.startPoint);
+        aiCars.push(aiCar);
+        cars.push(aiCar);
+        localCarVariables.push(new LocalCarVariables(aiCar, ctx));
+    }
+
+    // MARK: Conexión server
     const socket = new WebSocket('wss://sauleteh.gayofo.com/wss/drivemad');
     socket.onopen = function () {
         console.log("Connected to WebSocket server");
@@ -93,6 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     socket.onmessage = function (event) {
         const data = JSON.parse(event.data);
+        // console.log(data);
 
         if (data.type === "login_id" && data.code === 0) {
             // Aquí se recibe el id del usuario proporcionado por el servidor
@@ -101,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (data.type === "login_new_car" && data.code === 0) {
             // Aquí se reciben los coches recién conectados al servidor o la lista de coches si se acaba de entrar
             cars.push(data.content);
-            localCarVariables.push(new LocalCarVariables());
+            localCarVariables.push(new LocalCarVariables(data.content, ctx));
         }
         else if (data.type === "move" && data.code === 0) {
             // Aquí se reciben las actualizaciones de posición de los coches
@@ -116,37 +185,136 @@ document.addEventListener('DOMContentLoaded', function() {
                 localCarVariables.splice(index, 1);
             }
         }
+        else if (data.type === "wait_countdown_start" && data.code === 0) {
+            // Cuando se actualiza el tiempo de espera para empezar la carrera, se recibe el tiempo restante
+            if (!data.content) throw new Error("The countdown time received is undefined");
+
+            // Si lo que se ha producido es una actualización del tiempo, se para el intervalo anterior
+            if (waitCountdownInterval) clearInterval(waitCountdownInterval);
+
+            waitCountdownCount = data.content;
+            waitCountdownInterval = setInterval(() => {
+                if (--waitCountdownCount <= 0) {
+                    clearInterval(waitCountdownInterval);
+                    waitCountdownCount = 0;
+                    waitCountdownInterval = undefined;
+                }
+            }, 1000);
+        }
+        else if (data.type === "wait_countdown_stop" && data.code === 0) {
+            // Cuando se para el tiempo de forma indefinida, se recibe el tiempo restante, que debería ser undefined
+            if (data.content) throw new Error("The countdown time received is not undefined");
+            else if (!waitCountdownInterval) throw new Error("The countdown interval is not defined");
+            
+            clearInterval(waitCountdownInterval);
+            waitCountdownCount = undefined;
+            waitCountdownInterval = undefined;
+        }
+        else if (data.type === "game_prepare" && data.code === 0) {
+            // Cuando se inicia la preparación de la carrera, se recibe "gamemode" y "circuit"
+            if (waitCountdownInterval) { // Si el servidor ha solicitado que el cliente se prepare antes de terminar el tiempo de espera, se para el intervalo
+                clearInterval(waitCountdownInterval);
+                waitCountdownInterval = undefined;
+            }
+            waitCountdownCount = undefined; // En cualquier caso, se pone el contador a undefined
+
+            resetGamemodeVariables();
+
+            if (data.content.gamemode === GAMEMODES.RACE) {
+                const circuitData = data.content.circuit;
+                circuit = new Circuit(circuitData.data.circuitWidth, circuitData.data.lineWidth);
+                circuit.setStartPoint(circuitData.data.startPoint);
+                circuit.addInfoSegments(circuitData.data.segments);
+                lapsToComplete = data.content.laps;
+                circuitDisplayInfo = {
+                    name: circuitData.name,
+                    length: circuitData.length,
+                    inverted: data.content.inverted
+                }
+                if (data.content.inverted) {
+                    // Si está el circuito invertido, se invierte la dirección de salida después de añadir los segmentos para que lo único que gire sean los coches
+                    circuit.startPoint.direction += 180;
+                    circuit.startPoint.direction = circuit.startPoint.direction % 360;
+                }
+            }
+            else throw new Error("Unknown gamemode");
+
+            gamemode = data.content.gamemode;
+            canMove = false;
+            carUtils.resetAll(cars, circuit.startPoint);
+
+            const message = JSON.stringify({
+                type: "prepared",
+                content: userCar.id
+            });
+            socket.send(message);
+        }
+        else if (data.type === "game_start" && data.code === 0) {
+            // Cuando se recibe la señal de iniciar la carrera, se recibe este evento sin recibir nada
+            if (waitCountdownInterval) throw new Error("The wait countdown is not stopped");
+            else if (startCountdownInterval) throw new Error("The start countdown is not stopped");
+            else if (waitCountdownCount || startCountdownCount) throw new Error("There is a countdown count already running");
+
+            startCountdownCount = 10;
+            startCountdownInterval = setInterval(() => {
+                if (--startCountdownCount <= 0) {
+                    clearInterval(startCountdownInterval);
+                    startCountdownCount = undefined;
+                    startCountdownInterval = undefined;
+                    canMove = true;
+                }
+            }, 1000);
+
+        }
+        else if (data.type === "game_stop" && data.code === 0) {
+            // Cuando se cancela la carrera por falta de jugadores, ya sea mientras estaba en preparación o en curso, se recibe este evento con el tiempo restante, que debería ser undefined
+            if (data.content) throw new Error("The countdown time received is not undefined");
+            else if (waitCountdownInterval || waitCountdownCount) throw new Error("The wait countdown is not stopped");
+
+            resetGamemodeVariables();
+            gamemode = undefined;
+            circuit = Circuit.defaultCircuit();
+            carUtils.resetAll(cars, circuit.startPoint);
+            canMove = true;
+        }
+        else if (data.type === "game_end" && data.code === 0) {
+            // Cuando se acaba la carrera, se recibe este evento con el ID del jugador ganador
+            winnerPlayerName = cars.find(car => car.id === data.content).name;
+            resetGamemodeVariables();
+            gamemode = undefined;
+            circuit = Circuit.defaultCircuit();
+            carUtils.resetAll(cars, circuit.startPoint);
+            setTimeout(() => { winnerPlayerName = undefined; }, 5000);
+        }
+        else console.error(`Unknown message: ${data}`);
     };
+
+    function resetGamemodeVariables() {
+        segmentsVisited.clear();
+        lapsCompleted = 0;
+        lapsToComplete = undefined;
+        circuitDisplayInfo = undefined;
+    }
 
     function initEvents() {
         document.addEventListener("keydown", function(event) {
             const { key } = event;
+            if (document.activeElement === canvas && (key === " " || key === "ArrowUp" || key === "ArrowDown")) event.preventDefault();
             controls.checkControls(key, "down");
         });
 
         document.addEventListener("keyup", function(event) {
             const { key } = event;
+            if (document.activeElement === canvas && (key === " " || key === "ArrowUp" || key === "ArrowDown")) event.preventDefault();
             controls.checkControls(key, "up");
         });
 
-        sfxEngine.addEventListener("timeupdate", function() {
-            if (this.currentTime > this.duration - 1.5) {
-                this.currentTime = 1;
-                this.play();
-            }
-        });
-
-        // Comenzar ejecución del sonido al hacer click en la pantalla (se necesita evento de usuario obligatorio para esto)
-        document.addEventListener('click', () => {
-            sfxEngine.play();
-        }, { once: true });
-
         window.onblur = function() { // Pausar el sonido al cambiar de pestaña
-            sfxEngine.pause();
+            sfxEngineSrc.disconnect();
         };
 
         window.onfocus = function() { // Reanudar el sonido al volver a la pestaña
-            sfxEngine.play();
+            sfxEngineSrc.connect(sfxEngineCtx.destination);
         }
     }
 
@@ -154,13 +322,30 @@ document.addEventListener('DOMContentLoaded', function() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
+    // MARK: Dibujado
     function drawCars() {
-        cars.forEach(car => {
+        cars.forEach((car, index) => {
             ctx.save();
-            ctx.fillStyle = car.color;
+            ctx.filter = `hue-rotate(${car.color}deg)`;
             ctx.translate(car.coords.x + camera.x, car.coords.y + camera.y);
             ctx.rotate(car.direction * Math.PI / 180);
-            ctx.fillRect(-car.height/2, -car.width/2, car.height, car.width); // El rectángulo se hace al revés para que aparezca mirando hacia la derecha (0 grados)
+
+            ctx.fillStyle = localCarVariables[index].neonGlow;
+            ctx.beginPath();
+            ctx.arc(0, 0, 50, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.drawImage( // La imagen se hace con el ancho y alto al revés para que aparezca mirando hacia la derecha (0 grados)
+                SpriteManager.getSpriteByName(car.image.sprite),
+                car.image.x, // Posición X del coche en la imagen
+                car.image.y, // Posición Y del coche en la imagen
+                car.image.width, // Ancho del coche en la imagen
+                car.image.height, // Alto del coche en la imagen
+                -car.height / 2, // Posición X del coche
+                -car.width / 2, // Posición Y del coche
+                car.height, // Ancho del coche
+                car.width // Alto del coche
+            );
             ctx.restore();
         });
     }
@@ -201,6 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function drawBoostEffects() {
+        // Fuego que sale del tubo de escape
         cars.forEach((car, index) => {
             const localCarVars = localCarVariables[index];
             for (let i = 0; i < localCarVars.boostParticles.length; i++) {
@@ -219,54 +405,480 @@ document.addEventListener('DOMContentLoaded', function() {
                 );
             }
         });
+
+        // Partículas de aire que salen al usar el boost
+        ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+        for (let i = 0; i < boostAirParticles.length; i++) {
+            const boostAirParticle = boostAirParticles[i];
+            ctx.fillRect(
+                boostAirParticle.x - userCar.particleSize / 2,
+                boostAirParticle.y - userCar.particleSize / 2,
+                userCar.particleSize,
+                userCar.particleSize
+            );
+        }
+    }
+
+    function drawBackgroundCircles() {
+        // Dibujar círculos de fondo
+        for (let i = 0; i < bgCircles.length; i++) {
+            const circle = bgCircles[i];
+            const fillPercentage = circle.radius / bgCircleMaxRadius;
+            ctx.fillStyle = `hsla(${circle.colorAngle}, 100%, 50%, ${bgCicleMaxOpacity - fillPercentage * bgCicleMaxOpacity})`;
+            ctx.beginPath();
+            ctx.arc(circle.x + camera.x, circle.y + camera.y, circle.radius * musicBassPower / 200, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Se añaden círculos si no hay suficientes
+        if (bgCircles.length < 50 && Math.random() < 0.1 + musicBassPower / 1000) {
+            bgCircles.push({
+                x: Math.random() * bgCircleSpawnSize.width + userCar.coords.x - bgCircleSpawnSize.width / 2,
+                y: Math.random() * bgCircleSpawnSize.height + userCar.coords.y - bgCircleSpawnSize.height / 2,
+                radius: 0,
+                colorAngle: Math.random() * 360
+            });
+        }
+
+        // Se eliminan círculos si ya no se ven
+        for (let i = 0; i < bgCircles.length; i++) {
+            const circle = bgCircles[i];
+            if (circle.radius > bgCircleMaxRadius) {
+                bgCircles.splice(i--, 1);
+                continue;
+            }
+
+            // Se actualizan los círculos
+            circle.radius += 8 * fpsController.deltaTime;
+            circle.x += Math.random() * 2 - 1;
+            circle.y += Math.random() * 2 - 1;
+        }
     }
 
     function drawCircuit() {
-        ctx.strokeStyle = "green";
-        ctx.lineWidth = circuit.lineWidth;
+        // Dibujar suelo del circuito
+        ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 + Math.min(0.5, musicBassPower / 1200)})`;
+        ctx.lineWidth = circuit.circuitWidth;
         for (let i = 0; i < circuit.segments.length; i++) {
-            const segment = circuit.segments[i];
+            const segment = circuit.segments[i];            
+
+            ctx.beginPath();
             if (segment.type === 'straight') {
+                ctx.moveTo(segment.data.start.x + camera.x, segment.data.start.y + camera.y);
+                ctx.lineTo(segment.data.end.x + camera.x, segment.data.end.y + camera.y);
+            }
+            else if (segment.type === 'arc') {
+                ctx.arc(
+                    segment.data.arcCenter.x + camera.x,
+                    segment.data.arcCenter.y + camera.y,
+                    segment.data.radius,
+                    segment.data.startAngle,
+                    segment.data.endAngle,
+                    !segment.data.isClockwise
+                );
+            }
+            ctx.stroke();
+        }
+
+        // Dibujar línea de meta
+        ctx.strokeStyle = circuit.hasCrossedFinishLine(userCar) ? "white" : "red";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(
+            circuit.leftFinishLine.x + camera.x,
+            circuit.leftFinishLine.y + camera.y
+        );
+        ctx.lineTo(
+            circuit.rightFinishLine.x + camera.x,
+            circuit.rightFinishLine.y + camera.y
+        );
+        ctx.stroke();
+
+        // Brillo que debe tener los bordes de la pista dependiendo de la música
+        const brightness = (0.5 + Math.min(0.5, musicBassPower / 500)) * 255;
+
+        for (let i = 0; i < circuit.segments.length; i++) {
+            const segment = circuit.segments[i];        
+
+            if (segment.type === 'straight') {
+                // Bordes de la pista
+                ctx.lineWidth = circuit.lineWidth;
+
+                if (segmentsVisited.has(segment.id)) ctx.strokeStyle = "white";
+                else ctx.strokeStyle = `rgb(${brightness}, ${brightness}, ${brightness})`;
+
+                const calculatedSin = segment.data.widthSin * circuit.circuitWidth / 2;
+                const calculatedCos = segment.data.widthCos * circuit.circuitWidth / 2;
+
                 ctx.beginPath();
-                ctx.moveTo(segment.data.start.x - segment.data.widthSin + camera.x, segment.data.start.y + segment.data.widthCos + camera.y);
-                ctx.lineTo(segment.data.end.x - segment.data.widthSin + camera.x, segment.data.end.y + segment.data.widthCos + camera.y);
+                ctx.moveTo(
+                    segment.data.start.x - calculatedSin + camera.x,
+                    segment.data.start.y + calculatedCos + camera.y
+                );
+                ctx.lineTo(
+                    segment.data.end.x - calculatedSin + camera.x,
+                    segment.data.end.y + calculatedCos + camera.y
+                );
                 ctx.stroke();
 
                 ctx.beginPath();
-                ctx.moveTo(segment.data.start.x + segment.data.widthSin + camera.x, segment.data.start.y - segment.data.widthCos + camera.y);
-                ctx.lineTo(segment.data.end.x + segment.data.widthSin + camera.x, segment.data.end.y - segment.data.widthCos + camera.y);
+                ctx.moveTo(
+                    segment.data.start.x + calculatedSin + camera.x,
+                    segment.data.start.y - calculatedCos + camera.y
+                );
+                ctx.lineTo(
+                    segment.data.end.x + calculatedSin + camera.x,
+                    segment.data.end.y - calculatedCos + camera.y
+                );
+                ctx.stroke();
+
+                // Línea central de la pista
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = Math.max(1, musicBassPower / 20 * circuit.circuitWidth / 500);
+
+                ctx.beginPath();
+                ctx.moveTo(segment.data.start.x + camera.x, segment.data.start.y + camera.y);
+                ctx.lineTo(segment.data.end.x + camera.x, segment.data.end.y + camera.y);
                 ctx.stroke();
             }
             else if (segment.type === 'arc') {
+                // Bordes de la pista
+                ctx.lineWidth = circuit.lineWidth;
+                if (segmentsVisited.has(segment.id)) ctx.strokeStyle = "white";
+                else ctx.strokeStyle = `rgb(${brightness}, ${brightness}, ${brightness})`;
+
                 ctx.beginPath();
-                ctx.arc(segment.data.arcCenter.x + camera.x, segment.data.arcCenter.y + camera.y, segment.data.radius - circuit.circuitWidth / 2, segment.data.startAngle, segment.data.endAngle, !segment.data.isClockwise);
+                ctx.arc(
+                    segment.data.arcCenter.x + camera.x,
+                    segment.data.arcCenter.y + camera.y,
+                    segment.data.radius - circuit.circuitWidth / 2,
+                    segment.data.startAngle,
+                    segment.data.endAngle,
+                    !segment.data.isClockwise
+                );
                 ctx.stroke();
 
                 ctx.beginPath();
-                ctx.arc(segment.data.arcCenter.x + camera.x, segment.data.arcCenter.y + camera.y, segment.data.radius + circuit.circuitWidth / 2, segment.data.startAngle, segment.data.endAngle, !segment.data.isClockwise);
+                ctx.arc(
+                    segment.data.arcCenter.x + camera.x,
+                    segment.data.arcCenter.y + camera.y,
+                    segment.data.radius + circuit.circuitWidth / 2,
+                    segment.data.startAngle,
+                    segment.data.endAngle,
+                    !segment.data.isClockwise
+                );
+                ctx.stroke();
+
+                // Línea central de la pista
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = Math.max(1, musicBassPower / 20 * circuit.circuitWidth / 500);
+
+                ctx.beginPath();
+                ctx.arc(
+                    segment.data.arcCenter.x + camera.x,
+                    segment.data.arcCenter.y + camera.y,
+                    segment.data.radius,
+                    segment.data.startAngle,
+                    segment.data.endAngle,
+                    !segment.data.isClockwise
+                );
                 ctx.stroke();
             }
         }
         ctx.lineWidth = 1;
     }
 
+    function drawMusicCircuitEdges() {
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
+
+        musicCircuitEdges.forEach(edge => {
+            const edgeStart = circuit.lineWidth / 2 + edge;
+            ctx.globalAlpha = 1 - edge / musicEdgesMaxOffset; // La opacidad disminuye cuanto más se aleja
+
+            for (let i = 0; i < circuit.segments.length; i++) {
+                const segment = circuit.segments[i];
+
+                if (segment.type === 'straight') {
+                    const calculatedSin = segment.data.widthSin * (circuit.circuitWidth / 2 + edgeStart);
+                    const calculatedCos = segment.data.widthCos * (circuit.circuitWidth / 2 + edgeStart);
+
+                    ctx.beginPath();
+                    ctx.moveTo(
+                        segment.data.start.x - calculatedSin + camera.x,
+                        segment.data.start.y + calculatedCos + camera.y
+                    );
+                    ctx.lineTo(
+                        segment.data.end.x - calculatedSin + camera.x,
+                        segment.data.end.y + calculatedCos + camera.y
+                    );
+                    ctx.stroke();
+    
+                    ctx.beginPath();
+                    ctx.moveTo(
+                        segment.data.start.x + calculatedSin + camera.x,
+                        segment.data.start.y - calculatedCos + camera.y
+                    );
+                    ctx.lineTo(
+                        segment.data.end.x + calculatedSin + camera.x,
+                        segment.data.end.y - calculatedCos + camera.y
+                    );
+                    ctx.stroke();
+                }
+                else if (segment.type === 'arc') {
+                    ctx.beginPath();
+                    ctx.arc(
+                        segment.data.arcCenter.x + camera.x,
+                        segment.data.arcCenter.y + camera.y,
+                        Math.max(0, segment.data.radius - circuit.circuitWidth / 2 - edgeStart),
+                        segment.data.startAngle, segment.data.endAngle,
+                        !segment.data.isClockwise
+                    );
+                    ctx.stroke();
+    
+                    ctx.beginPath();
+                    ctx.arc(
+                        segment.data.arcCenter.x + camera.x,
+                        segment.data.arcCenter.y + camera.y,
+                        segment.data.radius + circuit.circuitWidth / 2 + edgeStart,
+                        segment.data.startAngle, segment.data.endAngle,
+                        !segment.data.isClockwise
+                    );
+                    ctx.stroke();
+                }
+            }
+        });
+        ctx.lineWidth = 1;
+        ctx.globalAlpha = 1.0;
+    }
+
     function drawUsername() {
         // Dibujar debajo del coche el nombre de usuario
         cars.forEach(car => {
-            ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+            ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
             ctx.font = "12px Arial";
             ctx.textAlign = "center";
+            ctx.textBaseline = "alphabetic";
             ctx.fillText(car.name, car.coords.x + camera.x, car.coords.y + camera.y + car.width + 12);
         });
     }
 
+    function drawForegroundColor() {
+        // Si la música tiene suficiente potencia, hace que aparezca el filtro de color, el cual se va desvaneciendo (como si de un flash se tratara)
+        if (musicBassPower / 100 >= 1.8) foregroundColorOpacity = 0.1;
+        else foregroundColorOpacity = Math.max(0, foregroundColorOpacity - 0.01 * fpsController.deltaTime);
+
+        // Dibujar el filtro de color
+        if (foregroundColorOpacity > 0) {
+            ctx.fillStyle = `hsla(${foregroundColorAngle}, 100%, 50%, ${foregroundColorOpacity})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Actualizar el color
+        foregroundColorAngle += Math.round(musicBassPower / 100 * fpsController.deltaTime);
+        if (foregroundColorAngle >= 360) foregroundColorAngle -= 360;
+    }
+
+    function drawUserInterface() {        
+        // Cuenta atrás para la espera de jugadores en la sala
+        ctx.fillStyle = "white";
+        ctx.font = "bold 24px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        if (waitCountdownCount) ctx.fillText(`${waitCountdownCount} seconds`, canvas.width / 2, canvas.height / 10);
+        else if (!gamemode) ctx.fillText(`Waiting for players`, canvas.width / 2, canvas.height / 10);
+
+        if (startCountdownCount) {
+            // Cuenta atrás para empezar la carrera al cargar el circuito
+            if (startCountdownCount === 1) ctx.fillStyle = "lime";
+            else if (startCountdownCount === 2) ctx.fillStyle = "yellow";
+            else ctx.fillStyle = "red";
+            ctx.font = "bold 82px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(startCountdownCount, canvas.width / 2, canvas.height / 4);
+
+            // Información del circuito (solo aparece antes de la cuenta atrás)
+            if (startCountdownCount > 5) {
+                if (gamemode === GAMEMODES.RACE) {
+                    ctx.fillStyle = "black";
+                    ctx.font = "bold 42px Arial";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    const border = 2;
+                    const text = circuitDisplayInfo.name + (circuitDisplayInfo.inverted ? " (Inverted)" : "");
+                    
+                    // Bordes del nombre del circuito
+                    ctx.fillText(text, canvas.width / 2 - border, canvas.height / 2);
+                    ctx.fillText(text, canvas.width / 2, canvas.height / 2 - border);
+                    ctx.fillText(text, canvas.width / 2 + border, canvas.height / 2);
+                    ctx.fillText(text, canvas.width / 2, canvas.height / 2 + border);
+
+                    // Nombre del circuito
+                    ctx.fillStyle = "white";
+                    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+                    // Bordes de la longitud del circuito
+                    ctx.fillStyle = "black";
+                    ctx.font = "bold 28px Arial";
+                    ctx.fillText(circuitDisplayInfo.length, canvas.width / 2 - border, canvas.height / 2 + 50);
+                    ctx.fillText(circuitDisplayInfo.length, canvas.width / 2, canvas.height / 2 + 50 - border);
+                    ctx.fillText(circuitDisplayInfo.length, canvas.width / 2 + border, canvas.height / 2 + 50);
+                    ctx.fillText(circuitDisplayInfo.length, canvas.width / 2, canvas.height / 2 + 50 + border);
+
+                    // Longitud del circuito
+                    ctx.fillStyle = "white";
+                    ctx.fillText(circuitDisplayInfo.length, canvas.width / 2, canvas.height / 2 + 50);
+                }
+            }
+        }
+
+        // Velocidad
+        const speedSpriteOn = new MenuImage(32, 0, 48, 8, "spriteUI");
+        const speedSpriteOff = new MenuImage(32, 8, 48, 8, "spriteUI");
+        const scale = 4;
+
+        ctx.fillStyle = "white";
+        ctx.font = "bold 18px Arial";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+
+        const fillPercentage = carUtils.absoluteSpeed(userCar) / carUtils.maxSpeed(userCar, movingAirFriction); // Porcentaje al que debe estar rellenada la barra (de 0 a 1)
+        const pixelsToFill = Math.round(speedSpriteOn.width * fillPercentage); // Píxeles a rellenar de la barra
+        const pixelsToFillOff = speedSpriteOff.width - pixelsToFill; // Píxeles a no rellenar de la barra
+        const topLeft = new Point( // Localización de la esquina superior izquierda de la barra
+            canvas.width / 1.5,
+            canvas.height / 1.12
+        );
+
+        ctx.globalAlpha = 0.8;
+
+        // Barra llenada
+        ctx.drawImage(
+            SpriteManager.getSpriteByName(speedSpriteOn.sprite),
+            speedSpriteOn.x, // Posición X del item en la imagen
+            speedSpriteOn.y, // Posición Y del item en la imagen
+            pixelsToFill, // Ancho del item en la imagen
+            speedSpriteOn.height, // Alto del item en la imagen
+            Math.floor(topLeft.x), // Posición X del item
+            Math.floor(topLeft.y), // Posición Y del item
+            pixelsToFill * scale, // Ancho del item en el canvas
+            speedSpriteOn.height * scale // Alto del item en el canvas
+        );
+
+        // El restante de la barra, sin llenarla
+        ctx.drawImage(
+            SpriteManager.getSpriteByName(speedSpriteOff.sprite),
+            speedSpriteOff.x + pixelsToFill, // Posición X del item en la imagen
+            speedSpriteOff.y, // Posición Y del item en la imagen
+            pixelsToFillOff, // Ancho del item en la imagen
+            speedSpriteOff.height, // Alto del item en la imagen
+            Math.floor(topLeft.x + pixelsToFill * scale), // Posición X del item
+            Math.floor(topLeft.y), // Posición Y del item
+            pixelsToFillOff * scale, // Ancho del item en el canvas
+            speedSpriteOff.height * scale // Alto del item en el canvas
+        );
+        
+        ctx.fillText(
+            `${(carUtils.absoluteSpeed(userCar) * 5).toFixed(1)} km/h`,
+            topLeft.x + speedSpriteOn.width * scale + 10,
+            topLeft.y + speedSpriteOn.height * scale / 2
+        );
+
+        // Turbo
+        ctx.textAlign = "right";
+        ctx.fillText(
+            userCar.boostCounter,
+            topLeft.x - 10,
+            topLeft.y + speedSpriteOn.height * scale / 2
+        );
+
+        ctx.globalAlpha = 1.0;
+
+        if (gamemode === GAMEMODES.RACE) {
+            const minimapSize = 180;
+            const circuitScale = 10;
+            const minimapTopLeft = new Point(
+                30,
+                canvas.height - minimapSize - 30
+            );
+
+            // Fondo del minimapa
+            ctx.fillStyle = "rgba(30, 30, 30, 0.5)";
+            ctx.fillRect(minimapTopLeft.x, minimapTopLeft.y, minimapSize, minimapSize);
+
+            // Circuito en el minimapa
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 1;
+            for (let i = 0; i < circuit.segments.length; i++) {
+                const segment = circuit.segments[i];
+                ctx.beginPath();
+                if (segment.type === 'straight') {
+                    ctx.moveTo(
+                        segment.data.start.x / circuitScale + minimapTopLeft.x + minimapSize / 2 - circuit.startPoint.coords.x / circuitScale,
+                        segment.data.start.y / circuitScale + minimapTopLeft.y + minimapSize / 2 - circuit.startPoint.coords.y / circuitScale
+                    );
+                    ctx.lineTo(
+                        segment.data.end.x / circuitScale + minimapTopLeft.x + minimapSize / 2 - circuit.startPoint.coords.x / circuitScale,
+                        segment.data.end.y / circuitScale + minimapTopLeft.y + minimapSize / 2 - circuit.startPoint.coords.y / circuitScale
+                    );
+                }
+                else if (segment.type === 'arc') {
+                    ctx.arc(
+                        segment.data.arcCenter.x / circuitScale + minimapTopLeft.x + minimapSize / 2 - circuit.startPoint.coords.x / circuitScale,
+                        segment.data.arcCenter.y / circuitScale + minimapTopLeft.y + minimapSize / 2 - circuit.startPoint.coords.y / circuitScale,
+                        segment.data.radius / circuitScale,
+                        segment.data.startAngle,
+                        segment.data.endAngle,
+                        !segment.data.isClockwise
+                    );
+                }
+                ctx.stroke();
+            }
+            ctx.lineWidth = 1;
+
+            // Vueltas completadas
+            ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+            ctx.font = "bold 16px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "bottom";
+            ctx.fillText(
+                `Laps: ${lapsCompleted} / ${lapsToComplete ? lapsToComplete : "?"}`,
+                minimapTopLeft.x + minimapSize / 2,
+                minimapTopLeft.y - 10
+            );
+        }
+    }
+
+    function drawWinnerPlayer() {
+        if (winnerPlayerName) {
+            const text = `Winner: ${winnerPlayerName}`;
+            const border = 2;
+
+            // Bordes de las letras
+            ctx.fillStyle = "black";
+            ctx.font = "bold 52px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(text, canvas.width / 2 - border, canvas.height / 2);
+            ctx.fillText(text, canvas.width / 2, canvas.height / 2 - border);
+            ctx.fillText(text, canvas.width / 2 + border, canvas.height / 2);
+            ctx.fillText(text, canvas.width / 2, canvas.height / 2 + border);
+
+            // Fill de las letras
+            ctx.fillStyle = "white";
+            ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+        }
+    }
+
+    // eslint-disable-next-line no-unused-vars
     function drawDebug() {
         cars.forEach(car => {
             ctx.beginPath();
             ctx.fillStyle = "rgb(175, 175, 175)";
             ctx.arc(car.coords.x + camera.x, car.coords.y + camera.y, 6, 0, 2 * Math.PI);
             ctx.fill();
-            ctx.strokeStyle = "black";
+            ctx.strokeStyle = "white";
             ctx.beginPath();
             ctx.moveTo(car.coords.x + camera.x, car.coords.y + camera.y);
             ctx.lineTo(car.coords.x + car.speed.x * 5 + camera.x, car.coords.y + car.speed.y * 5 + camera.y);
@@ -315,7 +927,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 ctx.arc(circuit.segments[i].data.arcCenter.x + camera.x, circuit.segments[i].data.arcCenter.y + camera.y, 6, 0, 2 * Math.PI);
             }
             ctx.stroke();
-            ctx.fillStyle = "black";
+            ctx.fillStyle = "white";
             ctx.beginPath();
             ctx.arc(circuit.segments[i].ref.coords.x + camera.x, circuit.segments[i].ref.coords.y + camera.y, 6, 0, 2 * Math.PI);
             ctx.fill();
@@ -335,151 +947,211 @@ document.addEventListener('DOMContentLoaded', function() {
         ); // Debug
     }
 
+    // MARK: Control de juego
     function checkAiNextMove() {
-        let precision = 0.1;
-        let segment = circuit.getCurrentSegment(aiCar, precision);
-        while (segment === null && precision < 1) {
-            precision += 0.1;
-            if (precision > 1) precision = 1;
-            segment = circuit.getCurrentSegment(aiCar, precision);
-        }
+        for (let i = 0; i < aiCars.length; i++) {
+            const aiCar = aiCars[i];
 
-        const rads = aiCar.direction * Math.PI / 180;
-        aiCar.speed.x += Math.cos(rads) * aiCar.speedPower;
-        aiCar.speed.y += Math.sin(rads) * aiCar.speedPower;
-        aiCar.isAccelerating = true;
-        aiCar.isPressingAccelerateOrBrake = true;
+            let precision = 0.1;
+            let segment = circuit.getCurrentSegment(aiCar, precision);
+            while (segment === null && precision < 1) {
+                precision += 0.1;
+                if (precision > 1) precision = 1;
+                segment = circuit.getCurrentSegment(aiCar, precision);
+            }
 
-        if (segment !== null) {
-            if (Math.abs(segment.ref.direction - aiCar.direction) !== 0) {
-                aiCar.direction = (aiCar.direction % 360 + 360) % 360; // Normaliza los ángulos al rango [0, 360)
-                segment.ref.direction = (segment.ref.direction % 360 + 360) % 360;
-                let diffClockwise = (segment.ref.direction - aiCar.direction + 360) % 360; // Calcula la diferencia en ambos sentidos
+            const rads = aiCar.direction * Math.PI / 180;
+            aiCar.speed.x += Math.cos(rads) * aiCar.speedPower;
+            aiCar.speed.y += Math.sin(rads) * aiCar.speedPower;
+            aiCar.isAccelerating = true;
+            aiCar.isPressingAccelerateOrBrake = true;
 
-                let arcDivider = 1;
-                let sideMultiplier = 1;
-                let angleMultiplier = null;
-                let diffCircuitClockwise = null;
-                if (segment.type === "arc") {
-                    arcDivider = Math.max(0.5, segment.data.radius / 400); // Ajuste para que el coche no se salga del círculo
+            if (segment !== null) {
+                if (Math.abs(segment.ref.direction - aiCar.direction) !== 0) {
+                    aiCar.direction = (aiCar.direction % 360 + 360) % 360; // Normaliza los ángulos al rango [0, 360)
+                    segment.ref.direction = (segment.ref.direction % 360 + 360) % 360;
+                    let diffClockwise = (segment.ref.direction - aiCar.direction + 360) % 360; // Calcula la diferencia en ambos sentidos
 
-                    const side = circuit.getArcSide(aiCar, segment);
-                    if (side === "inside") sideMultiplier = 0.5;
-                    else if (side === "outside") sideMultiplier = 1.5;
+                    let arcDivider = 1;
+                    let sideMultiplier = 1;
+                    let angleMultiplier = null;
+                    let diffCircuitClockwise = null;
+                    if (segment.type === "arc") {
+                        arcDivider = Math.max(0.5, segment.data.radius / 400); // Ajuste para que el coche no se salga del círculo
 
-                    let currentAngle = circuit.getArcAngle(aiCar, segment) + (segment.data.isClockwise ? 90 : -90);
-                    currentAngle = (currentAngle % 360 + 360) % 360;
-                    diffCircuitClockwise = (currentAngle - aiCar.direction + 360) % 360;
-                    let diffCircuitCounterClockwise = (aiCar.direction - currentAngle + 360) % 360;
+                        const side = circuit.getArcSide(aiCar, segment);
+                        if (side === "inside") sideMultiplier = 0.5;
+                        else if (side === "outside") sideMultiplier = 1.5;
 
-                    angleMultiplier = Math.min(diffCircuitClockwise, diffCircuitCounterClockwise);
-                }
+                        let currentAngle = circuit.getArcAngle(aiCar, segment) + (segment.data.isClockwise ? 90 : -90);
+                        currentAngle = (currentAngle % 360 + 360) % 360;
+                        diffCircuitClockwise = (currentAngle - aiCar.direction + 360) % 360;
+                        let diffCircuitCounterClockwise = (aiCar.direction - currentAngle + 360) % 360;
 
-                if ((segment.type === "arc" && segment.data.isClockwise && angleMultiplier === diffCircuitClockwise) || (segment.type === "straight" && diffClockwise <= 180)) { // Girar derecha
-                    aiCar.direction += aiCar.turnForce * precision * fpsController.deltaTime / arcDivider * sideMultiplier * (angleMultiplier !== null ? Math.min(aiCar.speedPower * 1.5, angleMultiplier) : 1);
-                    aiCar.direction = aiCar.direction % 360;
-                    if (aiCar.direction < 0) aiCar.direction += 360;
-                }
-                else if ((segment.type === "arc" && !segment.data.isClockwise && angleMultiplier !== diffCircuitClockwise) || (segment.type === "straight" && diffClockwise > 180)) { // Girar izquierda
-                    aiCar.direction -= aiCar.turnForce * precision * fpsController.deltaTime / arcDivider * sideMultiplier * (angleMultiplier !== null ? Math.min(aiCar.speedPower * 1.5, angleMultiplier) : 1);
-                    aiCar.direction = aiCar.direction % 360;
-                    if (aiCar.direction < 0) aiCar.direction += 360;
+                        angleMultiplier = Math.min(diffCircuitClockwise, diffCircuitCounterClockwise);
+                    }
+
+                    if ((segment.type === "arc" && segment.data.isClockwise && angleMultiplier === diffCircuitClockwise) || (segment.type === "straight" && diffClockwise <= 180)) { // Girar derecha
+                        aiCar.direction += aiCar.turnForce * precision * fpsController.deltaTime / arcDivider * sideMultiplier * (angleMultiplier !== null ? Math.min(aiCar.speedPower * 1.5, angleMultiplier) : 1);
+                        aiCar.direction = aiCar.direction % 360;
+                        if (aiCar.direction < 0) aiCar.direction += 360;
+                    }
+                    else if ((segment.type === "arc" && !segment.data.isClockwise && angleMultiplier !== diffCircuitClockwise) || (segment.type === "straight" && diffClockwise > 180)) { // Girar izquierda
+                        aiCar.direction -= aiCar.turnForce * precision * fpsController.deltaTime / arcDivider * sideMultiplier * (angleMultiplier !== null ? Math.min(aiCar.speedPower * 1.5, angleMultiplier) : 1);
+                        aiCar.direction = aiCar.direction % 360;
+                        if (aiCar.direction < 0) aiCar.direction += 360;
+                    }
                 }
             }
         }
     }
 
     function checkCarControls() {
-        if (controls.keys.drift.isPressed && !controls.keys.drift.actionDone) {
-            if (carUtils.isSpeedNegative(userCar)) return; // Si la velocidad es negativa, no se puede derrapar
-            userCar.isDrifting = true;
-            controls.keys.drift.actionDone = true;
-        }
+        userCar.isPressingHorn = controls.keys.horn.isPressed; // Puedes tocar el claxon aunque no estés moviéndote
 
-        if (controls.keys.accelerate.isPressed) {
-            const rads = userCar.direction * Math.PI / 180;
-            let accelerationMultiplier = Math.min(1, Math.max(0.1, (carUtils.absoluteSpeed(userCar) / carUtils.maxSpeed(userCar, movingAirFriction) * userCar.accelerationPower))); // El multiplicador está entre 0.1 y 1 para poder arrancar el coche
-            if (!userCar.isInsideCircuit) accelerationMultiplier = 1; // Si está fuera del circuito, no se aplica la multiplicación de la aceleración
-
-            userCar.speed.x += Math.cos(rads) * userCar.speedPower * accelerationMultiplier;
-            userCar.speed.y += Math.sin(rads) * userCar.speedPower * accelerationMultiplier;
-            userCar.isAccelerating = true;
-            userCar.isPressingAccelerateOrBrake = true;
-        }
-        else if (controls.keys.brake.isPressed) {
-            if (carUtils.isSpeedNegative(userCar)) userCar.isDrifting = false; // Si la velocidad es negativa, no se puede derrapar
-            const rads = userCar.direction * Math.PI / 180;
-
-            userCar.speed.x -= Math.cos(rads) * userCar.brakingPower;
-            userCar.speed.y -= Math.sin(rads) * userCar.brakingPower;
-            userCar.isAccelerating = false;
-            userCar.isPressingAccelerateOrBrake = true;
-        }
-        else userCar.isPressingAccelerateOrBrake = false;
-        
-        if (controls.keys.left.isPressed) {
-            if (userCar.speed.x != 0 || userCar.speed.y != 0) {
-                turnSensitiveCounter++;
-                userCar.direction -= (!userCar.isAccelerating && carUtils.isSpeedNegative(userCar) ? -1 : 1) * // Comprobar marcha atrás
-                    (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * // El giro es mayor si se está derrapando
-                    (carUtils.absoluteSpeed(userCar) < userCar.turnForceThreshold ? carUtils.absoluteSpeed(userCar) / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
-                    (Math.min(turnSensitiveCounter / Math.floor(turnSensitiveLimit * fpsController.deltaTime), 1)) * // El giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
-                    fpsController.deltaTime;
-                userCar.direction = userCar.direction % 360;
-                if (userCar.direction < 0) userCar.direction += 360;
+        if (canMove) {
+            if (controls.keys.drift.isPressed && !controls.keys.drift.actionDone) {
+                if (carUtils.isSpeedNegative(userCar)) return; // Si la velocidad es negativa, no se puede derrapar
+                userCar.isDrifting = true;
+                controls.keys.drift.actionDone = true;
+            }
+    
+            if (controls.keys.accelerate.isPressed) {
+                const rads = userCar.direction * Math.PI / 180;
+                let accelerationMultiplier = Math.min(1, Math.max(0.1, (carUtils.absoluteSpeed(userCar) / carUtils.maxSpeed(userCar, movingAirFriction) * userCar.accelerationPower))); // El multiplicador está entre 0.1 y 1 para poder arrancar el coche
+                if (!userCar.isInsideCircuit) accelerationMultiplier = 1; // Si está fuera del circuito, no se aplica la multiplicación de la aceleración
+    
+                userCar.speed.x += Math.cos(rads) * userCar.speedPower * accelerationMultiplier;
+                userCar.speed.y += Math.sin(rads) * userCar.speedPower * accelerationMultiplier;
+                userCar.isAccelerating = true;
+                userCar.isPressingAccelerateOrBrake = true;
+            }
+            else if (controls.keys.brake.isPressed) {
+                if (carUtils.isSpeedNegative(userCar)) userCar.isDrifting = false; // Si la velocidad es negativa, no se puede derrapar
+                const rads = userCar.direction * Math.PI / 180;
+    
+                userCar.speed.x -= Math.cos(rads) * userCar.brakingPower;
+                userCar.speed.y -= Math.sin(rads) * userCar.brakingPower;
+                userCar.isAccelerating = false;
+                userCar.isPressingAccelerateOrBrake = true;
+            }
+            else userCar.isPressingAccelerateOrBrake = false;
+            
+            if (controls.keys.left.isPressed) {
+                if (userCar.speed.x != 0 || userCar.speed.y != 0) {
+                    turnSensitiveCounter++;
+                    userCar.direction -= (!userCar.isAccelerating && carUtils.isSpeedNegative(userCar) ? -1 : 1) * // Comprobar marcha atrás
+                        (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * // El giro es mayor si se está derrapando
+                        (carUtils.absoluteSpeed(userCar) < userCar.turnForceThreshold ? carUtils.absoluteSpeed(userCar) / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
+                        (Math.min(turnSensitiveCounter / Math.floor(turnSensitiveLimit * fpsController.deltaTime), 1)) * // El giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
+                        fpsController.deltaTime;
+                    userCar.direction = userCar.direction % 360;
+                    if (userCar.direction < 0) userCar.direction += 360;
+                }
+            }
+            else if (controls.keys.right.isPressed) {
+                if (userCar.speed.x != 0 || userCar.speed.y != 0) {
+                    turnSensitiveCounter++;
+                    userCar.direction += (!userCar.isAccelerating && carUtils.isSpeedNegative(userCar) ? -1 : 1) * // Comprobar marcha atrás
+                        (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * // El giro es mayor si se está derrapando
+                        (carUtils.absoluteSpeed(userCar) < userCar.turnForceThreshold ? carUtils.absoluteSpeed(userCar) / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
+                        (Math.min(turnSensitiveCounter / Math.floor(turnSensitiveLimit * fpsController.deltaTime), 1)) * // El giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
+                        fpsController.deltaTime;
+                    userCar.direction = userCar.direction % 360;
+                    if (userCar.direction < 0) userCar.direction += 360;
+                }
+            }
+            else {
+                turnSensitiveCounter = 0;
+            }
+    
+            if (controls.keys.boost.isPressed && !controls.keys.boost.actionDone && userCar.boostCounter > 0) {
+                userCar.boostCounter--;
+                userCar.boostLastUsed = Date.now();
+                controls.keys.boost.actionDone = true;
             }
         }
-        else if (controls.keys.right.isPressed) {
-            if (userCar.speed.x != 0 || userCar.speed.y != 0) {
-                turnSensitiveCounter++;
-                userCar.direction += (!userCar.isAccelerating && carUtils.isSpeedNegative(userCar) ? -1 : 1) * // Comprobar marcha atrás
-                    (userCar.turnForce * (userCar.isDrifting ? userCar.driftingTurnMultiplier : 1)) * // El giro es mayor si se está derrapando
-                    (carUtils.absoluteSpeed(userCar) < userCar.turnForceThreshold ? carUtils.absoluteSpeed(userCar) / userCar.turnForceThreshold : 1) * // El giro es menor si la velocidad es baja
-                    (Math.min(turnSensitiveCounter / Math.floor(turnSensitiveLimit * fpsController.deltaTime), 1)) * // El giro aumenta cuanto más tiempo se mantiene pulsada la tecla de giro
-                    fpsController.deltaTime;
-                userCar.direction = userCar.direction % 360;
-                if (userCar.direction < 0) userCar.direction += 360;
-            }
-        }
-        else {
-            turnSensitiveCounter = 0;
-        }
 
-        if (controls.keys.boost.isPressed && !controls.keys.boost.actionDone && userCar.boostCounter > 0) {
-            userCar.boostCounter--;
-            userCar.boostLastUsed = Date.now();
-            controls.keys.boost.actionDone = true;
-        }
-
-        if (
+        const isControlsPressed = (
             (controls.keys.drift.isPressed && !controls.keys.drift.actionDone) ||
             controls.keys.accelerate.isPressed ||
             controls.keys.brake.isPressed ||
             controls.keys.left.isPressed ||
             controls.keys.right.isPressed ||
-            (controls.keys.boost.isPressed && !controls.keys.boost.actionDone && userCar.boostCounter > 0)
-        ) {
+            (controls.keys.boost.isPressed && !controls.keys.boost.actionDone && userCar.boostCounter > 0) ||
+            controls.keys.horn.isPressed
+        );
+
+        if (controlsFramePressedCounter <= Math.floor(controlsFramePressedNumber * fpsController.deltaTime)) {
+            if (isControlsPressed) controlsFramePressedCounter = 0;
+            else controlsFramePressedCounter++;
+
             socketFrameUpdateCounter++;
-            if (socketFrameUpdateCounter >= Math.floor(socketFrameUpdate * fpsController.deltaTime)) {
+            if (socketFrameUpdateCounter >= Math.floor(socketFrameUpdateNumber * fpsController.deltaTime)) {
                 const message = JSON.stringify({
                     type: "move",
                     content: userCar
                 });
-                socket.send(message);
+                if (userCar.id !== null) socket.send(message);
                 socketFrameUpdateCounter = 0;
             }
         }
+        else if (isControlsPressed) controlsFramePressedCounter = 0; // Si después de estar sin pulsar las teclas se vuelve a pulsar, se reinicia el contador
     }
 
     function applySpeed() {
         cars.forEach(car => {
+            car.lastCoords.x = car.coords.x;
+            car.lastCoords.y = car.coords.y;
             car.coords.x += car.speed.x * fpsController.deltaTime;
             car.coords.y += car.speed.y * fpsController.deltaTime;
         });
     }
 
     function checkIsColliding() {
-        userCar.isInsideCircuit = circuit.isCarInside(userCar);
+        const currentSegment = circuit.getCurrentSegment(userCar);
+        if (currentSegment !== null && gamemode === GAMEMODES.RACE) segmentsVisited.add(currentSegment.id); // Si se está en modo carrera, se añade el segmento a los segmentos visitados
+        userCar.isInsideCircuit = currentSegment !== null;
+    }
+
+    function checkLapCompletion() {
+        if (gamemode !== GAMEMODES.RACE) return;
+
+        // Primero se comprueba si se visitaron todos los segmentos y, en tal caso, se comprueba también si se cruzó la línea de meta
+        if (circuit.segments.length === segmentsVisited.size) {
+            if (circuit.hasCrossedFinishLine(userCar)) {
+                segmentsVisited.clear();
+                lapsCompleted++;
+                userCar.boostCounter++; // Se obtiene un turbo al completar una vuelta
+
+                if (lapsCompleted >= lapsToComplete) {
+                    const message = JSON.stringify({
+                        type: "finished",
+                        content: userCar.id
+                    });
+                    if (userCar.id !== null) socket.send(message);
+                }
+            }
+        }
+    }
+
+    function checkIsPressingHorn() {
+        let gainValue = 0;
+        for (let i = 0; i < cars.length; i++) {
+            const car = cars[i];
+            if (car.isPressingHorn) {
+                const distance = Math.sqrt(
+                    Math.pow(car.coords.x - userCar.coords.x, 2) +
+                    Math.pow(car.coords.y - userCar.coords.y, 2)
+                );
+
+                const newGainValue = Math.max(0, 1 - Math.max(0, distance - 50) / 500);
+                if (newGainValue > gainValue) gainValue = newGainValue;
+            }
+        }
+
+        sfxHornGain.gain.value = gainValue; // Más volumen cuanto más cerca esté el sonido
+        sfxHornSrc.playbackRate.value = 1 + gainValue / 20; // Más pitch cuanto más cerca esté el sonido
     }
 
     function applyRotationToSpeed() {
@@ -542,8 +1214,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 car.speed.y *= outsideCircuitMultiplier;
             }
 
-            // Si la velocidad es muy baja, se establece a 0 (threshold de 0.1)
-            if (carUtils.absoluteSpeed(car) < 0.1) {
+            // Si la velocidad es muy baja, se establece a 0 (threshold de 0.01)
+            if (!car.isPressingAccelerateOrBrake && carUtils.absoluteSpeed(car) < 0.01) {
                 car.speed.x = 0;
                 car.speed.y = 0;
             }
@@ -597,21 +1269,18 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                         createNewWheelWearSegment = false;
                     }
-                    else {
-                        createNewWheelWearSegment = true;
-                        wheelWear[0].shift();
-                        wheelWear[1].shift();
-                    }
+                    else createNewWheelWearSegment = true;
                 }
             }
             else {
-                if (car === userCar) {
+                if (car === userCar) { // Si no está derrapando, ir borrando el desgaste de las ruedas
                     createNewWheelWearSegment = true;
                     wheelWear[0].shift();
                     wheelWear[1].shift();
                 }
             }
 
+            // Derrapando o no, si se alcanza el límite de desgaste de las ruedas, se va borrando el desgaste para ahorrar recursos
             if (car === userCar) {
                 if (wheelWear[0].length >= wheelWearLimit) {
                     wheelWear[0].shift();
@@ -622,6 +1291,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateBoostEffects() {
+        // Fuego que sale del tubo de escape
         cars.forEach((car, index) => {
             const localCarVars = localCarVariables[index];
 
@@ -657,36 +1327,168 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
+
+        // Partículas de aire que se mueven al revés que el coche al usar el turbo
+        if (userCar.boostLastUsed === 0) boostAirParticles = []; // Si no se está usando el turbo, no existen partículas de aire
+        else {
+            for (let i = 0; i < boostAirParticles.length; i++) {
+                const boostAirParticle = boostAirParticles[i];
+
+                // Las partículas que se vayan fuera del canvas serán borradas
+                if (
+                    boostAirParticle.x < (0 + userCar.speed.x) / canvasScale ||
+                    boostAirParticle.x > (canvas.width + userCar.speed.x) / canvasScale ||
+                    boostAirParticle.y < (0 + userCar.speed.y) / canvasScale ||
+                    boostAirParticle.y > (canvas.height + userCar.speed.y) / canvasScale
+                ) {
+                    boostAirParticles.splice(i, 1);
+                    i--;
+                    continue;
+                }
+
+                // Actualizar la posición de las partículas de aire para que se muevan en dirección contraria a la del coche
+                const negativeSpeed = new Point(-userCar.speed.x, -userCar.speed.y);
+                boostAirParticle.x += negativeSpeed.x * 2;
+                boostAirParticle.y += negativeSpeed.y * 2;
+            }
+
+            // Si se está usando el turbo, crear partículas de aire
+            if (carUtils.absoluteSpeed(userCar) > 2) {
+                const newParticle = new Point(
+                    Math.random() * (canvas.width + userCar.speed.x) / canvasScale,
+                    Math.random() * (canvas.height + userCar.speed.y) / canvasScale
+                );
+                boostAirParticles.push(newParticle);
+            }
+            else boostAirParticles.splice(0, 1); // Si la velocidad es muy baja, se borran todas las partículas de aire
+        }
     }
 
     // En cada frame, la cámara se sitúa en el centro del coche del jugador
     function updateCamera() {
         let shakingValue = carUtils.absoluteSpeed(userCar) * (userCar.boostLastUsed === 0 ? 1 : 2) / 8; // Si se está usando el turbo, el valor de shaking es el doble
-        camera.x = -userCar.coords.x + canvas.width / 2 - userCar.speed.x * 5 - Math.floor(Math.random() * shakingValue) + shakingValue / 2;
-        camera.y = -userCar.coords.y + canvas.height / 2 - userCar.speed.y * 5 - Math.floor(Math.random() * shakingValue) + shakingValue / 2;
+        camera.x = -userCar.coords.x + canvas.width / 2 / canvasScale - userCar.speed.x * 5 - Math.floor(Math.random() * shakingValue) + shakingValue / 2;
+        camera.y = -userCar.coords.y + canvas.height / 2 / canvasScale - userCar.speed.y * 5 - Math.floor(Math.random() * shakingValue) + shakingValue / 2;
     }
 
     function updatePlaybackRate() {
-        sfxEngine.playbackRate = 0.2 + carUtils.absoluteSpeed(userCar) / 5;
+        const speedRatio = carUtils.absoluteSpeed(userCar) / carUtils.maxSpeed(userCar, movingAirFriction);
+        sfxEngineSrc.playbackRate.value = 0.2 + Math.min(1, speedRatio) * 2.5 + (speedRatio > 1 ? (speedRatio % 0.2) * 3 : 0); // El pitch máximo se obtiene al llegar a la máxima velocidad del coche. Si se consigue ir más rápido que la velocidad máxima, el pitch hace un efecto de rebote
+    }
+
+    /**
+     * Crea, elimina y actualiza los "pulsos" de los bordes del circuitos que van al ritmo de la música.
+     */
+    function updateMusicCircuitEdges() {
+        for (let i = 0; i < musicCircuitEdges.length; i++) {
+            // Si se alcanza el offset máximo, se elimina el pulso. Si no, se aumenta el offset
+            if (musicCircuitEdges[i] >= musicEdgesMaxOffset) musicCircuitEdges.splice(i, 1);
+            else musicCircuitEdges[i] += 2;
+        }
+
+        // Añadir un pulso si la potencia del bajo supera un cierto umbral
+        if (musicBassPower / 100 > 2 && musicEdgesLimiter * fpsController.deltaTime >= musicEdgesMaxLimiter) {
+            musicCircuitEdges.push(0);
+            musicEdgesLimiter = 0;
+        }
+
+        if (musicEdgesLimiter * fpsController.deltaTime < musicEdgesMaxLimiter) musicEdgesLimiter++;
+    }
+
+    function updateMusicBassPower() {
+        musicAnalyser.getByteFrequencyData(musicDataArray);
+    
+        let bassPower = 0;
+        let bassRange = 10; // Aproximadamente las primeras 10 bandas (ajustar según la FFT)
+        
+        for (let i = 0; i < bassRange; i++) {
+            bassPower += musicDataArray[i];
+        }
+        
+        bassPower /= bassRange; // Promedio
+        musicBassPower = bassPower;
+    }
+
+    function updateBoostFillCounter() {
+        if (userCar.isDrifting) {
+            boostFillCounter += 1 * fpsController.deltaTime * Math.min(180, Math.abs(carUtils.speedAngle(userCar) - userCar.direction)) / 25;
+            if (boostFillCounter >= 100) {
+                boostFillCounter -= 100;
+                userCar.boostCounter++;
+            }
+        }
+    }
+
+    /**
+     * Aplica la escala al canvas
+     */
+    function setScale() {
+        ctx.save();
+        ctx.scale(canvasScale, canvasScale);
+    }
+
+    /**
+     * Restaura la escala del canvas
+     */
+    function restoreScale() {
+        ctx.restore();
+    }
+    
+    /**
+     * Actualiza la escala del canvas dependiendo de varios factores
+     */
+    function updateScale() {
+        // Si se está usando el turbo, la cámara se aleja con respecto a la velocidad
+        if (userCar.boostLastUsed !== 0) {
+            const speedRatio = carUtils.absoluteSpeed(userCar) / carUtils.maxSpeed(userCar, movingAirFriction);
+            canvasScale = 1 - (speedRatio - 1) / 10;
+        }
+        else canvasScale = 1;
+    }
+
+    function restoreLocalStorage() {
+        if (localStorage.getItem(STORAGE_KEYS.ACTUAL_CAR_INDEX) !== null) {
+            const index = parseInt(localStorage.getItem(STORAGE_KEYS.ACTUAL_CAR_INDEX));
+            Object.assign(userCar, structuredClone(CARS[index]));
+            carUtils.reset(userCar, circuit.startPoint);
+        }
+
+        if (localStorage.getItem(STORAGE_KEYS.ACTUAL_CAR_COLOR_SHIFT) !== null) {
+            const colorShift = parseInt(localStorage.getItem(STORAGE_KEYS.ACTUAL_CAR_COLOR_SHIFT));
+            userCar.color = colorShift;
+        }
+
+        // Actualizar las variables locales del coche
+        localCarVariables[cars.indexOf(userCar)].reset(userCar, ctx);
     }
 
     function draw(now) {
         window.requestAnimationFrame(draw);
         if (!fpsController.shouldContinue(now)) return;
-        // console.log(fpsController.elapsed);
         
         clearCanvas();
+        setScale();
+
+        drawBackgroundCircles();
         drawCircuit();
+        drawMusicCircuitEdges();
         drawDriftParticles();
         drawCars();
         drawBoostEffects();
         drawUsername();
-        drawDebug();
+        // drawDebug();
+
+        restoreScale(); // Las funciones draw después de esta línea no se verán afectadas por la escala
+        drawForegroundColor();
+        drawUserInterface();
+        drawWinnerPlayer();
 
         checkAiNextMove();
         checkCarControls();
         checkIsDrifting();
         checkIsColliding();
+        checkLapCompletion();
+        checkIsPressingHorn();
 
         applyRotationToSpeed();
         applyBoostMultiplier();
@@ -696,16 +1498,57 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSmokeParticles();
         updateBoostEffects();
         updatePlaybackRate();
+        updateMusicCircuitEdges();
+        updateMusicBassPower();
+        updateBoostFillCounter();
+        updateScale();
         updateCamera();
 
         fpsController.updateLastTime(now);
     }
 
+    restoreLocalStorage();
     initEvents();
     draw();
-});
+};
+document.addEventListener('DOMContentLoaded', handler);
 
-/** TODO list:
+/** MARK: TODO list
+ * - [ ] Implementar modos de juego
+ *     - [X] El juego será solo online, podrán unirse tantas personas como quieran en una sola sala.
+ *     - [X] Entre juego y juego, se estará un par de minutos en la sala de espera.
+ *         - [X] Si hay más de X personas, el contador se reducirá a un número mucho menor.
+ *     - [X] Cuando se termine el tiempo de sala de espera, empezará un modo de juego aleatorio.
+ *     - [ ] Modo de juego resistencia: Aguanta el mayor tiempo posible en un circuito proceduralmente generado donde tu coche irá cada vez más rápido.
+ *     - [X] Modo de juego carrera: Llega antes que cualquier otro a la meta después de X vueltas.
+ *     - [ ] Modo de juego supervivencia: Sé el último en pie en el circuito empujando a tus rivales. Al completar una vuelta ganas un super empuje.
+ *     - [ ] Modo de juego time trial: Completa el circuito en el menor tiempo posible bajo un tiempo límite y sé el que tarde menos en completarlo.
+ *     - [ ] Excepto si está expresamente indicado, los circuitos están previamente definidos (¿feedback de circuitos?).
+ * - [X] Tienes que poder pitar.
+ *     - [X] Al pulsar una tecla, se pita.
+ *     - [X] Puedes escuchar los pitidos de los demás.
+ *     - [X] Según la distancia a la que esté el pitido del que lo escucha, el pitido será más fuerte o más débil.
+ * - [ ] Condiciones meteorológicas.
+ *     - [ ] Lluvia: El coche estará siempre derrapando.
+ *     - [ ] Nieve: El coche tendrá menos agarre.
+ *     - [ ] Viento inestable: El coche es empujado de forma aleatoria.
+ *     - [ ] Niebla: La visibilidad es reducida.
+ * - [ ] Implementar más efectos visuales.
+ *     - [ ] Flechas que están en el suelo que indican la dirección de la pista que van al ritmo de la música.
+ *     - [ ] Mejorar el efecto del viento al usar el turbo.
+ *     - [X] Flashes de colores en la pantalla al ritmo de la música.
+ *     - [X] Círculos de fondo que van aumentando de tamaño y después de cierto tamaño van desapareciendo. También van latiendo al ritmo de la música.
+ *     - [X] Los coches tienen por debajo luces de neón.
+ * - [X] Poder obtener turbo.
+ *     - [X] De forma normal, se obtendrá turbo derrapando.
+ *     - [X] En el modo carrera, cada vez que se completa una vuelta se obtiene un turbo.
+ * - [ ] Mejorar la UI.
+ *     - [X] Mostrar una barra de velocidad junto con los km/h y turbos restantes
+ *     - [X] La cuenta atrás al empezar una partida es más vistosa.
+ *     - [X] La cuenta atrás de esperar a más personas para empezar la partida debe estar centrada arriba del todo.
+ *     - [ ] Mostrar un minimapa del circuito abajo a la izquierda junto con las vueltas restantes.
+ *         - [ ] El minimapa debe mostrar la posición de los coches.
+ *         - [ ] Debe estar bien centrado. Para ello, calcular cómo de ancho y alto es el circuito y ajustarlo en el minimapa.
  * - [X] Implementar sistema de frenado en vez de que al frenar se sume el vector de freno (que no es suficiente potencia para frenados más grandes).
  * - [X] Implementar el sistema de derrape.
  *     - [X] Se hará con el botón espacio.
@@ -719,7 +1562,7 @@ document.addEventListener('DOMContentLoaded', function() {
  *     - [X] Se hace mediante un botón.
  *     - [X] La forma de obtener el turbo depende del modo de juego en el que se esté: ya sea mediante objetos del suelo o completando vueltas en el circuito.
  *     - [X] Mientras se usa el boost, hacer que en la pantalla aparezcan partículas de fuego en la parte trasera del coche.
- *     - [ ] Al usar el boost, aparecen partículas por la pantalla de color blanco que van en la dirección contraria a la velocidad del coche.
+ *     - [X] Al usar el boost, aparecen partículas por la pantalla de color blanco que van en la dirección contraria a la velocidad del coche.
  * - [-] Implementar un creador de circuitos.
  *     - [X] Se podrán crear circuitos con líneas rectas y curvas.
  *     - [-] El circuito debería "unirse" entre segmentos. DELETED: No es necesario unir los segmentos de momento
@@ -730,22 +1573,10 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [X] La marcha atrás + derrape debería de ser más satisfactoria.
  * - [X] Mejorar las partículas de humo.
  * - [X] BUG: El derrape ahora en 180 grados detecta que se está marcha atrás.
- * - [ ] Implementar modos de juego
- *     - [ ] El juego será solo online, podrán unirse tantas personas como quieran en una sola sala.
- *     - [ ] Entre juego y juego, se estará un par de minutos en la sala de espera.
- *         - [ ] Si hay más de X personas, el contador se reducirá a un número mucho menor.
- *         - [ ] En la sala de espera, además de conducir mientras tanto, podrás cambiar tu coche (¿modificarlo?)
- *     - [ ] Cuando se termine el tiempo de sala de espera, empezará un modo de juego aleatorio.
- *     - [ ] Modo de juego resistencia: Aguanta el mayor tiempo posible en un circuito proceduralmente generado donde tu coche irá cada vez más rápido.
- *     - [ ] Modo de juego carrera: Llega antes que cualquier otro a la meta después de X vueltas.
- *     - [ ] Modo de juego supervivencia: Sé el último en pie en el circuito empujando a tus rivales. Al completar una vuelta ganas un super empuje.
- *     - [ ] Excepto si está expresamente indicado, los circuitos están previamente definidos (¿feedback de circuitos?).
- * - [ ] Implementar música.
+ * - [X] Implementar música.
  * - [X] Implementar efectos de sonido.
  * - [X] BUG: Cuantos más FPS vaya el juego, más rápido va el coche (hay que implementar el delta time).
  * - [X] BUG: Al poner el último arco al revés, no se detecta si se está dentro de dicho arco.
- * - [ ] Tienes que poder pitar.
- * - [ ] Condiciones meteorológicas.
  * - [X] Realizar el giro del coche de forma más suave si no se mantienen pulsadas las teclas.
  * - [X] Optimizar el servidor evitando que se envíen: el array del rastro en el suelo (solo se verán las del propio usuario).
  * - [X] BUG: Al cambiar de ventana y volver, el delta time se vuelve muy grande.
@@ -753,4 +1584,7 @@ document.addEventListener('DOMContentLoaded', function() {
  * - [X] Hacer que las partículas de desgaste de las ruedas no pasen al servidor.
  * - [X] Implementar sistema de aceleración.
  * - [X] Implementar coches con IA.
+ * - [X] Implementar un creador de circuitos, donde envíes el circuito al servidor.
+ * - [X] Hacer que después de X frames, si no se ha movido el coche dejar de enviar la información al servidor, en vez de enviar info solo cuando se mueva para solucionar el problema de datos imprecisos.
+ * - [X] BUG: La detección de la línea de meta no funciona correctamente.
  */

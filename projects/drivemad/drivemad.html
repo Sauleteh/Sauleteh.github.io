@@ -7,14 +7,16 @@
     <link rel="stylesheet" href="drivemad.css">
     <link rel="stylesheet" href="/background.css">
     <link rel="stylesheet" href="/themes.css">
-    <script type="module" src="./js/game.js"></script>
+    <script type="module" src="./js/global.js"></script>
+    <script type="module" id="menu" src="./js/menu.js"></script>
 </head>
 <body>
     <h1>Drive Mad</h1>
     <div class="canvas">
-        <canvas class="game"></canvas>
+        <canvas tabindex="0" class="game"></canvas>
     </div>
 
-    <audio hidden id="sfxEngine" src="./assets/car_engine.wav" alt="Efecto de sonido para el motor del coche"></audio>
+    <img hidden id="spriteUI" src="./assets/images/ui.png" alt="Sprite para la interfaz de usuario" />
+    <img hidden id="spriteVehicles" src="./assets/images/vehicles.png" alt="Sprite para los diferentes vehículos" />
 </body>
 </html>

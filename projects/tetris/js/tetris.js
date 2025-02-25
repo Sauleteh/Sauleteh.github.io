@@ -112,11 +112,13 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
 
     function initEvents() {
         document.addEventListener("keydown", function(event) {
+            if (document.activeElement === canvas) event.preventDefault();
             const { key } = event;
             controls.checkControls(key, "down");
         });
 
         document.addEventListener("keyup", function(event) {
+            if (document.activeElement === canvas) event.preventDefault();
             const { key } = event;
             controls.checkControls(key, "up");
         });
@@ -249,7 +251,7 @@ document.addEventListener("DOMContentLoaded", function() { // Cargar JS cuando e
                         $spriteSquares,
                         square.color * 16, // Posición X del cuadrado en la imagen
                         0, // Posición Y del cuadrado en la imagen
-                        16, // An cho del cuadrado en la imagen
+                        16, // Ancho del cuadrado en la imagen
                         16, // Alto del cuadrado en la imagen
                         j * Constants.SQUARE_SIZE, // Posición X del cuadrado
                         i * Constants.SQUARE_SIZE, // Posición Y del cuadrado

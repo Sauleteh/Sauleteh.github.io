@@ -22,8 +22,249 @@ h1 {
 }
 
 canvas.game {
-    border: 8px solid black;
-    background-color: white;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+    background-color: rgb(0, 0, 0);
     margin: 0 auto;
     image-rendering: pixelated;
+    cursor: none;
+}
+
+.controls-primary {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.controls-secondary {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.controls-tertiary {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+}
+
+.controls-primary-right {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.controls-create-circuit, .controls-straight-line, .controls-arc, .controls-howtoclose {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+}
+
+.controls-primary-left {
+    display: flex;
+    flex-direction: column;
+    max-height: 182px;
+}
+
+.controls-segment-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    width: 250px;
+    flex: 1;
+    box-sizing: border-box;
+    background-color: var(--ld-project-circledodger-background-primary);
+    border: 1px solid var(--ld-project-circledodger-color-3);
+    border-radius: 5px;
+    overflow-y: scroll;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ld-project-circledodger-color-3) transparent;
+}
+
+.controls-segment-list-item {
+    font-family: 'Raleway', sans-serif;
+    color: var(--ld-project-circledodger-text);
+    font-size: 12px;
+    padding: 5px 10px;
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    gap: 5px;
+
+    &:nth-child(even) { background-color: var(--ld-project-circledodger-background-secondary); }
+}
+
+.controls-segment-list-item-text {
+    flex-grow: 1;
+}
+
+.controls-segment-list-item-button {
+    appearance: none;
+    border: 0;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+
+    background-color: transparent;
+    background-size: 14px;
+    background-repeat: no-repeat;
+    filter: invert(0.6);
+
+    &.controls-segment-list-item-button-edit { background-image: url("/icons/edit-pen-icon.svg"); }
+    &.controls-segment-list-item-button-delete { background-image: url("/icons/recycle-bin-icon.svg"); }
+
+    &:hover { filter: invert(0.8); }
+    &:active { filter: invert(1); transform: scale(0.95); }
+    &:disabled { filter: invert(0.3); cursor: not-allowed; }
+}
+
+.controls-button {
+    background-color: var(--ld-project-circledodger-background-primary);
+    color: var(--ld-project-circledodger-text);
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--ld-project-circledodger-color-3);
+    font-family: 'Raleway', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+
+    &:hover { background-color: var(--ld-project-circledodger-background-secondary); }
+    &:active { background-color: var(--ld-project-circledodger-background-tertiary); transform: scale(0.95); }
+
+    &#btnZoomOut {
+        border-right: 0;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    &#btnZoomIn {
+        border-left: 0;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    &#btnZoomReset {
+        border-left: 0;
+        border-right: 0;
+        border-radius: 0;
+    }
+
+    &#btnZoomOut, &#btnZoomIn, &#btnZoomReset {
+        &:active { background-color: var(--ld-project-circledodger-background-tertiary); transform: scale(1); }
+    }
+
+    &#btnImport, &#btnExport, &#btnSubmit, &#btnSubmitDialog, &#btnCancelDialog {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    &#btnSubmit, &#btnSubmitDialog {
+        background-color: var(--ld-project-circledodger-text);
+        color: var(--ld-project-circledodger-text-invert);
+
+        &:hover { filter: brightness(0.9); }
+        &:active { transform: scale(0.95); }
+    }
+
+    &#btnCancelDialog {
+        background-color: crimson;
+        color: white;
+        border: 1px solid darkred;
+
+        &:hover { filter: brightness(0.9); }
+        &:active { transform: scale(0.95); }
+    }
+
+    &:disabled {
+        filter: invert(0.3);
+        cursor: not-allowed;
+    }
+}
+
+.controls-zoom {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.controls-input {
+    background-color: var(--ld-project-circledodger-background-primary);
+    color: var(--ld-project-circledodger-text);
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--ld-project-circledodger-color-3);
+    font-family: 'Raleway', sans-serif;
+    font-size: 14px;
+    flex-grow: 1;
+    width: 130px;
+
+    &#yourName, &#circuitName, &#circuitLocation, &#circuitLength {
+        width: auto;
+    }
+
+    &:focus { outline: none; border: 1px solid var(--ld-project-circledodger-text); }
+    &:hover { background-color: var(--ld-project-circledodger-background-secondary); }
+
+    &:disabled {
+        filter: invert(0.3);
+        cursor: not-allowed;
+    }
+}
+
+.controls-output-multiline {
+    white-space: pre-wrap;
+    background-color: var(--ld-project-circledodger-background-primary);
+    color: orange;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--ld-project-circledodger-color-1);
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+    font-family: 'Raleway', sans-serif;
+    font-size: 14px;
+    min-width: 500px;
+    flex-grow: 1;
+}
+
+.controls-div {
+    margin: 20px 0px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.controls-button-icon {
+    width: 16px;
+    height: 16px;
+    filter: invert(1);
+}
+
+.controls-button#btnSubmit > .controls-button-icon, .controls-button#btnSubmitDialog > .controls-button-icon {
+    filter: invert(0);
+}
+
+.creator-dialog {
+    background-color: var(--ld-project-circledodger-background-primary);
+    border-radius: 5px;
+    border: 1px solid var(--ld-project-circledodger-color-3);
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+
+    &::backdrop {
+        backdrop-filter: blur(2px);
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+}
+
+.creator-dialog-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 300px;
+}
+
+.creator-dialog-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
 }
