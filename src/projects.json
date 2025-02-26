@@ -1,12 +1,22 @@
 [
     {
+        "title": "Drive Mad",
+        "platform": "Web | HTML, CSS y JS (frontend), Node.js y websockets (backend)",
+        "description": "Juego de carreras online 2D con coches donde deberás competir para ser el mejor. Elige el coche que mejor se adapte a tu estilo de conducción y compite en los distintos modos de juego. Cuenta con creador de circuitos que, si es relativamente bueno, puede llegar a estar disponible en el juego.",
+        "thumbnail": "/project-images/drivemad.webp",
+        "link": "/projects/drivemad",
+        "linkToPopup": false,
+        "tag": "progress",
+        "theme": "Videojuegos"
+    },
+    {
         "title": "Valorant: Controlador de música automático",
         "platform": "Windows | Rust",
         "description": "Reanuda/pausa y controla el volumen de la música automáticamente dependiendo del estado de la partida en la que estés en Valorant. Interfaz gráfica hecha con eframe/egui. Versión CLI también disponible.",
         "thumbnail": "/project-images/valorant-auto-music-controller.webp",
         "link": "https://github.com/Sauleteh/valorant-music-controller-gui",
         "linkToPopup": false,
-        "tag": "new",
+        "tag": "",
         "theme": "Programas para/sobre juegos"
     },
     {
@@ -337,16 +347,6 @@
         "link": "https://github.com/Sauleteh/Minecraft-Bot-Mod",
         "linkToPopup": false,
         "tag": "paused",
-        "theme": "Sin terminar (WIP)"
-    },
-    {
-        "title": "Drive Mad",
-        "platform": "Web | HTML, CSS y JS (frontend), Node.js y websockets (backend)",
-        "description": "Juego de carreras online 2D con coches donde deberás competir para ser el mejor. Elige el coche que mejor se adapte a tu estilo de conducción y compite en los distintos modos de juego.",
-        "thumbnail": "/project-images/placeholder.webp",
-        "link": "/projects/drivemad",
-        "linkToPopup": false,
-        "tag": "progress",
         "theme": "Sin terminar (WIP)"
     }
 ]
